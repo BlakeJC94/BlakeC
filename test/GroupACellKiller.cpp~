@@ -53,9 +53,13 @@ void GroupACellKiller::CheckAndLabelCellsForApoptosisOrDeath()
     {
         c_vector<double, 2> location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
-        //if ( (cell_iter->HasCellProperty<GroupACellProperty>()) && (pow(location[0], 2) + pow(location[1], 2) > 25.0) )
+        if ( (cell_iter->HasCellProperty<CellLabel>()) && (pow(location[0], 2) + pow(location[1], 2) > 25.0) )
         {
-        //    cell_iter->Kill();
+            cell_iter->Kill();
+        }
+        else if ( !(cell_iter->HasCellProperty<CellLabel>()) && ( (pow(location[0], 2) + pow(location[1], 2) > 49.0) || (pow(location[0], 2) + pow(location[1], 2) < 4.0) ) )
+        {
+            cell_iter->Kill();
         }
     }
 }
