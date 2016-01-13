@@ -164,16 +164,31 @@ public:
              cell_iter != rCellPopulation.End();
              ++cell_iter)
         {
-            double cell_x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
-            double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
+            unsigned node_index = this->rCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+            Node<2>* p_node = this->rCellPopulation->GetNode(node_index);
+            double x_coordinate = p_node->rGetLocation()[0];
+            double y_coordinate = p_node->rGetLocation()[1];
+                        
+            //double cell_x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
+            //double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
 
-            cell_iter->GetCellData()->SetItem("x ord", cell_x);
-            cell_iter->GetCellData()->SetItem("y ord", cell_y);
+            //cell_iter->GetCellData()->SetItem("x ord", cell_x);
+            //cell_iter->GetCellData()->SetItem("y ord", cell_y);
             
-            if (cell_x == -5.0)
+            if (x_coordinate <= -5.0)
             {
-                
+                p_node->rGetModifiableLocation()[0] = 5.0;
             }
+            //else if (x_coordinate == 5.0)
+            //{
+            //}
+            //else if (y_coordinate == -5.0)
+            //{
+            //}
+            //else if (y_coordinate == 5.0)
+            //{
+            //}
+            
         }
     }
 

@@ -60,7 +60,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StochasticDurationCellCycleModel.hpp"
 
 #include "TCellDiffusionForce.hpp"
-#include "TCellPortalSimulationModifier.hpp"
+//#include "TCellPortalSimulationModifier.hpp"
+#include "TCellBoundaryCondition.hpp"
 
 class TCellSimulation : public AbstractCellBasedTestSuite
 {
@@ -68,7 +69,7 @@ public:
 
     void TestTCellSimulation() throw(Exception)
     {
-        unsigned num_cells = 100;
+        unsigned num_cells = 5;
         double initial_domain_length = 10;
 
         std::vector<Node<2>*> nodes;
@@ -103,8 +104,11 @@ public:
         MAKE_PTR(TCellDiffusionForce<2>, p_diffusion_force);
         simulator.AddForce(p_diffusion_force);
         
-        MAKE_PTR(TCellPortalSimulationModifier, p_modifier);
-        simulator.AddSimulationModifier(p_modifier);
+        //MAKE_PTR(TCellPortalSimulationModifier, p_modifier);
+        //simulator.AddSimulationModifier(p_modifier);
+        
+        MAKE_PTR_ARGS(TCellBoundaryCondition, p_bc, (&cell_population));
+        simulator.AddCellPopulationBoundaryCondition(p_bc);
         
         
         simulator.Solve();
