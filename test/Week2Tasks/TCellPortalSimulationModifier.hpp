@@ -174,6 +174,16 @@ public:
             {
                 // ?? How do we change the cell positions?
             }
+            else if (cell_x == 5.0)
+            {
+            }
+            else if (cell_y == -5.0)
+            {
+            }
+            else if (cell_y == 5.0)
+            {
+            }
+            
         }
     }
 
