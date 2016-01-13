@@ -35,33 +35,29 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
+
+/* The purpose of this exercise was to begin the foundation of T-cell simulation for later integration
+ * into the final model. Only the labelled T-cells will be focussed on here, no tumor growth. We 
+ * assert that these cells dont divide, dont die and experience repulsion forces between each other. 
+ * We treat the simulation area as a square box with side length 10 centered at the origin. */
+
+/* Task 0: Get a working base that randomly spawns the T cells throughout the box */
+
+
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 
-/* The following header is usually included in all cell-based test suites. It enables us to write tests where the {{{SimulationTime}}} is handled automatically and simplifies the tests.*/
 #include "AbstractCellBasedTestSuite.hpp"
 #include "PetscSetupAndFinalize.hpp"
-/* The remaining header files define classes that will be used in the cell population
- * simulation test. We encountered some of these header files in
- * UserTutorials/RunningMeshBasedSimulations. */
 #include "CellsGenerator.hpp"
-#include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
-#include "StochasticDurationCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
-/* The next header file defines the class for storing the spatial information of cells. */
 #include "NodesOnlyMesh.hpp"
-/* The next header file defines a node-based {{{CellPopulation}}} class.*/
 #include "NodeBasedCellPopulation.hpp"
-/* The next header file defines a random cell killer to be used a a temporary placeholder.*/
-#include "RandomCellKiller.hpp"
 #include "RepulsionForce.hpp"
-#include "TCellRLForce.hpp"
-//#include "DiffusionForce.hpp"
 
+#include "StochasticDurationCellCycleModel.hpp"
 
 class TCellSimulation : public AbstractCellBasedTestSuite
 {
@@ -97,22 +93,14 @@ public:
         simulator.SetSamplingTimestepMultiple(6);
         simulator.SetEndTime(45.0);
         
-        MAKE_PTR_ARGS(TCellRLForce, p_force, (0.5));
+        MAKE_PTR(RepulsionForce<2>, p_force);
         simulator.AddForce(p_force);
         
-        MAKE_PTR(RepulsionForce<2>, p_repulsion_force);
-        simulator.AddForce(p_repulsion_force);
-        
-        //MAKE_PTR(DiffusionForce<2>, p_diffusion_force);
-        //simulator.AddForce(p_diffusion_force);
-        
-        // Same issue as before. Incorperating Diffusion and RLForce together causes problems
-        
-        //MAKE_PTR(TCellPortalSimulationModifier, p_modifier);
-        //simulator.AddSimulationModifier(p_modifier);
-        
+
         simulator.Solve();
         
     }
 };
 
+
+// Pass

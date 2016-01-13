@@ -17,7 +17,7 @@ Kidney cell simulations provided by James Osborne.
         a. Implement a diffusion force and repulsion force for more random movement
     
     2. Write a SimulationModifer that moves cells that leave the box boundaries. 
-        That is,Once a cell arrives at x,y = +-5, set x,y = -+5
+        That is, once a cell arrives at x,y = +-5, set x,y = -+5
     
 
 For future tasks we will need to consider:

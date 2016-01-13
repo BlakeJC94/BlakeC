@@ -164,15 +164,16 @@ public:
              cell_iter != rCellPopulation.End();
              ++cell_iter)
         {
-            /*
-             * ...find its height...
-             */
-            double cell_height = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
+            double cell_x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
+            double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
 
-            /*
-             * ...and store this in the {{{CellData}}} item "height".
-             */
-            cell_iter->GetCellData()->SetItem("height", cell_height);
+            cell_iter->GetCellData()->SetItem("x ord", cell_x);
+            cell_iter->GetCellData()->SetItem("y ord", cell_y);
+            
+            if (cell_x == -5.0)
+            {
+                // ?? How do we change the cell positions?
+            }
         }
     }
 
