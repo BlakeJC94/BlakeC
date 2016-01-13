@@ -1,0 +1,24 @@
+CHASTE: First exercise descpription ---------------------------------
+---------------------------------------------------------------------
+
+The purpose of this exercise was to learn how to design, run and add new functionality to
+basic node-based simulations. 
+
+
+The simulation began with growing a simple blob of cells at the origin.
+
+3 Tasks were assigned for this simulation:
+
+    0. Get a working base for growing a simple blob of cells
+
+    1. Write a CellKiller that will kill cells outside region of a disk with radius 5
+    
+    2. Randomly divide the cell population into Group A and Group B
+        a. Group A cells die outside the region of a disc of radius 5
+        b. Group B cells die outside the region of an annulus with inner 
+            radius 2 and outer radius 7
+    
+    3. Write a new CellCycleModel such that:
+        a. Group A cells divide accorrding to a U[11, 13] distribution
+        b. Broup B cells divide according to an E[1/12] distribution
+        
