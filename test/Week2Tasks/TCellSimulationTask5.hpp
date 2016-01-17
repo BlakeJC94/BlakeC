@@ -40,7 +40,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * assert that these cells dont divide, dont die and experience repulsion forces between each other. 
  * We treat the simulation area as a square box with side length 10 centered at the origin. */
 
-/* Task 4: Revise CellForce and CellCycle for the added tumor cells */ 
+/* Task 5. Writing a contact-based CellKiller */ 
 
 
 #include <cxxtest/TestSuite.h>
@@ -59,6 +59,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellTumorCellCycleModel.hpp"
 #include "TCellDiffusionForce.hpp"
 #include "TCellBoundaryCondition.hpp"
+#include "TCellTumorCellKiller.hpp"
+
 
 class TCellSimulation : public AbstractCellBasedTestSuite
 {
@@ -69,10 +71,11 @@ public:
     
         // T Cell simulation options
         unsigned num_t_cells = 5;
-        double initial_domain_length = 10;
+        double initial_domain_length = 10; // Consider making this domain larger later
 
 
         // Generate T Cell nodes (random loactions in square domain)
+        //     Possible issue: stop T cells spawning in the middle of a tumor?
         std::vector<Node<2>*> nodes;
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         for (unsigned index = 0; index < num_t_cells; index++)
@@ -84,10 +87,10 @@ public:
         
         
         // Manually create nodes for Tumor Cells near origin
-        nodes.push_back(new Node<2>(1 + num_t_cells, false, 1, 1));
-        nodes.push_back(new Node<2>(2 + num_t_cells, false, 1, -1));
-        nodes.push_back(new Node<2>(3 + num_t_cells, false, -1, 1));
-        nodes.push_back(new Node<2>(4 + num_t_cells, false, -1, -1));
+        nodes.push_back(new Node<2>(1 + num_t_cells, false, 0.5, 0.5));
+        nodes.push_back(new Node<2>(2 + num_t_cells, false, 0.5, -0.5));
+        nodes.push_back(new Node<2>(3 + num_t_cells, false, -0.5, 0.5));
+        nodes.push_back(new Node<2>(4 + num_t_cells, false, -0.5, -0.5));
         
         
         // Generate mesh
@@ -152,6 +155,10 @@ public:
         // Add "portal" boundary condition on edges of square region
         MAKE_PTR_ARGS(TCellBoundaryCondition, p_bc, (&cell_population));
         simulator.AddCellPopulationBoundaryCondition(p_bc);
+        
+        // Add cell killer (kills tumor cells instantly when a T Cell is nearby)
+        MAKE_PTR_ARGS(TCellTumorCellKiller, p_cell_killer, (&cell_population));
+        simulator.AddCellKiller(p_cell_killer);
         
 
         simulator.Solve();
