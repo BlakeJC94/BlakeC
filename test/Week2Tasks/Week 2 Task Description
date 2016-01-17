@@ -9,7 +9,7 @@ We treat the simulation area as a square box with side length 10 centered at the
 The simulation began with randomly spawning 100 cells throughout the box using code provided from
 Kidney cell simulations provided by James Osborne.
 
-2 Tasks were assigned for this simulation:
+4 Tasks were assigned for this simulation:
 
     0. Get a working base that randomly spawns the T cells throughout the box
 
@@ -19,12 +19,13 @@ Kidney cell simulations provided by James Osborne.
     2. Write a SimulationModifer that moves cells that leave the box boundaries. 
         That is, once a cell arrives at x,y = +-5, set x,y = -+5
     
-
-For future tasks we will need to consider:
-
-    - How to couple this T-cell simulation with a tumor growth simulation
+    3. Couple T-cell simulation with a tumor growth simulation
     
-    - Writing a contact-based CellKiller
+    4. Revise simulation components for added tumor cells 
+        a. CellCycle (divide stochastically if not labelled, otherwise no division) 
+        b. CellForce (generalised linear spring force if not labelled, otherwise repel and diffuse)
+    
+    5. Writing a contact-based CellKiller
         (Using some code from Delta-NotchTrackingModifer to analyse neighbouring cells)
         
 

@@ -33,15 +33,15 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "TCellDiffusionForce.hpp"
+#include "TCellTumorForce.hpp"
 #include "NodeBasedCellPopulation.hpp"
 
 //Static constant is instantiated here.
 template<unsigned DIM>
-const double TCellDiffusionForce<DIM>::msBoltzmannConstant = 4.97033568e-7;
+const double TCellTumorForce<DIM>::msBoltzmannConstant = 4.97033568e-7;
 
 template<unsigned DIM>
-TCellDiffusionForce<DIM>::TCellDiffusionForce()
+TCellTumorForce<DIM>::TCellTumorForce()
     : AbstractForce<DIM>(),
       mAbsoluteTemperature(296.0), // default to room temperature
       mViscosity(3.204e-6) // default to viscosity of water at room temperature in (using 10 microns and hours)
@@ -49,44 +49,44 @@ TCellDiffusionForce<DIM>::TCellDiffusionForce()
 }
 
 template<unsigned DIM>
-TCellDiffusionForce<DIM>::~TCellDiffusionForce()
+TCellTumorForce<DIM>::~TCellTumorForce()
 {
 }
 
 template<unsigned DIM>
-void TCellDiffusionForce<DIM>::SetAbsoluteTemperature(double newValue)
+void TCellTumorForce<DIM>::SetAbsoluteTemperature(double newValue)
 {
     assert(newValue > 0.0);
     mAbsoluteTemperature = newValue;
 }
 
 template<unsigned DIM>
-double TCellDiffusionForce<DIM>::GetAbsoluteTemperature()
+double TCellTumorForce<DIM>::GetAbsoluteTemperature()
 {
     return mAbsoluteTemperature;
 }
 
 template<unsigned DIM>
-void TCellDiffusionForce<DIM>::SetViscosity(double newValue)
+void TCellTumorForce<DIM>::SetViscosity(double newValue)
 {
     assert(newValue > 0.0);
     mViscosity = newValue;
 }
 
 template<unsigned DIM>
-double TCellDiffusionForce<DIM>::GetViscosity()
+double TCellTumorForce<DIM>::GetViscosity()
 {
     return mViscosity;
 }
 
 template<unsigned DIM>
-double TCellDiffusionForce<DIM>::GetDiffusionScalingConstant()
+double TCellTumorForce<DIM>::GetDiffusionScalingConstant()
 {
     return msBoltzmannConstant*mAbsoluteTemperature/(6.0*mViscosity*M_PI);
 }
 
 template<unsigned DIM>
-void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation)
+void TCellTumorForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation)
 {
     double dt = SimulationTime::Instance()->GetTimeStep();
 
@@ -103,51 +103,54 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
         if (node_radius == 0.0)
         {
             // ...so throw an exception to avoid dividing by zero when we compute diffusion_constant below
-            EXCEPTION("SetRadius() must be called on each Node before calling TCellDiffusionForce::AddForceContribution() to avoid a division by zero error");
+            EXCEPTION("SetRadius() must be called on each Node before calling TCellTumorForce::AddForceContribution() to avoid a division by zero error");
         }
-
-        double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
-
-        /*
-         * Compute the diffusion coefficient D as D = k*T/(6*pi*eta*r), where
-         *
-         * k = Boltzmann's constant,
-         * T = absolute temperature,
-         * eta = dynamic viscosity,
-         * r = cell radius.
-         */
-        double diffusion_const_scaling = GetDiffusionScalingConstant();
-        double diffusion_constant = diffusion_const_scaling/node_radius;
-
-        c_vector<double, DIM> force_contribution;
-        for (unsigned i=0; i<DIM; i++)
+        
+        if (node_index < 5) // I will need a better way to set this value
         {
+            double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
+
             /*
-             * The force on this cell is scaled with the timestep such that when it is
-             * used in the discretised equation of motion for the cell, we obtain the
-             * correct formula
+             * Compute the diffusion coefficient D as D = k*T/(6*pi*eta*r), where
              *
-             * x_new = x_old + sqrt(2*D*dt)*W
-             *
-             * where W is a standard normal random variable.
+             * k = Boltzmann's constant,
+             * T = absolute temperature,
+             * eta = dynamic viscosity,
+             * r = cell radius.
              */
-            double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
-            
-            if (i==0)
+            double diffusion_const_scaling = GetDiffusionScalingConstant();
+            double diffusion_constant = diffusion_const_scaling/node_radius;
+
+            c_vector<double, DIM> force_contribution;
+            for (unsigned i=0; i<DIM; i++)
             {
-                force_contribution[i] = (nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi - 0.5;
+                /*
+                 * The force on this cell is scaled with the timestep such that when it is
+                 * used in the discretised equation of motion for the cell, we obtain the
+                 * correct formula
+                 *
+                 * x_new = x_old + sqrt(2*D*dt)*W
+                 *
+                 * where W is a standard normal random variable.
+                 */
+                double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
+                
+                if (i==0)
+                {
+                    force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi) - 0.5;
+                }
+                else
+                {
+                    force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi);
+                }
             }
-            else
-            {
-                force_contribution[i] = (nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
-            }
+            node_iter->AddAppliedForceContribution(force_contribution);
         }
-        node_iter->AddAppliedForceContribution(force_contribution);
     }
 }
 
 template<unsigned DIM>
-void TCellDiffusionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
+void TCellTumorForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<AbsoluteTemperature>" << mAbsoluteTemperature << "</AbsoluteTemperature> \n";
     *rParamsFile << "\t\t\t<Viscosity>" << mViscosity << "</Viscosity> \n";
@@ -157,10 +160,10 @@ void TCellDiffusionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 }
 
 // Explicit instantiation
-template class TCellDiffusionForce<1>;
-template class TCellDiffusionForce<2>;
-template class TCellDiffusionForce<3>;
+template class TCellTumorForce<1>;
+template class TCellTumorForce<2>;
+template class TCellTumorForce<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(TCellDiffusionForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(TCellTumorForce)

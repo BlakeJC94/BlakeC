@@ -135,11 +135,11 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
             
             if (i==0)
             {
-                force_contribution[i] = (nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi - 0.5;
+                force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi) - 0.5;
             }
             else
             {
-                force_contribution[i] = (nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
+                force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi);
             }
         }
         node_iter->AddAppliedForceContribution(force_contribution);
