@@ -108,11 +108,11 @@ private:
         {
             if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
             {
-                mG1Duration = -log(uniform_random_number)*GetStemCellG1Duration() ; // E[1]
+                mG1Duration = -log(uniform_random_number)*GetStemCellG1Duration() * 12; // E[12]
             }
             else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
             {
-                mG1Duration = -log(uniform_random_number)*GetTransitCellG1Duration() ; // E[1]
+                mG1Duration = -log(uniform_random_number)*GetTransitCellG1Duration() * 12; // E[12]
             }
             else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
             {
