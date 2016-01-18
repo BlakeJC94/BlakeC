@@ -70,20 +70,24 @@ public:
     void TestTCellSimulation() throw(Exception)
     {
     
-        // T Cell simulation intial state options
+        // T Cell simulation options
         unsigned num_t_cells = 5;
-        unsigned num_tumor_cells = 4;
+        //double initial_domain_length = 10; // Consider making this domain larger later
         double initial_domain_radius = 5;
 
 
-        // Generate T Cell nodes (random loactions in annular domain 2<r<5)
+        // Generate T Cell nodes (random loactions in square domain)
         //     Possible issue: stop T cells spawning in the middle of a tumor?
         std::vector<Node<2>*> nodes;
-
+        //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_r = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
         for (unsigned index = 0; index < num_t_cells; index++)
-        {            
+        {
+            //nodes.push_back(new Node<2>(index, false, 
+            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length ,  
+            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length));
+            
             double radial_coord = (initial_domain_radius - 2)*p_gen_r->ranf() + 2;
             double angular_coord = p_gen_theta->ranf() * 6.283185307;
             
@@ -92,28 +96,13 @@ public:
                 radial_coord * sin(angular_coord)));
         }
         
-        // Generate Tumor Cell nodes (random loactions in circular domain r<2)
-        for (unsigned index = 0; index < num_tumor_cells; index++)
-        {
-            //nodes.push_back(new Node<2>(index, false, 
-            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length ,  
-            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length));
-            
-            double radial_coord = 2*p_gen_r->ranf();
-            double angular_coord = p_gen_theta->ranf() * 6.283185307;
-            
-            nodes.push_back(new Node<2>(index, false, 
-                radial_coord * cos(angular_coord) ,  
-                radial_coord * sin(angular_coord)));
-        }
         
-        /*
         // Manually create nodes for Tumor Cells near origin
         nodes.push_back(new Node<2>(1 + num_t_cells, false, 0.5, 0.5));
         nodes.push_back(new Node<2>(2 + num_t_cells, false, 0.5, -0.5));
         nodes.push_back(new Node<2>(3 + num_t_cells, false, -0.5, 0.5));
         nodes.push_back(new Node<2>(4 + num_t_cells, false, -0.5, -0.5));
-        */
+        
         
         // Generate mesh
         NodesOnlyMesh<2> mesh;
@@ -188,4 +177,4 @@ public:
     }
 };
 
-// Pass
+// Unfinished
