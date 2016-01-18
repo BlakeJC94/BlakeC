@@ -41,7 +41,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * more flexiblew with cell counts and a more sophisticted CellCycleModel for T Cells
  * as well as a new label to protect the primary T Cell spawner. */
 
-/* Task 0. Re-write components to act on CellLabels rather than cell counts */ 
+/* Task 1. Write new CellProperties "TCell" and "ImTCell" */ 
 
 
 #include <cxxtest/TestSuite.h>
@@ -62,6 +62,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellTumorCellKiller.hpp"
 #include "TCellTumorSpringForce.hpp"
 
+#include "TCellProperty.hpp"
+#include "ImmortalCellProperty.hpp"
+
 
 class TCellSimulation : public AbstractCellBasedTestSuite
 {
@@ -70,24 +73,26 @@ public:
     void TestTCellSimulation() throw(Exception)
     {
     
-        // T Cell simulation options
+        // T Cell simulation intial state options
         unsigned num_t_cells = 5;
-        //double initial_domain_length = 10; // Consider making this domain larger later
+        unsigned num_tumor_cells = 4;
         double initial_domain_radius = 5;
-
-
-        // Generate T Cell nodes (random loactions in square domain)
-        //     Possible issue: stop T cells spawning in the middle of a tumor?
+        
         std::vector<Node<2>*> nodes;
-        //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        
+        
+        /*      --- Inactive until TCellProperty is working ---
+        // Generate Immortal T Cell node (spawn controller for futre revs) 
+        //     node index = 0
+        nodes.push_back(new Node<2>(0, false, 4 , 0));
+        */
+        
+        // Generate T Cell nodes (random loactions in annular domain 2<r<5)
+        //     node index range = [0, num_t_cells - 1]
         RandomNumberGenerator* p_gen_r = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
         for (unsigned index = 0; index < num_t_cells; index++)
-        {
-            //nodes.push_back(new Node<2>(index, false, 
-            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length ,  
-            //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length));
-            
+        {            
             double radial_coord = (initial_domain_radius - 2)*p_gen_r->ranf() + 2;
             double angular_coord = p_gen_theta->ranf() * 6.283185307;
             
@@ -96,12 +101,17 @@ public:
                 radial_coord * sin(angular_coord)));
         }
         
-        
-        // Manually create nodes for Tumor Cells near origin
-        nodes.push_back(new Node<2>(1 + num_t_cells, false, 0.5, 0.5));
-        nodes.push_back(new Node<2>(2 + num_t_cells, false, 0.5, -0.5));
-        nodes.push_back(new Node<2>(3 + num_t_cells, false, -0.5, 0.5));
-        nodes.push_back(new Node<2>(4 + num_t_cells, false, -0.5, -0.5));
+        // Generate Tumor Cell nodes (random loactions in circular domain r<1)
+        //     node index range = [num_t_cells, num_t_cells + num_tumor_cells]
+        for (unsigned index = 0; index < num_tumor_cells; index++)
+        {
+            double radial_coord = p_gen_r->ranf();
+            double angular_coord = p_gen_theta->ranf() * 6.283185307;
+            
+            nodes.push_back(new Node<2>(index, false, 
+                radial_coord * cos(angular_coord) ,  
+                radial_coord * sin(angular_coord)));
+        }
         
         
         // Generate mesh
@@ -112,7 +122,8 @@ public:
         // Generate cells
         std::vector<CellPtr> cells;
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        MAKE_PTR(CellLabel, p_label); 
+        MAKE_PTR(TCellProperty, p_t_cell_label); 
+        //MAKE_PTR(ImmortalCellProperty, p_imm_cell_label); 
         MAKE_PTR(WildTypeCellMutationState, p_state);
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -126,8 +137,21 @@ public:
             
             if (i < num_t_cells) // Label T Cells
             {
-                collection.AddProperty(p_label);
+                collection.AddProperty(p_t_cell_label);
             }
+            
+            
+            /*      --- Inactive until TCellProperty is working ---
+            if (i == 0)
+            {
+                collection.AddProperty(p_imm_cell_label);
+            }
+            else if ((i != 0) && (i <= num_t_cells)) // Label T Cells
+            {
+                collection.AddProperty(p_t_cell_label);
+            }
+            */
+            
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false, collection));
             p_cell->SetCellProliferativeType(p_transit_type);
@@ -178,3 +202,5 @@ public:
 };
 
 // Unfinished
+
+// TCellProperty applies, behaviour is normal. However Paraview refuses to colour T-Cells differently?

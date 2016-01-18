@@ -41,7 +41,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * more flexiblew with cell counts and a more sophisticted CellCycleModel for T Cells
  * as well as a new label to protect the primary T Cell spawner. */
 
-/* Task 0. Re-write components to act on CellLabels rather than cell counts */ 
+/* Task 1. Write new CellProperties "TCell" and "ImTCell" */ 
 
 
 #include <cxxtest/TestSuite.h>
@@ -70,7 +70,7 @@ public:
     void TestTCellSimulation() throw(Exception)
     {
     
-        // T Cell simulation options
+        // T Cell simulation intial state options
         unsigned num_t_cells = 5;
         unsigned num_tumor_cells = 4;
         double initial_domain_radius = 5;
@@ -99,7 +99,7 @@ public:
             //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length ,  
             //    2.0*initial_domain_length*p_gen->ranf() - initial_domain_length));
             
-            double radial_coord = 2*p_gen_r->ranf();
+            double radial_coord = p_gen_r->ranf();
             double angular_coord = p_gen_theta->ranf() * 6.283185307;
             
             nodes.push_back(new Node<2>(index, false, 

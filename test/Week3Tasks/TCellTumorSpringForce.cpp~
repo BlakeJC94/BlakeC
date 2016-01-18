@@ -78,10 +78,10 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         CellPtr p_cell_a = rCellPopulation.GetCellUsingLocationIndex(node_a_index);
         CellPtr p_cell_b = rCellPopulation.GetCellUsingLocationIndex(node_b_index);
         
-        // Branch on CellLabel presence (find a better condition for this)
+        // Branch on TCellProperty presence (find a better condition for this)
         
         //if ((node_a_index < 5) && (node_b_index < 5)) // Applies RepulsionForce to T-Cells
-        if ((p_cell_a->template HasCellProperty<CellLabel>()) && (p_cell_b->template HasCellProperty<CellLabel>()))
+        if ((p_cell_a->template HasCellProperty<TCellProperty>()) && (p_cell_b->template HasCellProperty<TCellProperty>()))
         {
         
             // Get the unit vector parallel to the line joining the two nodes
@@ -108,7 +108,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
             }
         }
         //else if ((node_a_index >= 5) && (node_b_index >= 5)) // Applies GeneralisedLinearSpringForce to Tumor cells
-        else
+        else if (!(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<TCellProperty>()))
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);

@@ -35,6 +35,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "TCellBoundaryCondition.hpp"
+#include "TCellProperty.hpp"
 
 TCellBoundaryCondition::TCellBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation)
     : AbstractCellPopulationBoundaryCondition<2>(pCellPopulation)
@@ -54,7 +55,9 @@ void TCellBoundaryCondition::ImposeBoundaryCondition(const std::map<Node<2>*, c_
         
         double r_coordinate = sqrt(pow(x_coordinate, 2) + pow(y_coordinate, 2));
         
-        if (r_coordinate > 5.0)
+        //CellPtr p_cell = this->mpCellPopulation->GetCellUsingLocationIndex(neighbour_index);
+        
+        if ((cell_iter->template HasCellProperty<TCellProperty>()) && (r_coordinate > 5.0))
         {
             p_node->rGetModifiableLocation()[0] = -x_coordinate * 0.99;
             p_node->rGetModifiableLocation()[1] = -y_coordinate * 0.99;
@@ -99,11 +102,6 @@ bool TCellBoundaryCondition::VerifyBoundaryCondition()
             condition_satisfied = false;
             break;
         }
-        //if ((y_coordinate < -5.0) || (y_coordinate > 5.0))
-        //{
-        //    condition_satisfied = false;
-        //    break;
-        //}
     }
     return condition_satisfied;
 }

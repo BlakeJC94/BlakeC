@@ -35,6 +35,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellDiffusionForce.hpp"
 #include "NodeBasedCellPopulation.hpp"
+#include "TCellProperty.hpp"
 
 //Static constant is instantiated here.
 template<unsigned DIM>
@@ -110,7 +111,7 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
         }
         
         
-        if (p_cell->template HasCellProperty<CellLabel>())
+        if (p_cell->template HasCellProperty<TCellProperty>())
         {
             double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
 

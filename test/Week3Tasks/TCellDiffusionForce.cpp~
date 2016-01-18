@@ -99,7 +99,7 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
         unsigned node_index = node_iter->GetIndex();
         double node_radius = node_iter->GetRadius();
         
-        // Get cell associated with this element
+        // Get cell associated with this index
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
 
         // If the node radius is zero, then it has not been set...
@@ -110,7 +110,7 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
         }
         
         
-        if (p_cell->template HasCellProperty<CellLabel>())
+        if (p_cell->template HasCellProperty<TCellProperty>())
         {
             double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
 

@@ -37,6 +37,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "TCellTumorCellKiller.hpp"
+#include "TCellProperty.hpp"
 
 
 
@@ -53,7 +54,7 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         cell_iter != this->mpCellPopulation->End();
         ++cell_iter)
     {
-        if (!(cell_iter->HasCellProperty<CellLabel>())) // Only check Tumor Cells, ignore T-Cells
+        if (!(cell_iter->HasCellProperty<TCellProperty>())) // Only check Tumor Cells, ignore T-Cells
         {
             std::set<unsigned> neighbour_indices = this->mpCellPopulation->GetNeighbouringLocationIndices(*cell_iter);
             
@@ -66,7 +67,7 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
                 // Get cell associated with this element
                 CellPtr p_neighbour_cell = this->mpCellPopulation->GetCellUsingLocationIndex(neighbour_index);
 
-                if (p_neighbour_cell->template HasCellProperty<CellLabel>())
+                if (p_neighbour_cell->template HasCellProperty<TCellProperty>())
                 {
                     cell_iter->Kill();
                     break;
