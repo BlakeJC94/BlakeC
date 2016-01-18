@@ -64,6 +64,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellProperty.hpp"
 #include "ImmortalCellProperty.hpp"
+//#include "TumorCellProperty.hpp"
 
 
 class TCellSimulation : public AbstractCellBasedTestSuite
@@ -81,11 +82,9 @@ public:
         std::vector<Node<2>*> nodes;
         
         
-        /*      --- Inactive until TCellProperty is working ---
         // Generate Immortal T Cell node (spawn controller for futre revs) 
         //     node index = 0
-        nodes.push_back(new Node<2>(0, false, 4 , 0));
-        */
+        nodes.push_back(new Node<2>(0, false, 6 , 6));
         
         // Generate T Cell nodes (random loactions in annular domain 2<r<5)
         //     node index range = [0, num_t_cells - 1]
@@ -121,12 +120,19 @@ public:
         
         // Generate cells
         std::vector<CellPtr> cells;
+        
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        MAKE_PTR(TCellProperty, p_t_cell_label); 
-        //MAKE_PTR(ImmortalCellProperty, p_imm_cell_label); 
         MAKE_PTR(WildTypeCellMutationState, p_state);
         
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        MAKE_PTR_ARGS(CellLabel, p_t_cell_label, (3)); // Temporary measure to colour cells differently
+        MAKE_PTR(TCellProperty, p_t_cell_property); 
+        
+        MAKE_PTR_ARGS(CellLabel, p_imm_cell_label, (5));
+        MAKE_PTR(ImmortalCellProperty, p_imm_cell_property); 
+        
+        //MAKE_PTR(TumorCellProperty, p_tumor_cell_property);
+        
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
         
             // Cell cycle model for all cells
@@ -135,22 +141,24 @@ public:
             TCellTumorCellCycleModel* p_model = new TCellTumorCellCycleModel();
             CellPropertyCollection collection;
             
-            if (i < num_t_cells) // Label T Cells
+            // Note, this labelling process is the ONLY place node index matters
+            if (i <= num_t_cells)
             {
-                collection.AddProperty(p_t_cell_label);
+                if (i == 0)
+                {
+                    collection.AddProperty(p_imm_cell_label);
+                    collection.AddProperty(p_imm_cell_property);
+                }
+                else if (i <= num_t_cells)
+                {
+                    collection.AddProperty(p_t_cell_label);
+                    collection.AddProperty(p_t_cell_property);
+                }
+                //else
+                //{
+                //    collection.AddProperty(p_tumor_cell_property);
+                //}
             }
-            
-            
-            /*
-            if (i == 0)
-            {
-                collection.AddProperty(p_imm_cell_label);
-            }
-            else if ((i != 0) && (i <= num_t_cells)) // Label T Cells
-            {
-                collection.AddProperty(p_t_cell_label);
-            }
-            */
             
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false, collection));
@@ -163,6 +171,7 @@ public:
             p_cell->SetBirthTime(birth_time);
             
             cells.push_back(p_cell);
+            
         }
         
         
@@ -201,6 +210,4 @@ public:
     }
 };
 
-// Unfinished
-
-// TCellProperty applies, behaviour is normal. However Paraview refuses to colour T-Cells differently?
+// Pass

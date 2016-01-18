@@ -35,6 +35,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellTumorSpringForce.hpp"
 #include "IsNan.hpp"
+#include "TCellProperty.hpp"
+#include "TumorCellProperty.hpp"
+#include "ImmortalCellProperty.hpp"
 
 template<unsigned DIM>
 TCellTumorSpringForce<DIM>::TCellTumorSpringForce()
@@ -78,9 +81,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         CellPtr p_cell_a = rCellPopulation.GetCellUsingLocationIndex(node_a_index);
         CellPtr p_cell_b = rCellPopulation.GetCellUsingLocationIndex(node_b_index);
         
-        // Branch on TCellProperty presence (find a better condition for this)
-        
-        //if ((node_a_index < 5) && (node_b_index < 5)) // Applies RepulsionForce to T-Cells
+        // Applies RepulsionForce to T-Cells
         if ((p_cell_a->template HasCellProperty<TCellProperty>()) && (p_cell_b->template HasCellProperty<TCellProperty>()))
         {
         
@@ -107,8 +108,11 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
                 
             }
         }
-        //else if ((node_a_index >= 5) && (node_b_index >= 5)) // Applies GeneralisedLinearSpringForce to Tumor cells
-        else if (!(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<TCellProperty>()))
+        // Applies GeneralisedLinearSpringForce to Tumor cells
+        //else if ((p_cell_a->template HasCellProperty<TumorCellProperty>()) && (p_cell_b->template HasCellProperty<TumorCellProperty>())) 
+        //   The above code does not apply force to Tumor cells for reasons unknown..?
+        else if (  ( !(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_a->template HasCellProperty<ImmortalCellProperty>()) ) &&
+                    ( !(p_cell_b->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<ImmortalCellProperty>()) )  )
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);

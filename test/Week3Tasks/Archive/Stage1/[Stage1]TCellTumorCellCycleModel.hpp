@@ -33,39 +33,34 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef TCELLTUMORCELLCYCLEMODEL_HPP_
+#define TCELLTUMORCELLCYCLEMODEL_HPP_
 
-#include <boost/shared_ptr.hpp>
-#include "AbstractCellProperty.hpp"
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
+#include "AbstractSimpleCellCycleModel.hpp"
+#include "RandomNumberGenerator.hpp"
 
 /**
- * Cell label class.
+ * A stochastic cell-cycle model where cells divide with a stochastic G1 phase duration.
  *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer
- * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled.
+ * For proliferative cells, the G1 phase duration is drawn from a uniform distribution
+ * on [T, T+2], where the parameter T depends on cell proliferative type as follows: if
+ * the cell has StemCellProliferativeType, then T is given by GetStemCellG1Duration();
+ * and if the cell has TransitCellProliferativeType, then T is given by
+ * GetTransitCellG1Duration().
  *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
+ * If the cell has DifferentiatedCellProliferativeType, then the G1 phase duration is
+ * set to be infinite, so that the cell will never divide.
  */
-class TCellProperty : public AbstractCellProperty
+class TCellTumorCellCycleModel : public AbstractSimpleCellCycleModel
 {
-protected:
-
-    /**
-     * Colour for use by visualizer.
-     */
-    unsigned mColour;
+    friend class TestSimpleCellCycleModels;
 
 private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
+     * Archive the cell-cycle model and random number generator, never used directly - boost uses this.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -73,32 +68,44 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mColour;
+        archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
+
+        // Make sure the RandomNumberGenerator singleton gets saved too
+        SerializableSingleton<RandomNumberGenerator>* p_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
+        archive & p_wrapper;
     }
 
 public:
 
     /**
-     * Constructor.
+     * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
+     * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
+     */
+    TCellTumorCellCycleModel();
+
+    /**
+     * Overridden SetG1Duration Method to add stochastic cell cycle times
+     */
+    void SetG1Duration();
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell-cycle model.
      *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
+     * @return new cell-cycle model
      */
-    TCellProperty(unsigned colour=5);
+    AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Destructor.
+     * Outputs cell cycle model parameters to file.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
-    virtual ~TCellProperty();
-
-    /**
-     * @return #mColour.
-     */
-    unsigned GetColour() const;
+    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
 };
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+CHASTE_CLASS_EXPORT(TCellTumorCellCycleModel)
 
-#endif /* TCellProperty_HPP_ */
+#endif /*TCELLTUMORCELLCYCLEMODEL_HPP_*/

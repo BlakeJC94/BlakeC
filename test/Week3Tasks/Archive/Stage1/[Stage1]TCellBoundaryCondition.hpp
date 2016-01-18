@@ -33,72 +33,66 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef TCellBOUNDARYCONDITION_HPP_
+#define TCellBOUNDARYCONDITION_HPP_
 
-#include <boost/shared_ptr.hpp>
-#include "AbstractCellProperty.hpp"
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
 
-/**
- * Cell label class.
- *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer
- * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled.
- *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
- */
-class TCellProperty : public AbstractCellProperty
+#include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+
+#include "AbstractCellPopulationBoundaryCondition.hpp"
+
+#include "SmartPointers.hpp"
+
+class TCellBoundaryCondition : public AbstractCellPopulationBoundaryCondition<2>
 {
-protected:
-
-    /**
-     * Colour for use by visualizer.
-     */
-    unsigned mColour;
-
 private:
 
-    /** Needed for serialization. */
     friend class boost::serialization::access;
-    /**
-     * Archive the member variables.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mColour;
+        archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<2> >(*this);
     }
 
 public:
 
-    /**
-     * Constructor.
-     *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
-     */
-    TCellProperty(unsigned colour=5);
+    TCellBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation);
 
-    /**
-     * Destructor.
-     */
-    virtual ~TCellProperty();
-
-    /**
-     * @return #mColour.
-     */
-    unsigned GetColour() const;
+    void ImposeBoundaryCondition(const std::map<Node<2>*, c_vector<double, 2> >& rOldLocations);
+    
+    bool VerifyBoundaryCondition();
+    
+    void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile);
 };
 
-#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
 
-#endif /* TCellProperty_HPP_ */
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(TCellBoundaryCondition)
+
+namespace boost
+{
+    namespace serialization
+    {
+        template<class Archive>
+        inline void save_construct_data(
+            Archive & ar, const TCellBoundaryCondition * t, const unsigned int file_version)
+        {
+            const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
+            ar << p_cell_population;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+            Archive & ar, TCellBoundaryCondition * t, const unsigned int file_version)
+        {
+            AbstractCellPopulation<2>* p_cell_population;
+            ar >> p_cell_population;
+
+            ::new(t)TCellBoundaryCondition(p_cell_population);
+        }
+    }
+}
+
+#endif /*TCellBOUNDARYCONDITION_HPP_*/

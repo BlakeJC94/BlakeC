@@ -33,39 +33,29 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef TCellTumorSpringForce_HPP_
+#define TCellTumorSpringForce_HPP_
 
-#include <boost/shared_ptr.hpp>
-#include "AbstractCellProperty.hpp"
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
+#include "GeneralisedLinearSpringForce.hpp"
+#include "NodeBasedCellPopulation.hpp"
 
 /**
- * Cell label class.
+ * A class for a simple two-body repulsion force law. Designed
+ * for use in node-based simulations
  *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer
- * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled.
- *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
+ * The force just creates a linear repulsive force between cells
+ * with a nonlinear separation less than 2. This force does not
+ * take a cell's age or cell cycle phase into account.
  */
-class TCellProperty : public AbstractCellProperty
+template<unsigned DIM>
+class TCellTumorSpringForce : public GeneralisedLinearSpringForce<DIM>
 {
-protected:
-
-    /**
-     * Colour for use by visualizer.
-     */
-    unsigned mColour;
-
-private:
+private :
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
+     * Archive the object and its member variables.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -73,32 +63,43 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mColour;
+        archive & boost::serialization::base_object<GeneralisedLinearSpringForce<DIM> >(*this);
     }
 
-public:
+public :
 
     /**
      * Constructor.
+     */
+    TCellTumorSpringForce();
+    
+    /**
+     * Calculate Spring Force (hopefully)
+     */
+    /*c_vector<double, DIM> CalculateSpringForceBetweenNodes(unsigned nodeAGlobalIndex,
+                                                     unsigned nodeBGlobalIndex,
+                                                     AbstractCellPopulation<ELEMENT_DIM,DIM>& rCellPopulation);*/
+    
+
+    /**
+     * Overridden AddForceContribution() method.
      *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
+     * @param rCellPopulation reference to the CellPopulation
      */
-    TCellProperty(unsigned colour=5);
+    void AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
-     * Destructor.
+     * Outputs force Parameters to file
+     *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
-    virtual ~TCellProperty();
-
-    /**
-     * @return #mColour.
-     */
-    unsigned GetColour() const;
+    virtual void OutputForceParameters(out_stream& rParamsFile);
 };
 
 #include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(TCellTumorSpringForce)
 
-#endif /* TCellProperty_HPP_ */
+#endif /*TCellTumorSpringForce_HPP_*/

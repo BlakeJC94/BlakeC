@@ -33,8 +33,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef ImmortalCellProperty_HPP_
+#define ImmortalCellProperty_HPP_
 
 #include <boost/shared_ptr.hpp>
 #include "AbstractCellProperty.hpp"
@@ -48,10 +48,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * to an object of this type. When a Cell that is labelled divides, the daughter
  * cells are both labelled.
  *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
+ * The ImmortalCellProperty object keeps track of the number of cells that have the label, as well
  * as what colour should be used by the visualizer to display cells with the label.
  */
-class TCellProperty : public AbstractCellProperty
+class ImmortalCellProperty : public AbstractCellProperty
 {
 protected:
 
@@ -84,12 +84,12 @@ public:
      *
      * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
      */
-    TCellProperty(unsigned colour=5);
+    ImmortalCellProperty(unsigned colour=10);
 
     /**
      * Destructor.
      */
-    virtual ~TCellProperty();
+    virtual ~ImmortalCellProperty();
 
     /**
      * @return #mColour.
@@ -99,6 +99,6 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+CHASTE_CLASS_EXPORT(ImmortalCellProperty)
 
-#endif /* TCellProperty_HPP_ */
+#endif /* ImmortalCellProperty_HPP_ */

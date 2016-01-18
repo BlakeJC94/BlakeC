@@ -88,11 +88,14 @@ void TCellBoundaryCondition::ImposeBoundaryCondition(const std::map<Node<2>*, c_
 bool TCellBoundaryCondition::VerifyBoundaryCondition()
 {
     bool condition_satisfied = true;
+    
+    /* ---- Disabled VerifyBoundaryCondition temporarily
 
     for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
          cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
     {
+        
         c_vector<double, 2> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
         double x_coordinate = cell_location(0);
         double y_coordinate = cell_location(1);
@@ -102,12 +105,9 @@ bool TCellBoundaryCondition::VerifyBoundaryCondition()
             condition_satisfied = false;
             break;
         }
-        //if ((y_coordinate < -5.0) || (y_coordinate > 5.0))
-        //{
-        //    condition_satisfied = false;
-        //    break;
-        //}
     }
+    */
+    
     return condition_satisfied;
 }
 

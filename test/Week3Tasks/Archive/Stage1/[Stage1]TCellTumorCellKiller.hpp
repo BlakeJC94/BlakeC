@@ -7,6 +7,7 @@ University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
 Square, Oxford OX1 2JD, UK.
 
+
 This file is part of Chaste.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,72 +34,70 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef TCellTumorCellKiller_HPP_
+#define TCellTumorCellKiller_HPP_
 
-#include <boost/shared_ptr.hpp>
-#include "AbstractCellProperty.hpp"
+#include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-/**
- * Cell label class.
- *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer
- * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled.
- *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
- */
-class TCellProperty : public AbstractCellProperty
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
+/* The next header defines a base class for cell killers, from which the new
+ * cell killer class will inherit. */
+#include "AbstractCellKiller.hpp"
+
+
+class TCellTumorCellKiller : public AbstractCellKiller<2>
 {
-protected:
-
-    /**
-     * Colour for use by visualizer.
-     */
-    unsigned mColour;
-
 private:
 
-    /** Needed for serialization. */
     friend class boost::serialization::access;
-    /**
-     * Archive the member variables.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mColour;
+        archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
     }
-
+    
 public:
 
-    /**
-     * Constructor.
-     *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
-     */
-    TCellProperty(unsigned colour=5);
+    TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopulation);
 
-    /**
-     * Destructor.
-     */
-    virtual ~TCellProperty();
-
-    /**
-     * @return #mColour.
-     */
-    unsigned GetColour() const;
+    void CheckAndLabelCellsForApoptosisOrDeath();
+    
+    void OutputCellKillerParameters(out_stream& rParamsFile);
 };
 
 #include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+CHASTE_CLASS_EXPORT(TCellTumorCellKiller)
 
-#endif /* TCellProperty_HPP_ */
+namespace boost
+{
+    namespace serialization
+    {
+        template<class Archive>
+        inline void save_construct_data(
+            Archive & ar, const TCellTumorCellKiller * t, const unsigned int file_version)
+        {
+            const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
+            ar << p_cell_population;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+            Archive & ar, TCellTumorCellKiller * t, const unsigned int file_version)
+        {
+            AbstractCellPopulation<2>* p_cell_population;
+            ar >> p_cell_population;
+
+            // Invoke inplace constructor to initialise instance
+            ::new(t)TCellTumorCellKiller(p_cell_population);
+        }
+    }
+}
+
+#endif /*TCellTumorCellKiller_HPP_*/
