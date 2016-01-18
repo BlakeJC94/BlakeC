@@ -7,7 +7,6 @@ University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
 Square, Oxford OX1 2JD, UK.
 
-
 This file is part of Chaste.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,45 +33,66 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#ifndef TCellBOUNDARYCONDITION_HPP_
+#define TCellBOUNDARYCONDITION_HPP_
 
 
-#include "TCellTumorCellKiller.hpp"
+#include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
+#include "AbstractCellPopulationBoundaryCondition.hpp"
 
+#include "SmartPointers.hpp"
 
-TCellTumorCellKiller::TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopulation)
-    : AbstractCellKiller<2>(pCellPopulation)
+class TCellBoundaryCondition : public AbstractCellPopulationBoundaryCondition<2>
 {
-}
+private:
 
-void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
-{
-    mpCellPopulation->Update();
-    
-    for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
-        cell_iter != this->mpCellPopulation->End();
-        ++cell_iter)
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
     {
-        if (!(cell_iter->HasCellProperty<CellLabel>())) // Only check Tumor Cells, ignore T-Cells
+        archive & boost::serialization::base_object<AbstractCellPopulationBoundaryCondition<2> >(*this);
+    }
+
+public:
+
+    TCellBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation);
+
+    void ImposeBoundaryCondition(const std::map<Node<2>*, c_vector<double, 2> >& rOldLocations);
+    
+    bool VerifyBoundaryCondition();
+    
+    void OutputCellPopulationBoundaryConditionParameters(out_stream& rParamsFile);
+};
+
+
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(TCellBoundaryCondition)
+
+namespace boost
+{
+    namespace serialization
+    {
+        template<class Archive>
+        inline void save_construct_data(
+            Archive & ar, const TCellBoundaryCondition * t, const unsigned int file_version)
         {
-            std::set<unsigned> neighbour_indices = this->mpCellPopulation->GetNeighbouringLocationIndices(*cell_iter);
-                
-            int min_neighbor_index = *neighbour_indices.begin();
-            
-            // If one on the neighbors is a T-Cell, kill the selected Tumor cell   
-            if (min_neighbor_index < 5) 
-            {
-                cell_iter->Kill();
-            }
+            const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
+            ar << p_cell_population;
+        }
+
+        template<class Archive>
+        inline void load_construct_data(
+            Archive & ar, TCellBoundaryCondition * t, const unsigned int file_version)
+        {
+            AbstractCellPopulation<2>* p_cell_population;
+            ar >> p_cell_population;
+
+            ::new(t)TCellBoundaryCondition(p_cell_population);
         }
     }
 }
 
-void TCellTumorCellKiller::OutputCellKillerParameters(out_stream& rParamsFile)
-{
-    AbstractCellKiller<2>::OutputCellKillerParameters(rParamsFile);
-}
-
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(TCellTumorCellKiller)
-
+#endif /*TCellBOUNDARYCONDITION_HPP_*/

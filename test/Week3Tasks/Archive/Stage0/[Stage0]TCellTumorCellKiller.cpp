@@ -56,13 +56,21 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         if (!(cell_iter->HasCellProperty<CellLabel>())) // Only check Tumor Cells, ignore T-Cells
         {
             std::set<unsigned> neighbour_indices = this->mpCellPopulation->GetNeighbouringLocationIndices(*cell_iter);
-                
-            int min_neighbor_index = *neighbour_indices.begin();
             
-            // If one on the neighbors is a T-Cell, kill the selected Tumor cell   
-            if (min_neighbor_index < 5) 
+            for (std::set<unsigned>::iterator iter = neighbour_indices.begin();
+                iter != neighbour_indices.end();
+                ++iter)
             {
-                cell_iter->Kill();
+                unsigned neighbour_index = *(iter);
+
+                // Get cell associated with this element
+                CellPtr p_neighbour_cell = this->mpCellPopulation->GetCellUsingLocationIndex(neighbour_index);
+
+                if (p_neighbour_cell->template HasCellProperty<CellLabel>())
+                {
+                    cell_iter->Kill();
+                    break;
+                }
             }
         }
     }
