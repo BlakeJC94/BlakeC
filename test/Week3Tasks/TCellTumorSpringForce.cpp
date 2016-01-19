@@ -37,7 +37,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "IsNan.hpp"
 #include "TCellProperty.hpp"
 #include "TumorCellProperty.hpp"
-#include "ImmortalCellProperty.hpp"
 
 template<unsigned DIM>
 TCellTumorSpringForce<DIM>::TCellTumorSpringForce()
@@ -81,7 +80,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         CellPtr p_cell_a = rCellPopulation.GetCellUsingLocationIndex(node_a_index);
         CellPtr p_cell_b = rCellPopulation.GetCellUsingLocationIndex(node_b_index);
         
-        // Applies RepulsionForce to T-Cells
+        // Applies RepulsionForce to T-Cells. Check both cells are T Cells
         if ((p_cell_a->template HasCellProperty<TCellProperty>()) && (p_cell_b->template HasCellProperty<TCellProperty>()))
         {
         
@@ -92,7 +91,8 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
 
             // Calculate the value of the rest length
             double rest_length = node_a_radius+node_b_radius;
-
+            
+            // Only apply force if the cells are close (repulsion force)
             if (norm_2(unit_difference) < rest_length)
             {
                 // Calculate the force between nodes
@@ -102,17 +102,15 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
                 {
                     assert(!std::isnan(force[j]));
                 }
+                
                 // Add the force contribution to each node
                 p_node_a->AddAppliedForceContribution(force);
                 p_node_b->AddAppliedForceContribution(negative_force);
-                
             }
         }
-        // Applies GeneralisedLinearSpringForce to Tumor cells
+        
+        // Applies GeneralisedLinearSpringForce to Tumor Cells. Check both cells are Tumor Cells
         else if ((p_cell_a->template HasCellProperty<TumorCellProperty>()) && (p_cell_b->template HasCellProperty<TumorCellProperty>())) 
-        //   The above code does not apply force to Tumor cells for reasons unknown..?
-        //else if (  ( !(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_a->template HasCellProperty<ImmortalCellProperty>()) ) &&
-        //            ( !(p_cell_b->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<ImmortalCellProperty>()) )  )
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);
@@ -121,10 +119,10 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
             {
                 assert(!std::isnan(force[j]));
             }
+            
             // Add the force contribution to each node
             p_node_a->AddAppliedForceContribution(force);
             p_node_b->AddAppliedForceContribution(negative_force);
-            
         }
     }
 }

@@ -85,7 +85,8 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     //double lambda = 100;
     
-    if (mpCell->HasCellProperty<TCellProperty>()) // T Cell division options
+    // T Cell division options
+    if (mpCell->HasCellProperty<TCellProperty>()) 
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
@@ -104,15 +105,16 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    else if (mpCell->HasCellProperty<TumorCellProperty>()) // Tumor Cell division options
+    // Tumor Cell division options
+    else if (mpCell->HasCellProperty<TumorCellProperty>()) 
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
-            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
+            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() ; // U[0,2]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() ; // U[0,2]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
@@ -123,7 +125,8 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    else // Property-less cell division options (will be used for immortal cell)
+    // Property-less cell division options (will be used for immortal cell at node 0)
+    else 
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
@@ -148,28 +151,6 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    /*
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-
-    assert(mpCell != NULL);
-
-    if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-    {
-        mG1Duration = GetStemCellG1Duration(); // U[14,18] for default parameters (mStemCellG1Duration) according to Meineke
-    }
-    else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-    {
-        mG1Duration = DBL_MAX; // U[4,6] for default parameters (mTransitG1CellDuration) according to Meineke
-    }
-    else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-    {
-        mG1Duration = DBL_MAX;
-    }
-    else
-    {
-        NEVER_REACHED;
-    }
-    */
 }
 
 void TCellTumorGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

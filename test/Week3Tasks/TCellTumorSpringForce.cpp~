@@ -109,10 +109,10 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
             }
         }
         // Applies GeneralisedLinearSpringForce to Tumor cells
-        //else if ((p_cell_a->template HasCellProperty<TumorCellProperty>()) && (p_cell_b->template HasCellProperty<TumorCellProperty>())) 
+        else if ((p_cell_a->template HasCellProperty<TumorCellProperty>()) && (p_cell_b->template HasCellProperty<TumorCellProperty>())) 
         //   The above code does not apply force to Tumor cells for reasons unknown..?
-        else if (  ( !(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_a->template HasCellProperty<ImmortalCellProperty>()) ) &&
-                    ( !(p_cell_b->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<ImmortalCellProperty>()) )  )
+        //else if (  ( !(p_cell_a->template HasCellProperty<TCellProperty>()) && !(p_cell_a->template HasCellProperty<ImmortalCellProperty>()) ) &&
+        //            ( !(p_cell_b->template HasCellProperty<TCellProperty>()) && !(p_cell_b->template HasCellProperty<ImmortalCellProperty>()) )  )
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);

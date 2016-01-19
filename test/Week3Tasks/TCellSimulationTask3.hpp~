@@ -58,12 +58,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellBoundaryCondition.hpp"
 #include "TCellDiffusionForce.hpp"
-//#include "TCellTumorCellCycleModel.hpp"
 #include "TCellTumorCellKiller.hpp"
 #include "TCellTumorSpringForce.hpp"
 
 #include "TCellProperty.hpp"
-//#include "ImmortalCellProperty.hpp"
 #include "TumorCellProperty.hpp"
 #include "TCellTumorGenerationBasedCellCycleModel.hpp"
 
@@ -83,7 +81,7 @@ public:
         std::vector<Node<2>*> nodes;
         
         
-        // Generate Immortal T Cell node (spawn controller for futre revs) 
+        // Generate node for "Immortal" Stem T Cell 
         //     node index = 0
         nodes.push_back(new Node<2>(0, false, 6 , 6));
         
@@ -126,50 +124,22 @@ public:
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
         
-        //MAKE_PTR_ARGS(CellLabel, p_t_cell_label, (3)); // Temporary measure to colour cells differently
         MAKE_PTR(TCellProperty, p_t_cell_property); 
         
-        /*
-        MAKE_PTR_ARGS(CellLabel, p_imm_cell_label, (5));
-        MAKE_PTR(ImmortalCellProperty, p_imm_cell_property); 
-        */
-        
-        MAKE_PTR_ARGS(CellLabel, p_tumor_cell_label, (5));
         MAKE_PTR(TumorCellProperty, p_tumor_cell_property);
+        MAKE_PTR_ARGS(CellLabel, p_tumor_cell_label, (5));
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-        
             // Cell cycle model for all cells
-            //   Labelled (T Cells) do not divide
-            //   Unlabelled (Tumor Cells) divide according to a U[0,2] distribution
+            //   Labelled (Tumor Cells) divide according to a distribution specified in TCellTumorGenerationBasedCellCycleModel
+            //   Unlabelled (T Cells) do not divide
+            //   Stem cell at node 0 spawns new T Cells at random points on domain boundary at constant rate
             TCellTumorGenerationBasedCellCycleModel* p_model = new TCellTumorGenerationBasedCellCycleModel();
             CellPropertyCollection collection;
             
-            // Note, this labelling process is the ONLY place node index matters
-            /*
-            if (i <= num_t_cells)
-            {
-                if (i == 0)
-                {
-                    collection.AddProperty(p_imm_cell_label);
-                    collection.AddProperty(p_imm_cell_property);
-                }
-                else if (i <= num_t_cells)
-                {
-                    collection.AddProperty(p_t_cell_label);
-                    collection.AddProperty(p_t_cell_property);
-                }
-                //else
-                //{
-                //    collection.AddProperty(p_tumor_cell_property);
-                //}
-            }
-            */
-            
             if (  (i <= num_t_cells) && (i != 0)  )
             {
-               //collection.AddProperty(p_t_cell_label);
                collection.AddProperty(p_t_cell_property);
             }
             else if (i > num_t_cells)
@@ -177,7 +147,6 @@ public:
                 collection.AddProperty(p_tumor_cell_label);
                 collection.AddProperty(p_tumor_cell_property);
             }
-            
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false, collection));
             
@@ -187,7 +156,6 @@ public:
             }
             else
             {
-
                 p_cell->SetCellProliferativeType(p_transit_type);
             }
             
@@ -197,8 +165,7 @@ public:
             
             p_cell->SetBirthTime(birth_time);
             
-            cells.push_back(p_cell);
-            
+            cells.push_back(p_cell);   
         }
         
         
@@ -213,31 +180,35 @@ public:
         simulator.SetEndTime(45.0);
 
 
-        // Add generalised linear spring forces between cells
-        //   Tumor Cell & Tumor Cell --> Attraction and Repulsion
-        //   T Cell & T Cell --> Repulsion only
+        /* Add generalised linear spring forces between cells
+         *   Tumor Cell & Tumor Cell --> Attraction and Repulsion
+         *   T Cell & T Cell --> Repulsion only 
+         * No interaction specified between Tumor Cell and T Cell 
+         * Node 0 ignored */
         MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
         simulator.AddForce(p_spring_force);
         
-        // Add diffusion force component and constant left-facing force componet to T Cells
+        /* Add diffusion force component to T Cells */
         MAKE_PTR(TCellDiffusionForce<2>, p_diffusion_force);
         simulator.AddForce(p_diffusion_force);
         
-        // Add "portal" boundary condition on edges of square region
-        MAKE_PTR_ARGS(TCellBoundaryCondition, p_bc, (&cell_population));
-        simulator.AddCellPopulationBoundaryCondition(p_bc);
-        
-        // Add cell killer (kills tumor cells instantly when a T Cell is nearby)
+        /* Add cell killer component
+         *   Kills T Cells that leave domain (Ignores T Cells near node 0) 
+         *   Kills Tumor Cells instantly when a T Cell is nearby */
         MAKE_PTR_ARGS(TCellTumorCellKiller, p_cell_killer, (&cell_population));
         simulator.AddCellKiller(p_cell_killer);
         
-
+        /* Add "portal" boundary condition outside domain
+         *   Teleports new T Cells from node 0 neighbourhood onto 
+         *   random points of domain boundary, ignores node 0 */
+        MAKE_PTR_ARGS(TCellBoundaryCondition, p_bc, (&cell_population));
+        simulator.AddCellPopulationBoundaryCondition(p_bc);
+        
+        
         simulator.Solve();
         
     }
 };
-
-// Unfinished
 
 // Pass
 
