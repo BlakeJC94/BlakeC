@@ -64,6 +64,7 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         double r_coordinate = sqrt(pow(x_coordinate, 2) + pow(y_coordinate, 2));
         
         if (  (cell_iter->HasCellProperty<TCellProperty>()) && (r_coordinate > 5.05) && (r_coordinate < 6.0 )   )// Check T Cells
+        //if (  (cell_iter->HasCellProperty<TCellProperty>()) && (r_coordinate > 5.5) && (r_coordinate < 6.0 )   )
         {
             cell_iter->Kill();
         }
