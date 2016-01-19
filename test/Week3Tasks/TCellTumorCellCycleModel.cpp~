@@ -38,6 +38,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
+#include "TCellProperty.hpp"
+#include "TumorCellProperty.hpp"
 
 TCellTumorCellCycleModel::TCellTumorCellCycleModel()
     : AbstractSimpleCellCycleModel()
@@ -77,11 +79,12 @@ AbstractCellCycleModel* TCellTumorCellCycleModel::CreateCellCycleModel()
     return p_model;
 }
 
-void TCellTumorCellCycleModel::SetG1Duration()
+void TCellTumorCellCycleModel::SetG1Duration() // Edit this later to add config options for ImmortalCell
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    //double lambda = 100;
     
-    if (mpCell->HasCellProperty<TCellProperty>())
+    if (mpCell->HasCellProperty<TCellProperty>()) // T Cell division options
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
@@ -100,15 +103,15 @@ void TCellTumorCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    else
+    else if (mpCell->HasCellProperty<TumorCellProperty>()) // Tumor Cell division options
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
-            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
+            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
@@ -119,7 +122,27 @@ void TCellTumorCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    
+    else // Property-less cell division options (will be used for immortal cell)
+    {
+        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
+        {
+            //mG1Duration = (-log(p_gen->ranf())*GetStemCellG1Duration())/lambda; // E[lambda]
+            mG1Duration = GetStemCellG1Duration() + p_gen->ranf(); // U[0,2]
+        }
+        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+        {
+            //mG1Duration = (-log(p_gen->ranf())*GetTransitCellG1Duration())/lambda; // E[lambda]
+            mG1Duration = GetTransitCellG1Duration() + p_gen->ranf(); // U[0,2]
+        }
+        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
+        {
+            mG1Duration = DBL_MAX;
+        }
+        else
+        {
+        NEVER_REACHED;
+        }
+    }
 }
 
 void TCellTumorCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

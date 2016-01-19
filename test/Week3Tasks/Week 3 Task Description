@@ -12,16 +12,13 @@ as well as a new label to protect the primary T Cell spawner.
 
     0. Re-write components to act on CellLabels rather than cell counts
 
-    1. Write new CellProperties "TCell" and "ImTCell"
+    1. Write new CellProperties "TCell" and "ImTCell" and make working 
+        domain circular with radius of 5 units using boundary conditions
     
     2. Write a new CellCycleModel to make the stem cell ImTCell the 
-        primary spawn point for T Cells
-        a. Make new TCells differntiated and remove the ImTCell Property
+        primary spawn point for T Cells and write a circular CellKiller 
     
-    3. Make working domain circular with radius of 5 units and write a 
-        new circular CellKiller which only acts on T Cells (not ImTcell!)
-    
-    4. Write modifier to move spawned T Cells to edge of circular domain
+    3. Fix CellCycleModel to stop the new T Cells dividing once spawned
         
 
 
