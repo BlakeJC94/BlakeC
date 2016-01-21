@@ -42,8 +42,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * as well as a new label to protect the primary T Cell spawner. */
 
 /* Task 5.  a. Migrate BoundaryCondition code into the CellKiller component
- *          b. Use CellLabel to mark T-Cells that are attatched to tumor cells, set up 
- *              framework for an updated time-based CellKiller */
+ *      b. Use CellLabel to mark T-Cells that are attatched to tumor cells, set up 
+ *          framework for an updated time-based CellKiller */
 
 
 #include <cxxtest/TestSuite.h>
@@ -58,7 +58,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "NodesOnlyMesh.hpp"
 #include "NodeBasedCellPopulation.hpp"
 
-#include "TCellBoundaryCondition.hpp"
 #include "TCellDiffusionForce.hpp"
 #include "TCellTumorCellKiller.hpp"
 #include "TCellTumorSpringForce.hpp"
@@ -197,16 +196,11 @@ public:
         simulator.AddForce(p_diffusion_force);
         
         /* Add cell killer component
-         *   Kills T Cells that leave domain (Ignores T Cells near node 0) 
+         *   Teleports Transit T Cells in range r > 6.0 onto random points of domain boundary
+         *   Kills Differentiated T Cells that leave domain (in range 5.05 < r < 6)
          *   Kills Tumor Cells instantly when a T Cell is nearby */
         MAKE_PTR_ARGS(TCellTumorCellKiller, p_cell_killer, (&cell_population));
         simulator.AddCellKiller(p_cell_killer);
-        
-        /* Add "portal" boundary condition outside domain
-         *   Teleports new T Cells from node 0 neighbourhood onto 
-         *   random points of domain boundary, ignores node 0 */
-        MAKE_PTR_ARGS(TCellBoundaryCondition, p_bc, (&cell_population));
-        simulator.AddCellPopulationBoundaryCondition(p_bc);
         
         
         simulator.Solve();

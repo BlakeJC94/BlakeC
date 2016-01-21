@@ -37,7 +37,7 @@ as well as a new label to protect the primary T Cell spawner.
     6. Use EllipticPDES components in ChasteSVN Repo to overlay PDE in simulation
     
 In future revision we will focus on Making cells react to the overlayed PDE. 
-Ideally we wil make T-Cells that attach to Tunor cells into source terms. This will 
+Ideally we wil make T-Cells that attach to Tumor cells into source terms. This will 
 occur with some probabilty. Otherwise mutual cell annihilation will occur instead. 
 
 

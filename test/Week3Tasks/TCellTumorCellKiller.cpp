@@ -40,6 +40,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellMutationState.hpp"
 #include "TumorCellMutationState.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
+#include "SmartPointers.hpp"
 
 
 TCellTumorCellKiller::TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopulation)
@@ -50,6 +52,7 @@ TCellTumorCellKiller::TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopul
 void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
 {
     mpCellPopulation->Update();
+    MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
     
     for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
         cell_iter != this->mpCellPopulation->End();
@@ -60,6 +63,21 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         double x_coordinate = p_node->rGetLocation()[0];
         double y_coordinate = p_node->rGetLocation()[1];
         double r_coordinate = sqrt(pow(x_coordinate, 2) + pow(y_coordinate, 2));
+        
+        /* Code that was previously in BoundaryCondition component */
+        RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
+        double angular_coord = p_gen_theta->ranf() * 6.283185307;
+        
+        if (  (r_coordinate > 6.0) && ((cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (cell_iter->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()))  )
+        {
+            p_node->rGetModifiableLocation()[0] = 4.9 * cos(angular_coord); // Default value = 4.9
+            p_node->rGetModifiableLocation()[1] = 4.9 * sin(angular_coord);
+            
+            // Adds DifferentiatedCellProliferativeType to new T Cells from node 0
+            cell_iter->SetCellProliferativeType(p_diff_type);
+        }
+        
+        
         
         /* Check and kill any T Cells in an annular region (5.05 < r < 6.00).
          * Inner radius chosen to be slightly above 5 to slightly increase chance of survival for new T Cells.
