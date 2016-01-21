@@ -35,8 +35,11 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "TCellBoundaryCondition.hpp"
-#include "TCellProperty.hpp"
-#include "TumorCellProperty.hpp"
+
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
+#include "SmartPointers.hpp"
 
 TCellBoundaryCondition::TCellBoundaryCondition(AbstractCellPopulation<2>* pCellPopulation)
     : AbstractCellPopulationBoundaryCondition<2>(pCellPopulation)
@@ -45,6 +48,8 @@ TCellBoundaryCondition::TCellBoundaryCondition(AbstractCellPopulation<2>* pCellP
 
 void TCellBoundaryCondition::ImposeBoundaryCondition(const std::map<Node<2>*, c_vector<double, 2> >& rOldLocations)
 {
+    MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+    
     for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
          cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
@@ -58,25 +63,18 @@ void TCellBoundaryCondition::ImposeBoundaryCondition(const std::map<Node<2>*, c_
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
         double angular_coord = p_gen_theta->ranf() * 6.283185307;
         
-        MAKE_PTR_ARGS(CellLabel, p_t_cell_label, (3));
-        MAKE_PTR(TCellProperty, p_t_cell_property);
-        
         CellPtr p_cell = this->mpCellPopulation->GetCellUsingLocationIndex(node_index);
         
         /* Boundary condition teleport all non-tumor cells with node_index > 0 outside disk with radius 6
          * onto a random point on the edge of disk with radius 4.9 (slightly under 5 to increase chance of 
          * survival for new cells moderately). */
-        if (   ( !(cell_iter->template HasCellProperty<TumorCellProperty>()) && (r_coordinate > 6.0) ) &&
-            (node_index != 0)   )
+        if (  (r_coordinate > 6.0) && ((p_cell->GetMutationState()->IsType<TCellMutationState>()) && (p_cell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()))  )
         {
             p_node->rGetModifiableLocation()[0] = 4.9 * cos(angular_coord); // Default value = 4.9
             p_node->rGetModifiableLocation()[1] = 4.9 * sin(angular_coord);
             
-            // Adds TCellProperty to new cells from node 0
-            if (!(cell_iter->template HasCellProperty<TCellProperty>()))
-            {
-                cell_iter->AddCellProperty(p_t_cell_property);
-            }
+            // Adds DifferentiatedCellProliferativeType to new T Cells from node 0
+            cell_iter->SetCellProliferativeType(p_diff_type);
         }  
     }
 }

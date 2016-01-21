@@ -33,12 +33,55 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "WildTypeCellMutationState.hpp"
 
-WildTypeCellMutationState::WildTypeCellMutationState()
-    : AbstractCellMutationState(0)
-{}
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include "AbstractCellWriter.hpp"
+#include "TumorCellProperty.hpp"
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class MyCellPropertyWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
+{
+private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellWriter<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
+
+public:
+
+    MyCellPropertyWriter()
+        : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("cellmotilityresults.dat")
+    {
+    }
+
+    double GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+    {
+        double cell_property = pCell->HasCellProperty<TumorCellProperty>()->GetColour();
+        return cell_property;
+    }
+
+    void VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+    {
+        *this->mpOutStream << pCellPopulation->GetLocationIndexUsingCell(pCell) << " ";
+
+        c_vector<double, SPACE_DIM> cell_location = pCellPopulation->GetLocationOfCellCentre(pCell);
+        for (unsigned i=0; i<SPACE_DIM; i++)
+        {
+            *this->mpOutStream << cell_location[i] << " ";
+        }
+
+        *this->mpOutStream << pCell->HasCellProperty<TumorCellProperty>() << " ";
+    }
+};
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MyCellPropertyWriter)
 #include "SerializationExportWrapperForCpp.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(WildTypeCellMutationState)
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MyCellPropertyWriter)
+        
+
+

@@ -33,23 +33,42 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "TCellProperty.hpp"
+#ifndef TCellMutationState_HPP_
+#define TCellMutationState_HPP_
 
-TCellProperty::TCellProperty(unsigned colour)
-    : AbstractCellProperty(),
-      mColour(colour)
+#include "AbstractCellMutationState.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
+/**
+ * Subclass of AbstractCellMutationState defining a 'wild type' mutation state.
+ */
+class TCellMutationState : public AbstractCellMutationState
 {
-}
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the cell mutation state.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+    }
 
-TCellProperty::~TCellProperty()
-{
-}
+public:
+    /**
+     * Constructor.
+     */
+    TCellMutationState();
+};
 
-unsigned TCellProperty::GetColour() const
-{
-    return mColour;
-}
-
-#include "SerializationExportWrapperForCpp.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+CHASTE_CLASS_EXPORT(TCellMutationState)
+
+#endif /* TCellMutationState_HPP_ */

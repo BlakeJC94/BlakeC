@@ -33,12 +33,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "WildTypeCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
-WildTypeCellMutationState::WildTypeCellMutationState()
-    : AbstractCellMutationState(0)
+TumorCellMutationState::TumorCellMutationState()
+    : AbstractCellMutationState(5)
 {}
 
 #include "SerializationExportWrapperForCpp.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(WildTypeCellMutationState)
+CHASTE_CLASS_EXPORT(TumorCellMutationState)

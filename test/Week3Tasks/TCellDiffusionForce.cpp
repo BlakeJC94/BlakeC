@@ -35,7 +35,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellDiffusionForce.hpp"
 #include "NodeBasedCellPopulation.hpp"
-#include "TCellProperty.hpp"
+
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 //Static constant is instantiated here.
 template<unsigned DIM>
@@ -111,7 +113,7 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
         }
         
         
-        if (p_cell->template HasCellProperty<TCellProperty>()) // Only Act on T Cells
+        if (  (p_cell->GetMutationState()->IsType<TCellMutationState>()) && (p_cell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())  )
         {
             double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
 

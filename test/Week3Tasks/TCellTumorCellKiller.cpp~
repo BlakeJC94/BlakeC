@@ -39,8 +39,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellTumorCellKiller.hpp"
 #include "TCellProperty.hpp"
 #include "TumorCellProperty.hpp"
-#include "ImmortalCellProperty.hpp"
 
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 
 TCellTumorCellKiller::TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopulation)
@@ -65,15 +66,15 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         /* Check and kill any T Cells in an annular region (5.05 < r < 6.00).
          * Inner radius chosen to be slightly above 5 to slightly increase chance of survival for new T Cells.
          * Outer radius chosen to exclude checking brand new T Cells that had not yet teleported. */
-        if (  (cell_iter->HasCellProperty<TCellProperty>()) && (r_coordinate > 5.05) && (r_coordinate < 6.0 )   )
+        if (  (cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (r_coordinate > 5.05) && (r_coordinate < 6.0 )   )
         {
             cell_iter->Kill();
         }
         
         /* Check all Tumor Cells. For each case, check if any neighbouring node index is associated with a cell
-         * that posesses a TCellProperty. 
+         * that posesses a TCellMutationState. 
          * If one neighbour node is paired with a T Cell, kill the selected Tumor Cell. */
-        if (cell_iter->HasCellProperty<TumorCellProperty>()) 
+        if (cell_iter->GetMutationState()->IsType<TumorCellMutationState>())
         {
             // Get set of all node indices of neighbouring cells
             std::set<unsigned> neighbour_indices = this->mpCellPopulation->GetNeighbouringLocationIndices(*cell_iter);
@@ -88,7 +89,7 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
                 CellPtr p_neighbour_cell = this->mpCellPopulation->GetCellUsingLocationIndex(neighbour_index);
 
                 // Check if neighbouring cell is a T Cell
-                if (p_neighbour_cell->template HasCellProperty<TCellProperty>()) 
+                if (p_neighbour_cell->GetMutationState()->IsType<TCellMutationState>())
                 {
                     cell_iter->Kill();
                     break;

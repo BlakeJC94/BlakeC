@@ -38,8 +38,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
-#include "TCellProperty.hpp"
-#include "TumorCellProperty.hpp"
+
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 TCellTumorGenerationBasedCellCycleModel::TCellTumorGenerationBasedCellCycleModel()
 {
@@ -86,47 +87,7 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
     //double lambda = 100;
     
     // T Cell division options
-    if (mpCell->HasCellProperty<TCellProperty>()) 
-    {
-        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else
-        {
-        NEVER_REACHED;
-        }
-    }
-    // Tumor Cell division options
-    else if (mpCell->HasCellProperty<TumorCellProperty>()) 
-    {
-        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-        {
-            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else
-        {
-        NEVER_REACHED;
-        }
-    }
-    // Property-less cell division options (will be used for immortal cell at node 0)
-    else 
+    if (mpCell->GetMutationState()->IsType<TCellMutationState>())
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
@@ -138,9 +99,8 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         }
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            //mG1Duration = (-log(p_gen->ranf())*GetTransitCellG1Duration())/lambda; // E[lambda]
-            //mG1Duration = GetTransitCellG1Duration() + 0.2*p_gen->ranf(); // U[0,0.2]
             mG1Duration = DBL_MAX;
+            //NEVER_REACHED; // Enabling this kills the process (low priority issue)
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
@@ -151,6 +111,30 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
+    // Tumor Cell division options (Increase SetMaxTransitGenerations if there's any issues here)
+    else if (mpCell->GetMutationState()->IsType<TumorCellMutationState>())
+    {
+        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
+        {
+            //mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() ; // U[0,2]
+            NEVER_REACHED;
+        }
+        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+        {
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() ; // U[0,2] 
+        }
+        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
+        {
+            //mG1Duration = DBL_MAX;
+            NEVER_REACHED;
+        }
+        else
+        {
+        NEVER_REACHED;
+        }
+    }
+
+    
 }
 
 void TCellTumorGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

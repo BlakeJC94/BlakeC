@@ -33,39 +33,23 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellProperty_HPP_
-#define TCellProperty_HPP_
+#ifndef TumorCellMutationState_HPP_
+#define TumorCellMutationState_HPP_
 
-#include <boost/shared_ptr.hpp>
-#include "AbstractCellProperty.hpp"
+#include "AbstractCellMutationState.hpp"
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 /**
- * Cell label class.
- *
- * Each Cell owns a CellPropertyCollection, which may include a shared pointer
- * to an object of this type. When a Cell that is labelled divides, the daughter
- * cells are both labelled.
- *
- * The TCellProperty object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
+ * Subclass of AbstractCellMutationState defining a 'wild type' mutation state.
  */
-class TCellProperty : public AbstractCellProperty
+class TumorCellMutationState : public AbstractCellMutationState
 {
-protected:
-
-    /**
-     * Colour for use by visualizer.
-     */
-    unsigned mColour;
-
 private:
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
+     * Archive the cell mutation state.
      *
      * @param archive the archive
      * @param version the current version of this class
@@ -73,32 +57,18 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mColour;
+        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
     }
 
 public:
-
     /**
      * Constructor.
-     *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
      */
-    TCellProperty(unsigned colour=5);
-
-    /**
-     * Destructor.
-     */
-    virtual ~TCellProperty();
-
-    /**
-     * @return #mColour.
-     */
-    unsigned GetColour() const;
+    TumorCellMutationState();
 };
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellProperty)
+CHASTE_CLASS_EXPORT(TumorCellMutationState)
 
-#endif /* TCellProperty_HPP_ */
+#endif /* TumorCellMutationState_HPP_ */

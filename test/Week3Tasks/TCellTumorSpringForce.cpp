@@ -35,8 +35,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellTumorSpringForce.hpp"
 #include "IsNan.hpp"
-#include "TCellProperty.hpp"
-#include "TumorCellProperty.hpp"
+
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 template<unsigned DIM>
 TCellTumorSpringForce<DIM>::TCellTumorSpringForce()
@@ -81,7 +82,8 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         CellPtr p_cell_b = rCellPopulation.GetCellUsingLocationIndex(node_b_index);
         
         // Applies RepulsionForce to T-Cells. Check both cells are T Cells
-        if ((p_cell_a->template HasCellProperty<TCellProperty>()) && (p_cell_b->template HasCellProperty<TCellProperty>()))
+        if (  (p_cell_a->GetMutationState()->IsType<TCellMutationState>()) && (p_cell_b->GetMutationState()->IsType<TCellMutationState>()) 
+            && (p_cell_a->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_cell_b->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) )
         {
         
             // Get the unit vector parallel to the line joining the two nodes
@@ -110,7 +112,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         }
         
         // Applies GeneralisedLinearSpringForce to Tumor Cells. Check both cells are Tumor Cells
-        else if ((p_cell_a->template HasCellProperty<TumorCellProperty>()) && (p_cell_b->template HasCellProperty<TumorCellProperty>())) 
+        else if (  (p_cell_a->GetMutationState()->IsType<TumorCellMutationState>()) && (p_cell_b->GetMutationState()->IsType<TumorCellMutationState>())  ) 
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);

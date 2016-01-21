@@ -41,7 +41,16 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * more flexiblew with cell counts and a more sophisticted CellCycleModel for T Cells
  * as well as a new label to protect the primary T Cell spawner. */
 
-/* Task 3. Fix CellCycleModel to stop the new T Cells dividing once spawned */ 
+/* Task 4. Overhaul simulation management:
+ *          a. Change CellProperties into CellMutationStates and modify component targeting 
+ *              parameters to check mutation states, not properties. 
+ *          b. Remove All mentions of CellProperties (and CellLabels temporarily).
+ *          c. Fix CellProliferativeStates and CellCycleModel to line up simulation code with 
+ *              correct biological semantics. Specify the max no. of generations to tumor cells. 
+ *                  Tumor Cells --> Transit / Tumor MutationState
+ *                  T Cells --> Differntiated / TCell MutationState
+ *                  Node0 --> Stem / TCell MutationState
+ *          d. Change node0 targeting in components to be independent of node index */
 
 
 #include <cxxtest/TestSuite.h>
@@ -61,9 +70,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellTumorCellKiller.hpp"
 #include "TCellTumorSpringForce.hpp"
 
-#include "TCellProperty.hpp"
-#include "TumorCellProperty.hpp"
 #include "TCellTumorGenerationBasedCellCycleModel.hpp"
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 
 class TCellSimulation : public AbstractCellBasedTestSuite
@@ -73,20 +82,20 @@ public:
     void TestTCellSimulation() throw(Exception)
     {
     
-        // T Cell simulation intial state options
-        unsigned num_t_cells = 0; // To be phased out soon
-        unsigned num_tumor_cells = 5;
-        double initial_domain_radius = 5;
+        /* T Cell simulation intial state options */
+        unsigned num_t_cells = 0; // To be phased out soon (low priority)
+        unsigned num_tumor_cells = 10;
+        double initial_domain_radius = 5; // Some components are hardcoded to expect 5 here (med. priority)
         
         std::vector<Node<2>*> nodes;
         
         
-        // Generate node for "Immortal" Stem T Cell 
-        //     node index = 0
+        /* Generate node for "Immortal" Stem T Cell 
+         *     node index = 0 */
         nodes.push_back(new Node<2>(0, false, 6 , 6));
         
-        // Generate T Cell nodes (random loactions in annular domain 2<r<5)
-        //     node index range = [1, num_t_cells]
+        /* Generate T Cell nodes (random loactions in annular domain 2<r<5)
+         *     node index range = [1, num_t_cells] */
         RandomNumberGenerator* p_gen_r = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
         for (unsigned index = 0; index < num_t_cells; index++)
@@ -99,8 +108,8 @@ public:
                 radial_coord * sin(angular_coord)));
         }
         
-        // Generate Tumor Cell nodes (random loactions in circular domain r<1)
-        //     node index range = [num_t_cells + 1, num_t_cells + num_tumor_cells]
+        /* Generate Tumor Cell nodes (random loactions in circular domain r<1)
+         *     node index range = [num_t_cells + 1, num_t_cells + num_tumor_cells] */
         for (unsigned index = 0; index < num_tumor_cells; index++)
         {
             double radial_coord = p_gen_r->ranf();
@@ -112,68 +121,69 @@ public:
         }
         
         
-        // Generate mesh
+        /* Generate mesh */
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(nodes, 1.5);
         
         
-        // Generate cells
+        /* Generate cells */
         std::vector<CellPtr> cells;
         
-        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
-        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         
-        MAKE_PTR(TCellProperty, p_t_cell_property); 
-        
-        MAKE_PTR(TumorCellProperty, p_tumor_cell_property);
-        MAKE_PTR_ARGS(CellLabel, p_tumor_cell_label, (5));
+        MAKE_PTR(TCellMutationState, p_t_cell_state); 
+        MAKE_PTR(TumorCellMutationState, p_tumor_cell_state);
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-            // Cell cycle model for all cells
-            //   Labelled (Tumor Cells) divide according to a distribution specified in TCellTumorGenerationBasedCellCycleModel
-            //   Unlabelled (T Cells) do not divide
-            //   Stem cell at node 0 spawns new T Cells at random points on domain boundary at constant rate
+            /* Cell cycle model for all cells
+             *
+             *   Tumor Cells: Transit Cells with TumorCellMutationState divide according to specified distribution (default U[0, 2])
+             *   T Cells: Differentiated Cells with TCellMutationState do not divide
+             *   
+             *   T Spawn: Stem Cell  with TCellMutationState at node 0 
+             *      spawns new T Cells at random points on domain boundary at constant rate (Transit on spawn, Differentiated after teleport) */
             TCellTumorGenerationBasedCellCycleModel* p_model = new TCellTumorGenerationBasedCellCycleModel();
-            CellPropertyCollection collection;
-            
-            if (  (i <= num_t_cells) && (i != 0)  )
-            {
-               collection.AddProperty(p_t_cell_property);
-            }
-            else if (i > num_t_cells)
-            {
-                collection.AddProperty(p_tumor_cell_label);
-                collection.AddProperty(p_tumor_cell_property);
-            }
-            
-            CellPtr p_cell(new Cell(p_state, p_model, NULL, false, collection));
-            
-            if (i == 0)
-            {
-                p_cell->SetCellProliferativeType(p_stem_type);
-            }
-            else
-            {
-                p_cell->SetCellProliferativeType(p_transit_type);
-            }
             
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                 (p_model->GetStemCellG1Duration()
                     + p_model->GetSG2MDuration());
-            
-            p_cell->SetBirthTime(birth_time);
-            
-            cells.push_back(p_cell);   
+                    
+            if (i == 0) // (ONLY LOCATION WHERE NODE INDEX IS IMPORTANT)
+            {
+                CellPtr p_cell(new Cell(p_t_cell_state, p_model, NULL, false));
+                p_cell->SetCellProliferativeType(p_stem_type);
+                p_cell->SetBirthTime(birth_time);
+                cells.push_back(p_cell);   
+            }
+            else if ( (i > 0) && (i <= num_t_cells)  )
+            {
+               CellPtr p_cell(new Cell(p_t_cell_state, p_model, NULL, false));
+               p_cell->SetCellProliferativeType(p_diff_type);
+               p_cell->SetBirthTime(birth_time);
+               cells.push_back(p_cell);   
+            }
+            else
+            {
+                p_model->SetMaxTransitGenerations(100000);
+                
+                CellPtr p_cell(new Cell(p_tumor_cell_state, p_model, NULL, false));
+                p_cell->SetCellProliferativeType(p_transit_type);
+                p_cell->SetBirthTime(birth_time);
+                cells.push_back(p_cell);   
+            }
+
+ 
         }
         
         
-        // Generate Cell Population
+        /* Generate Cell Population */
         NodeBasedCellPopulation<2> cell_population(mesh, cells);
         
         
-        // Begin OffLatticeSimulation
+        /* Begin OffLatticeSimulation */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestTCellSimulation");
         simulator.SetSamplingTimestepMultiple(6);
@@ -186,6 +196,7 @@ public:
          * No interaction specified between Tumor Cell and T Cell 
          * Node 0 ignored */
         MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
+        //p_spring_force->SetCutOffLength(3.0);
         simulator.AddForce(p_spring_force);
         
         /* Add diffusion force component to T Cells */
@@ -211,4 +222,3 @@ public:
 };
 
 // Pass
-
