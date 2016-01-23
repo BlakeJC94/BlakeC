@@ -33,7 +33,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "TCellTumorGenerationBasedCellCycleModel.hpp"
+#include "TCellTumorCellCycleModel.hpp"
 #include "Exception.hpp"
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
@@ -42,14 +42,14 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellMutationState.hpp"
 #include "TumorCellMutationState.hpp"
 
-TCellTumorGenerationBasedCellCycleModel::TCellTumorGenerationBasedCellCycleModel()
+TCellTumorCellCycleModel::TCellTumorCellCycleModel()
 {
 }
 
-AbstractCellCycleModel* TCellTumorGenerationBasedCellCycleModel::CreateCellCycleModel()
+AbstractCellCycleModel* TCellTumorCellCycleModel::CreateCellCycleModel()
 {
     // Create a new cell-cycle model
-    TCellTumorGenerationBasedCellCycleModel* p_model = new TCellTumorGenerationBasedCellCycleModel();
+    TCellTumorCellCycleModel* p_model = new TCellTumorCellCycleModel();
 
     /*
      * Set each member variable of the new cell-cycle model that inherits
@@ -81,27 +81,31 @@ AbstractCellCycleModel* TCellTumorGenerationBasedCellCycleModel::CreateCellCycle
     return p_model;
 }
 
-void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
+void TCellTumorCellCycleModel::SetG1Duration()
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-    //double lambda = 100;
+    //double lambda = 100; // Exponential dist. param for Stem T Cell proliferation
     
-    // T Cell division options
+        
+    /* --==-- 01: T Cell division options --==-- */
     if (mpCell->GetMutationState()->IsType<TCellMutationState>())
     {
+        // Located outside distribution, supplies T Cells for simulation
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
             //mG1Duration = (-log(p_gen->ranf())*GetStemCellG1Duration())/lambda; // E[lambda]
             //mG1Duration = GetStemCellG1Duration() + 0.2*p_gen->ranf(); // U[0,0.2]
+            mMDuration = 0.05;
             mG1Duration = 0.01;
-            mG2Duration = 0.01;
             mSDuration = 0.01;
+            mG2Duration = 0.01;
         }
+        // Newly made T Cell, targeted by T Cell teleporter in CellKiller component
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
             mG1Duration = DBL_MAX;
-            //NEVER_REACHED; // Enabling this kills the process (low priority issue)
         }
+        // Active T Cells in simulation domain. Diffuse and Randomly attaches to and kills Tumor cells
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
             mG1Duration = DBL_MAX;
@@ -111,40 +115,42 @@ void TCellTumorGenerationBasedCellCycleModel::SetG1Duration()
         NEVER_REACHED;
         }
     }
-    // Tumor Cell division options (Increase SetMaxTransitGenerations if there's any issues here)
-    else if (mpCell->GetMutationState()->IsType<TumorCellMutationState>())
+    
+    
+    /* --==-- 02: Tumor Cell division options --==-- */
+    // (Increase SetMaxTransitGenerations if there's any issues here)
+    else if (  (mpCell->GetMutationState()->IsType<TumorCellMutationState>()) && !(mpCell->HasCellProperty<CellLabel>())  )
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
-            //mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() ; // U[0,2]
             NEVER_REACHED;
         }
+        // Active Tumor Cells in simulation domain. Indefinitely divide until killed by T Cell
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() ; // U[0,2] 
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 5; // U[5,7] 
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
-            //mG1Duration = DBL_MAX;
-            NEVER_REACHED;
+            NEVER_REACHED; 
         }
         else
         {
-        NEVER_REACHED;
+            NEVER_REACHED;
         }
     }
-
     
+     
 }
 
-void TCellTumorGenerationBasedCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
+void TCellTumorCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
     // No new parameters to output
 
     // Call method on direct parent class
-    AbstractSimpleGenerationBasedCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+    AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(TCellTumorGenerationBasedCellCycleModel)
+CHASTE_CLASS_EXPORT(TCellTumorCellCycleModel)

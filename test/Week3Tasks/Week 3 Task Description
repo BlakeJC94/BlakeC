@@ -4,7 +4,7 @@ CHASTE: Third exercise descpription ---------------------------------
 After Week 2, we have a basic, but working first iteration of the simulation we are
 working towards. This week, we wish to add more foundations for more adding more
 complexity in later revisions. This will require rewriting some components to be 
-more flexiblew with cell counts and a more sophisticted CellCycleModel for T Cells
+more flexible with cell counts and a more sophisticted CellCycleModel for T Cells
 as well as a new label to protect the primary T Cell spawner. 
 
 

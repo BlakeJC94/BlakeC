@@ -35,7 +35,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TCellDiffusionForce.hpp"
 #include "NodeBasedCellPopulation.hpp"
-#include "TCellProperty.hpp"
 
 #include "TCellMutationState.hpp"
 #include "TumorCellMutationState.hpp"
@@ -99,48 +98,44 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
          node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
          ++node_iter)
     {
-        // Get the index, radius and damping constant of this node
+        // Get the radius of this node
         unsigned node_index = node_iter->GetIndex();
         double node_radius = node_iter->GetRadius();
         
         // Get cell associated with this index
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
 
-        // If the node radius is zero, then it has not been set...
+        // Reject if no radius has been set
         if (node_radius == 0.0)
         {
-            // ...so throw an exception to avoid dividing by zero when we compute diffusion_constant below
             EXCEPTION("SetRadius() must be called on each Node before calling TCellDiffusionForce::AddForceContribution() to avoid a division by zero error");
         }
         
-        
-        if (  (p_cell->GetMutationState()->IsType<TCellMutationState>()) && (p_cell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())  )
+        //   If the selected cell is a Labelled Differentiated T Cell, apply diffusion force contribution.
+        if (  (p_cell->GetMutationState()->IsType<TCellMutationState>()) && (p_cell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) 
+            && !(p_cell->HasCellProperty<CellLabel>())  )
         {
             double nu = dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation)->GetDampingConstant(node_index);
 
-            /*
-             * Compute the diffusion coefficient D as D = k*T/(6*pi*eta*r), where
+            /* Compute the diffusion coefficient D as D = k*T/(6*pi*eta*r), where
              *
              * k = Boltzmann's constant,
              * T = absolute temperature,
              * eta = dynamic viscosity,
-             * r = cell radius.
-             */
+             * r = cell radius. */
             double diffusion_const_scaling = GetDiffusionScalingConstant();
             double diffusion_constant = diffusion_const_scaling/node_radius;
 
             c_vector<double, DIM> force_contribution;
             for (unsigned i=0; i<DIM; i++)
             {
-                /*
-                 * The force on this cell is scaled with the timestep such that when it is
+                /* The force on this cell is scaled with the timestep such that when it is
                  * used in the discretised equation of motion for the cell, we obtain the
                  * correct formula
                  *
                  * x_new = x_old + sqrt(2*D*dt)*W
                  *
-                 * where W is a standard normal random variable.
-                 */
+                 * where W is a standard normal random variable. */
                 double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
                 
                 force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi);
@@ -148,6 +143,8 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
             node_iter->AddAppliedForceContribution(force_contribution);
         }
     }
+    
+    
 }
 
 template<unsigned DIM>

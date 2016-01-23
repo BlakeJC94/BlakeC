@@ -33,8 +33,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellTumorGenerationBASEDCELLCYCLEMODEL_HPP_
-#define TCellTumorGenerationBASEDCELLCYCLEMODEL_HPP_
+#ifndef TCellTumorCellCycleModel_HPP_
+#define TCellTumorCellCycleModel_HPP_
 
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
@@ -43,7 +43,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * A stochastic cell-cycle model employed by Meineke et al (2001) in their off-lattice
  * model of the intestinal crypt (doi:10.1046/j.0960-7722.2001.00216.x).
  */
-class TCellTumorGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
+class TCellTumorCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
     friend class TestSimpleCellCycleModels;
 
@@ -82,7 +82,7 @@ public:
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called
      */
-    TCellTumorGenerationBasedCellCycleModel();
+    TCellTumorCellCycleModel();
 
     /**
      * Overridden builder method to create new copies of
@@ -102,6 +102,6 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TCellTumorGenerationBasedCellCycleModel)
+CHASTE_CLASS_EXPORT(TCellTumorCellCycleModel)
 
-#endif /*TCellTumorGenerationBASEDCELLCYCLEMODEL_HPP_*/
+#endif /*TCellTumorCellCycleModel_HPP_*/

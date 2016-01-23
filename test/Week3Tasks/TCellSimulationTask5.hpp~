@@ -38,7 +38,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* After Week 2, we have a basic, but working first iteration of the simulation we are
  * working towards. This week, we wish to add more foundations for more adding more
  * complexity in later revisions. This will require rewriting some components to be 
- * more flexiblew with cell counts and a more sophisticted CellCycleModel for T Cells
+ * more flexible with cell counts and a more sophisticted CellCycleModel for T Cells
  * as well as a new label to protect the primary T Cell spawner. */
 
 /* Task 5.  a. Migrate BoundaryCondition code into the CellKiller component
@@ -61,8 +61,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TCellDiffusionForce.hpp"
 #include "TCellTumorCellKiller.hpp"
 #include "TCellTumorSpringForce.hpp"
+#include "TCellTumorCellCycleModel.hpp"
 
-#include "TCellTumorGenerationBasedCellCycleModel.hpp"
 #include "TCellMutationState.hpp"
 #include "TumorCellMutationState.hpp"
 
@@ -76,7 +76,7 @@ public:
     
         /* T Cell simulation intial state options */
         unsigned num_t_cells = 0; // To be phased out soon (low priority)
-        unsigned num_tumor_cells = 10;
+        unsigned num_tumor_cells = 5;
         double initial_domain_radius = 5; // Some components are hardcoded to expect 5 here (med. priority)
         
         std::vector<Node<2>*> nodes;
@@ -137,7 +137,7 @@ public:
              *   
              *   T Spawn: Stem Cell  with TCellMutationState at node 0 
              *      spawns new T Cells at random points on domain boundary at constant rate (Transit on spawn, Differentiated after teleport) */
-            TCellTumorGenerationBasedCellCycleModel* p_model = new TCellTumorGenerationBasedCellCycleModel();
+            TCellTumorCellCycleModel* p_model = new TCellTumorCellCycleModel();
             
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                 (p_model->GetStemCellG1Duration()
@@ -184,14 +184,14 @@ public:
 
         /* Add generalised linear spring forces between cells
          *   Tumor Cell & Tumor Cell --> Attraction and Repulsion
-         *   T Cell & T Cell --> Repulsion only 
+         *   Differntiated T Cell & Differentiated T Cell --> Repulsion only 
          * No interaction specified between Tumor Cell and T Cell 
-         * Node 0 ignored */
+         * Stem T Cell ignored */
         MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
         //p_spring_force->SetCutOffLength(3.0);
         simulator.AddForce(p_spring_force);
         
-        /* Add diffusion force component to T Cells */
+        /* Add diffusion force component to Differntiated T Cells */
         MAKE_PTR(TCellDiffusionForce<2>, p_diffusion_force);
         simulator.AddForce(p_diffusion_force);
         

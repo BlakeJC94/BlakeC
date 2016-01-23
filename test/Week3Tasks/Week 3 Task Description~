@@ -31,8 +31,9 @@ as well as a new label to protect the primary T Cell spawner.
                 Node0 --> Stem / TCell MutationState
         d. Change node0 targeting in components to be independent of node index
     
-    5. Use CellLabel to mark T-Cells that are attatched to tumor cells, set up 
-        framework for an updated time-based CellKiller
+    5.  a. Migrate BoundaryCondition code into the CellKiller component
+        b. Use CellLabel to mark T-Cells that are attatched to tumor cells, set up 
+            framework for an updated time-based CellKiller
     
     6. Use EllipticPDES components in ChasteSVN Repo to overlay PDE in simulation
     
