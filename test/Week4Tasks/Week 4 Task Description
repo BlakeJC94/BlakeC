@@ -1,0 +1,17 @@
+CHASTE: Fourth exercise descpription --------------------------------
+---------------------------------------------------------------------
+
+We have entered the final stages of this project. Everything is up and running to the exact specifications required. Only a 
+few tasks remain. All that remains is to fit a parabollic PDE with the correct sources on the siumulation and finally 
+implement a working CellMutationStatesCountWriter. We wish to finish this by Thursday ready for presentation on Friday. 
+Also don't forget about that damn poster for this project. 
+
+3 Tasks were assigned for this simulation:
+
+    1. Apply a proper Parabollic PDE which only uses Labelled T Cells as sources.  
+    
+    2. Alter Chemotaxic force files supplied by James for simulation. We wish for unlabelled T Cells to follow the concentration gradient
+    
+    3. Fix CellMutationStateWriter to output counts for the correct mutation states instead of the default set
+
+
