@@ -38,11 +38,11 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
-#include "TCellProperty.hpp"
-#include "TumorCellProperty.hpp"
+
+#include "TCellMutationState.hpp"
+#include "TumorCellMutationState.hpp"
 
 TCellTumorCellCycleModel::TCellTumorCellCycleModel()
-    : AbstractSimpleCellCycleModel()
 {
 }
 
@@ -75,65 +75,37 @@ AbstractCellCycleModel* TCellTumorCellCycleModel::CreateCellCycleModel()
     p_model->SetSDuration(mSDuration);
     p_model->SetG2Duration(mG2Duration);
     p_model->SetMDuration(mMDuration);
+    p_model->SetGeneration(mGeneration);
+    p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
 
     return p_model;
 }
 
-void TCellTumorCellCycleModel::SetG1Duration() // Edit this later to add config options for ImmortalCell
+void TCellTumorCellCycleModel::SetG1Duration()
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-    //double lambda = 100;
+    //double lambda = 100; // Exponential dist. param for Stem T Cell proliferation
     
-    if (mpCell->HasCellProperty<TCellProperty>()) // T Cell division options
+        
+    /* --==-- 01: T Cell division options --==-- */
+    if (mpCell->GetMutationState()->IsType<TCellMutationState>())
     {
-        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else
-        {
-        NEVER_REACHED;
-        }
-    }
-    else if (mpCell->HasCellProperty<TumorCellProperty>()) // Tumor Cell division options
-    {
-        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-        {
-            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 8; // U[8,10]
-        }
-        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-        {
-            mG1Duration = DBL_MAX;
-        }
-        else
-        {
-        NEVER_REACHED;
-        }
-    }
-    else // Property-less cell division options (will be used for immortal cell)
-    {
+        // Located outside distribution, supplies T Cells for simulation
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
             //mG1Duration = (-log(p_gen->ranf())*GetStemCellG1Duration())/lambda; // E[lambda]
-            mG1Duration = GetStemCellG1Duration() + p_gen->ranf(); // U[0,2]
+            //mG1Duration = GetStemCellG1Duration() + 0.2*p_gen->ranf(); // U[0,0.2]
+            mMDuration = 0.05;
+            mG1Duration = 0.01;
+            mSDuration = 0.01;
+            mG2Duration = 0.01;
         }
+        // Newly made T Cell, targeted by T Cell teleporter in CellKiller component
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            //mG1Duration = (-log(p_gen->ranf())*GetTransitCellG1Duration())/lambda; // E[lambda]
-            mG1Duration = GetTransitCellG1Duration() + p_gen->ranf(); // U[0,2]
+            mG1Duration = DBL_MAX;
         }
+        // Active T Cells in simulation domain. Diffuse and Randomly attaches to and kills Tumor cells
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {
             mG1Duration = DBL_MAX;
@@ -143,11 +115,39 @@ void TCellTumorCellCycleModel::SetG1Duration() // Edit this later to add config 
         NEVER_REACHED;
         }
     }
+    
+    
+    /* --==-- 02: Tumor Cell division options --==-- */
+    // (Increase SetMaxTransitGenerations if there's any issues here)
+    else if (  (mpCell->GetMutationState()->IsType<TumorCellMutationState>()) && !(mpCell->HasCellProperty<CellLabel>())  )
+    {
+        if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
+        {
+            NEVER_REACHED;
+        }
+        // Active Tumor Cells in simulation domain. Indefinitely divide until killed by T Cell
+        else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+        {
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[0,2] 
+        }
+        else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
+        {
+            NEVER_REACHED; 
+        }
+        else
+        {
+            NEVER_REACHED;
+        }
+    }
+    
+     
 }
 
 void TCellTumorCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    // No new parameters to output, so just call method on direct parent class
+    // No new parameters to output
+
+    // Call method on direct parent class
     AbstractSimpleCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 

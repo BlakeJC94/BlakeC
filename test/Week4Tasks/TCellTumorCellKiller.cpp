@@ -107,8 +107,8 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
          * Inner radius chosen to be slightly above 5 to slightly increase chance of survival for new T Cells.
          * Outer radius chosen to exclude checking brand new T Cells that had not yet teleported. */
         
-        // Filter: Differentiated T Cells in the range 5.05 < r < 6.0 
-        if (  (cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (r_coordinate > 5.05) && (r_coordinate < 6.0 )   )
+        // Filter: Differentiated T Cells in the range r > 5.05 
+        if (  (cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (cell_iter->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (r_coordinate > 5.05)   )
         {
             cell_iter->Kill();
         }
@@ -192,36 +192,6 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
                 cell_iter->RemoveCellProperty<CellLabel>();
             }
         }
-        
-        
-        /* ----- Start old code: Instantaneously kills tumor cells that have a T -Cell neighbour ---
-         * Check all Tumor Cells. For each case, check if any neighbouring node index is associated with a cell
-         * that posesses a TCellMutationState. 
-         * If one neighbour node is paired with a T Cell, kill the selected Tumor Cell.
-        if (cell_iter->GetMutationState()->IsType<TumorCellMutationState>())
-        {
-            // Get set of all node indices of neighbouring cells
-            std::set<unsigned> neighbour_indices = this->mpCellPopulation->GetNeighbouringLocationIndices(*cell_iter);
-            
-            for (std::set<unsigned>::iterator iter = neighbour_indices.begin();
-                iter != neighbour_indices.end();
-                ++iter)
-            {
-                unsigned neighbour_index = *(iter);
-
-                // Get cell associated with this node index
-                CellPtr p_neighbour_cell = this->mpCellPopulation->GetCellUsingLocationIndex(neighbour_index);
-
-                // Check if neighbouring cell is a T Cell
-                if (p_neighbour_cell->GetMutationState()->IsType<TCellMutationState>())
-                {
-                    cell_iter->Kill();
-                    break;
-                }
-            }
-        }
-         * ----- End old code */
-         
     }
 }
 

@@ -40,7 +40,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * implement a working CellMutationStatesCountWriter. We wish to finish this by Thursday ready for presentation on Friday. 
  * Also don't forget about that damn poster for this project.  */
 
-/* Task 1. Apply a proper Parabollic PDE which only uses Labelled T Cells as sources. */
+/* Task 3. Fix CellMutationStateWriter to output counts for the correct mutation states instead of the default set */
 
 
 #include <cxxtest/TestSuite.h>
@@ -67,6 +67,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ParabolicBoxDomainPdeModifier.hpp"
 #include "AveragedSourceParabolicPde.hpp"
 #include "ParabolicPdeAndBoundaryConditions.hpp"
+#include "TCellChemotacticForce.hpp"
 
 
 class TCellSimulation : public AbstractCellBasedTestSuite
@@ -80,13 +81,15 @@ public:
         unsigned num_t_cells = 0; // To be phased out soon (low priority)
         unsigned num_tumor_cells = 5;
         double initial_domain_radius = 5; // Some components are hardcoded to expect 5 here (med. priority)
+        //double node_0_coord = initial_domain_radius*1.5;
+        double node_0_coord = 6;
         
         std::vector<Node<2>*> nodes;
         
         
         /* Generate node for "Immortal" Stem T Cell 
          *     node index = 0 */
-        nodes.push_back(new Node<2>(0, false, 6 , 6));
+        nodes.push_back(new Node<2>(0, false, node_0_coord , node_0_coord));
         
         /* Generate T Cell nodes (random loactions in annular domain 2<r<5)
          *     node index range = [1, num_t_cells] */
@@ -144,35 +147,29 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                 (p_model->GetStemCellG1Duration()
                     + p_model->GetSG2MDuration());
-                    
+            
+            CellPtr p_cell(new Cell(p_t_cell_state, p_model, NULL, false));
+
+            p_cell->SetBirthTime(birth_time);
+            p_cell->GetCellData()->SetItem("cytokines", 0.0); // PDE
+            p_cell->GetCellData()->SetItem("cytokines_grad_x", 0.0);
+            p_cell->GetCellData()->SetItem("cytokines_grad_y", 0.0);
+            
             if (i == 0) // (ONLY LOCATION WHERE NODE INDEX IS IMPORTANT)
             {
-                CellPtr p_cell(new Cell(p_t_cell_state, p_model, NULL, false));
                 p_cell->SetCellProliferativeType(p_stem_type);
-                p_cell->SetBirthTime(birth_time);
-                p_cell->GetCellData()->SetItem("cytokines", 1.0); // PDE
-                cells.push_back(p_cell);   
             }
             else if ( (i > 0) && (i <= num_t_cells)  )
             {
-               CellPtr p_cell(new Cell(p_t_cell_state, p_model, NULL, false));
-               p_cell->SetCellProliferativeType(p_diff_type);
-               p_cell->SetBirthTime(birth_time);
-               p_cell->GetCellData()->SetItem("cytokines", 1.0); // PDE
-               cells.push_back(p_cell);   
+               p_cell->SetCellProliferativeType(p_diff_type);   
             }
             else
             {
-                p_model->SetMaxTransitGenerations(100000);
-                
-                CellPtr p_cell(new Cell(p_tumor_cell_state, p_model, NULL, false));
+                p_model->SetMaxTransitGenerations(100000000);
+                p_cell->SetMutationState(p_tumor_cell_state);
                 p_cell->SetCellProliferativeType(p_transit_type);
-                p_cell->SetBirthTime(birth_time);
-                p_cell->GetCellData()->SetItem("cytokines", 1.0); // PDE
-                cells.push_back(p_cell);   
             }
-
- 
+            cells.push_back(p_cell);
         }
         
         
@@ -185,7 +182,7 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestTCellSimulation");
         simulator.SetSamplingTimestepMultiple(6);
-        simulator.SetEndTime(45.0);
+        simulator.SetEndTime(75.0);
 
 
         /* Add generalised linear spring forces between cells
@@ -194,7 +191,6 @@ public:
          * No interaction specified between Tumor Cell and T Cell 
          * Stem T Cell ignored */
         MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
-        //p_spring_force->SetCutOffLength(3.0);
         simulator.AddForce(p_spring_force);
         
         /* Add diffusion force component to Differntiated T Cells */
@@ -209,22 +205,29 @@ public:
         simulator.AddCellKiller(p_cell_killer);
         
         
-        // ** Make the PDE and BCs
-        AveragedSourceParabolicPde<2> pde(cell_population, 10.0, 1.0, 3.0); // Tune these parameter to be more realistic
-        ConstBoundaryCondition<2> bc(1.0);
+        /* Make the PDE and BCs */
+        AveragedSourceParabolicPde<2> pde(cell_population, 10.0, 1.0, 5.0); // Tune these parameter to be more realistic
+        ConstBoundaryCondition<2> bc(0.0);
         ParabolicPdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
         pde_and_bc.SetDependentVariableName("cytokines");
 
-        // ** Make domain
-        ChastePoint<2> lower(-7.0, -7.0);
-        ChastePoint<2> upper(7.0, 7.0);
+        /* Make domain */
+        ChastePoint<2> lower(-16.0, -16.0);
+        ChastePoint<2> upper(16.0, 16.0);
         ChasteCuboid<2> cuboid(lower, upper);
 
-        // ** Create a PDE Modifier object using this pde and bcs object
+        /* Create a PDE Modifier object using this pde and bcs object */
         MAKE_PTR_ARGS(ParabolicBoxDomainPdeModifier<2>, p_pde_modifier, (&pde_and_bc,cuboid));
+        p_pde_modifier->SetOutputGradient(true);
         simulator.AddSimulationModifier(p_pde_modifier);
         
+        /* Add chemotactic force to Unlabelled T Cells */
+        MAKE_PTR(TCellChemotacticForce<2>, p_chemotactic_force_cytokines);
+        p_chemotactic_force_cytokines->SetVariableName("cytokines");
+        p_chemotactic_force_cytokines->SetStrengthParameter(1.0);
+        simulator.AddForce(p_chemotactic_force_cytokines);
         
+        /* Call solve */
         simulator.Solve();
         
     }

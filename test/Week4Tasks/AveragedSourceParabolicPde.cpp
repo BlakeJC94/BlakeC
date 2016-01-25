@@ -121,8 +121,8 @@ double AveragedSourceParabolicPde<DIM>::ComputeSourceTerm(const ChastePoint<DIM>
     assert(!mCellDensityOnCoarseElements.empty());
     double coefficient = mUptakeCoefficient * mCellDensityOnCoarseElements[pElement->GetIndex()];
 
-    // The source term is C*u
-    return coefficient*u;
+    // The source term is C-d*u
+    return coefficient-5.0*u;
 }
 
 template<unsigned DIM>

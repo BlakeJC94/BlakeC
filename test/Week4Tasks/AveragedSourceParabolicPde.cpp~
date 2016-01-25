@@ -90,8 +90,9 @@ void AveragedSourceParabolicPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>&
 
         // Update element map if cell has moved
         bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
-
-        if (!cell_is_apoptotic)
+        bool cell_is_labelled = cell_iter->template HasCellProperty<CellLabel>();
+        
+        if (  (!cell_is_apoptotic) && (cell_is_labelled)  )
         {
             mCellDensityOnCoarseElements[elem_index] += 1.0;
         }
@@ -120,8 +121,8 @@ double AveragedSourceParabolicPde<DIM>::ComputeSourceTerm(const ChastePoint<DIM>
     assert(!mCellDensityOnCoarseElements.empty());
     double coefficient = mUptakeCoefficient * mCellDensityOnCoarseElements[pElement->GetIndex()];
 
-    // The source term is C*u
-    return coefficient*u;
+    // The source term is C-d*u
+    return coefficient-5.0*u;
 }
 
 template<unsigned DIM>
