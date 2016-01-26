@@ -47,7 +47,8 @@ template<unsigned DIM>
 TCellDiffusionForce<DIM>::TCellDiffusionForce()
     : AbstractForce<DIM>(),
       mAbsoluteTemperature(296.0), // default to room temperature
-      mViscosity(3.204e-6) // default to viscosity of water at room temperature in (using 10 microns and hours)
+      mViscosity(3.204e-6), // default to viscosity of water at room temperature in (using 10 microns and hours)
+      mStrengthParameter(0.1)
 {
 }
 
@@ -63,6 +64,9 @@ void TCellDiffusionForce<DIM>::SetAbsoluteTemperature(double newValue)
     mAbsoluteTemperature = newValue;
 }
 
+
+
+
 template<unsigned DIM>
 double TCellDiffusionForce<DIM>::GetAbsoluteTemperature()
 {
@@ -74,6 +78,13 @@ void TCellDiffusionForce<DIM>::SetViscosity(double newValue)
 {
     assert(newValue > 0.0);
     mViscosity = newValue;
+}
+
+template<unsigned DIM>
+void TCellDiffusionForce<DIM>::SetDiffusionIntensity(double newValue)
+{
+    assert(newValue > 0.0);
+    mStrengthParameter = newValue;
 }
 
 template<unsigned DIM>
@@ -138,7 +149,7 @@ void TCellDiffusionForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM>&
                  * where W is a standard normal random variable. */
                  
                 double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
-                force_contribution[i] = 0.1 * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi);
+                force_contribution[i] = mStrengthParameter * ((nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi);
             }
             node_iter->AddAppliedForceContribution(force_contribution);
         }

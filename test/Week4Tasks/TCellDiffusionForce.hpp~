@@ -70,9 +70,6 @@ private :
      * (10 microns)^2 kg h^(-2) K^(-1).
      */
     static const double msBoltzmannConstant;
-    
-    
-    double mStrengthParameter;
 
     /**
      * Archiving.
@@ -91,7 +88,6 @@ private :
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mAbsoluteTemperature;
         archive & mViscosity;
-        archive & mStrengthParameter;
     }
 
 public :
@@ -121,9 +117,6 @@ public :
       * @param viscosity the viscosity
       */
     void SetViscosity(double viscosity);
-
-
-    void SetDiffusionIntensity(double diffusion_intensity);
 
     /**
      * Get the absolute temperature.

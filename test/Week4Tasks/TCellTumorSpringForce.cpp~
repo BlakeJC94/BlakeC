@@ -110,7 +110,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         
         /* --==-- 02: T Cell - Tumor Cell Springs segment --==-- */
         /* Applies GeneralisedLinearSpringForce between Labelled T-Cells and Tumor Cells */
-        else if (  (p_cell_a->HasCellProperty<CellLabel>()) && (p_cell_b->GetMutationState()->IsType<TumorCellMutationState>()) 
+        if (  (p_cell_a->HasCellProperty<CellLabel>()) && (p_cell_b->GetMutationState()->IsType<TumorCellMutationState>()) 
             || (p_cell_b->HasCellProperty<CellLabel>()) && (p_cell_a->GetMutationState()->IsType<TumorCellMutationState>())  )
         {
         
@@ -130,7 +130,7 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         
         /* --==-- 03: Tumor Cell - Tumor Cell Springs segment --==-- */
         /* Applies GeneralisedLinearSpringForce between Tumor Cells. Check both cells are Tumor Cells */
-        else if (  (p_cell_a->GetMutationState()->IsType<TumorCellMutationState>()) && (p_cell_b->GetMutationState()->IsType<TumorCellMutationState>())  ) 
+        if (  (p_cell_a->GetMutationState()->IsType<TumorCellMutationState>()) && (p_cell_b->GetMutationState()->IsType<TumorCellMutationState>())  ) 
         {   
             // Calculate the force between nodes
             c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);

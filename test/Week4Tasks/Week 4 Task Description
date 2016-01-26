@@ -14,6 +14,6 @@ Also don't forget about that damn poster for this project.
     
     3. Fix CellMutationStateWriter to output counts for the correct mutation states instead of the default set
     
-    4. Increase domain radius to 10
+    4. Fix hardcoded variables in simulation (domain_radius, node_0_coord, pde_boundary, kill_radius, diffusion_intensity) and cleanup code
 
 

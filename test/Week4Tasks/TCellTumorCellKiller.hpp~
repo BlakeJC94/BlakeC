@@ -62,8 +62,6 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
         archive & mDomainRadius;
-        archive & kill_radius_a;
-        archive & kill_radius_b;
     }
     
     double mDomainRadius;

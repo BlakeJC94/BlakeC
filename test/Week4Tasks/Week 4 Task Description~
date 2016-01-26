@@ -13,5 +13,7 @@ Also don't forget about that damn poster for this project.
     2. Alter Chemotaxic force files supplied by James for simulation. We wish for unlabelled T Cells to follow the concentration gradient
     
     3. Fix CellMutationStateWriter to output counts for the correct mutation states instead of the default set
+    
+    4. Increase domain radius to 10
 
 

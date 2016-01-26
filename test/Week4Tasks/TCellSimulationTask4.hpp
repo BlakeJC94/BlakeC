@@ -40,7 +40,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * implement a working CellMutationStatesCountWriter. We wish to finish this by Thursday ready for presentation on Friday. 
  * Also don't forget about that damn poster for this project.  */
 
-/* Task 3. Fix CellMutationStateWriter to output counts for the correct mutation states instead of the default set */
+/* Task 4. Fix hardcoded variables in simulation (domain_radius, node_0_coord, pde_boundary, kill_radius, 
+ * diffusion_intensity) and cleanup code */
 
 
 #include <cxxtest/TestSuite.h>
@@ -56,7 +57,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "NodeBasedCellPopulation.hpp"
 
 #include "TCellDiffusionForce.hpp"
-#include "TCellTumorCellKiller.hpp"
+#include "TCellTumorCellKiller.hpp" 
 #include "TCellTumorSpringForce.hpp"
 #include "TCellTumorCellCycleModel.hpp"
 
@@ -69,6 +70,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ParabolicPdeAndBoundaryConditions.hpp"
 #include "TCellChemotacticForce.hpp"
 
+#include "Debug.hpp"
+
 
 class TCellSimulation : public AbstractCellBasedTestSuite
 {
@@ -76,41 +79,62 @@ public:
 
     void TestTCellSimulation() throw(Exception)
     {
-    
-        /* T Cell simulation intial state options */
-        unsigned num_t_cells = 0; // To be phased out soon (low priority)
-        unsigned num_tumor_cells = 5;
-        double initial_domain_radius = 5; // Some components are hardcoded to expect 5 here (med. priority)
-        //double node_0_coord = initial_domain_radius*1.5;
-        double node_0_coord = 6;
+        /* Initial cell count options */
+        unsigned num_t_cells = 0; // Default = 0
+        unsigned num_tumor_cells = 5; // Default = 5
         
+        /* Simulation options */
+        double domain_radius = 5; // Default = 5
+        unsigned simulation_time = 45; // Default = 45
+        unsigned sampling_timestep_multiple = 6; //Default = 6
+        double t_cell_spawn_rate = 0.08; // Default = 0.08
+        
+        /* Parabolic PDE options */
+        double dudt_coefficient = 10.0; // Default = 10.0
+        double diffusion_constant = 1.0; // Default = 1.0
+        double uptake_rate = 5.0; // Default = 5.0
+        
+        
+        /* Simulation essential parameters (don't change unless required) */
+        /*     node_0_coord: Top-right corner location for node 0 (node_0_coord, node_0_coord) 
+         *     pde_boundary: Half side length of square domain for PDE 
+         *     kill_radius_a and kill_radius_b: TCells in the range kill_radius_a < r < kill_radius_b will be killed 
+         *     diffusion_intensity: intensity of the diffusion force contribution on T Cells */
+        double node_0_coord = (domain_radius + 1.5)*cos(M_PI/4); // Default = (domain_radius + 1.5)*cos(M_PI/4)
+        double pde_boundary = domain_radius + 1.5; // Default = domain_radius + 1.5
+        double kill_radius_a = domain_radius + 0.15; // Default = domain_radius + 0.15
+        double kill_radius_b = domain_radius + 1.0; // Default = domain_radius + 1.0
+        double diffusion_intensity = domain_radius * 0.02; // Default = domain_radius * 0.02
+        
+        
+        /* Generate nodes */
+        /* 01. Stem T Cell node index = 0 
+         * 02. Initial T Cell nodes: 
+         *         index range = [1, num_t_cells] 
+         *         radial range = ((2 * domain_radius)/5, domain_radius)
+         * 03. Initial Tumor Cell nodes: 
+         *         index range = [num_t_cells + 1, num_t_cells + num_tumor_cells] 
+         *         radial range = (0, domain_radius/5)) */
         std::vector<Node<2>*> nodes;
-        
-        
-        /* Generate node for "Immortal" Stem T Cell 
-         *     node index = 0 */
-        nodes.push_back(new Node<2>(0, false, node_0_coord , node_0_coord));
-        
-        /* Generate T Cell nodes (random loactions in annular domain 2<r<5)
-         *     node index range = [1, num_t_cells] */
         RandomNumberGenerator* p_gen_r = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
-        for (unsigned index = 0; index < num_t_cells; index++)
+        
+        nodes.push_back(new Node<2>(0, false, node_0_coord , node_0_coord)); // 01.
+        
+        for (unsigned index = 0; index < num_t_cells; index++) // 02.
         {            
-            double radial_coord = (initial_domain_radius - 2)*p_gen_r->ranf() + 2;
-            double angular_coord = p_gen_theta->ranf() * 6.283185307;
+            double radial_coord = ((3 * domain_radius)/5) * p_gen_r->ranf() + (2 * domain_radius)/5;
+            double angular_coord = p_gen_theta->ranf() * 2 * M_PI;
             
             nodes.push_back(new Node<2>(index, false, 
                 radial_coord * cos(angular_coord) ,  
                 radial_coord * sin(angular_coord)));
         }
         
-        /* Generate Tumor Cell nodes (random loactions in circular domain r<1)
-         *     node index range = [num_t_cells + 1, num_t_cells + num_tumor_cells] */
-        for (unsigned index = 0; index < num_tumor_cells; index++)
+        for (unsigned index = 0; index < num_tumor_cells; index++) // 03.
         {
-            double radial_coord = p_gen_r->ranf();
-            double angular_coord = p_gen_theta->ranf() * 6.283185307;
+            double radial_coord = (domain_radius/5) * p_gen_r->ranf();
+            double angular_coord = p_gen_theta->ranf() * 2 * M_PI;
             
             nodes.push_back(new Node<2>(index, false, 
                 radial_coord * cos(angular_coord) ,  
@@ -127,22 +151,22 @@ public:
         std::vector<CellPtr> cells;
         
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
-        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        
+        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+
         MAKE_PTR(TCellMutationState, p_t_cell_state); 
         MAKE_PTR(TumorCellMutationState, p_tumor_cell_state);
         
         for (unsigned i=0; i<mesh.GetNumNodes(); i++) 
         {
-            /* Cell cycle model for all cells
-             *
-             *   Tumor Cells: Transit Cells with TumorCellMutationState divide according to specified distribution (default U[0, 2])
-             *   T Cells: Differentiated Cells with TCellMutationState do not divide
-             *   
-             *   T Spawn: Stem Cell  with TCellMutationState at node 0 
-             *      spawns new T Cells at random points on domain boundary at constant rate (Transit on spawn, Differentiated after teleport) */
+            /* Add cell cycle model for all cells
+             * 01. Tumor Cells: 
+             *       Transit and Diff Cells with TumorCellMutationState divide according to specified distribution (default U[0, 2])
+             * 02. T Cells:
+             *       Stem Cells divide at constant rate into Transit Cells 
+             *       Transit and Diff Cells do not divide */
             TCellTumorCellCycleModel* p_model = new TCellTumorCellCycleModel();
+            p_model->SetSpawnRate(t_cell_spawn_rate);
             
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                 (p_model->GetStemCellG1Duration()
@@ -155,15 +179,15 @@ public:
             p_cell->GetCellData()->SetItem("cytokines_grad_x", 0.0);
             p_cell->GetCellData()->SetItem("cytokines_grad_y", 0.0);
             
-            if (i == 0) // (ONLY LOCATION WHERE NODE INDEX IS IMPORTANT)
+            if (i == 0) // 01.
             {
                 p_cell->SetCellProliferativeType(p_stem_type);
             }
-            else if ( (i > 0) && (i <= num_t_cells)  )
+            else if ( (i > 0) && (i <= num_t_cells)  ) // 02.
             {
                p_cell->SetCellProliferativeType(p_diff_type);   
             }
-            else
+            else // 03.
             {
                 p_model->SetMaxTransitGenerations(100000000);
                 p_cell->SetMutationState(p_tumor_cell_state);
@@ -181,51 +205,55 @@ public:
         /* Begin OffLatticeSimulation */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestTCellSimulation");
-        simulator.SetSamplingTimestepMultiple(6);
-        simulator.SetEndTime(75.0);
+        simulator.SetSamplingTimestepMultiple(sampling_timestep_multiple);
+        simulator.SetEndTime(simulation_time);
 
-
-        /* Add generalised linear spring forces between cells
-         *   Tumor Cell & Tumor Cell --> Attraction and Repulsion
-         *   Differntiated T Cell & Differentiated T Cell --> Repulsion only 
-         * No interaction specified between Tumor Cell and T Cell 
-         * Stem T Cell ignored */
-        MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
-        simulator.AddForce(p_spring_force);
-        
-        /* Add diffusion force component to Differntiated T Cells */
-        MAKE_PTR(TCellDiffusionForce<2>, p_diffusion_force);
-        simulator.AddForce(p_diffusion_force);
         
         /* Add cell killer component
-         *   Teleports Transit T Cells in range r > 6.0 onto random points of domain boundary
-         *   Kills Differentiated T Cells that leave domain (in range 5.05 < r < 6)
-         *   Kills Tumor Cells instantly when a T Cell is nearby */
+         *   01: Teleports Transit T Cells in range r > (kill_radius_b) onto random points of domain boundary
+         *   02: Kills Differentiated T Cells that leave domain (in range kill_radius_a < r < kill_radius_b)
+         *   03: T Cells instantly Labelled when a Tumor Cell is nearby and labelled T Cells and Tumor Cells die in pairs randomly 
+         *   04: Labelled T Cells are unlabelled if no Tumor Cell is near */
         MAKE_PTR_ARGS(TCellTumorCellKiller, p_cell_killer, (&cell_population));
+        p_cell_killer->SetDomainRadius(domain_radius);
+        p_cell_killer->SetKillRadiusA(kill_radius_a);
+        p_cell_killer->SetKillRadiusB(kill_radius_b);
         simulator.AddCellKiller(p_cell_killer);
         
         
-        /* Make the PDE and BCs */
-        AveragedSourceParabolicPde<2> pde(cell_population, 10.0, 1.0, 5.0); // Tune these parameter to be more realistic
-        ConstBoundaryCondition<2> bc(0.0);
-        ParabolicPdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
-        pde_and_bc.SetDependentVariableName("cytokines");
-
-        /* Make domain */
-        ChastePoint<2> lower(-16.0, -16.0);
-        ChastePoint<2> upper(16.0, 16.0);
-        ChasteCuboid<2> cuboid(lower, upper);
-
-        /* Create a PDE Modifier object using this pde and bcs object */
-        MAKE_PTR_ARGS(ParabolicBoxDomainPdeModifier<2>, p_pde_modifier, (&pde_and_bc,cuboid));
-        p_pde_modifier->SetOutputGradient(true);
-        simulator.AddSimulationModifier(p_pde_modifier);
+        /* Add generalised linear spring forces between cells
+         *   01: T Cell + T Cell --> Repulsion
+         *   02: Labelled T-Cells + Tumor Cells --> Attraction & Repulsion
+         *   03: Tumor Cell + Tumor Cell --> Attraction and Repulsion */
+        MAKE_PTR(TCellTumorSpringForce<2>, p_spring_force);
+        simulator.AddForce(p_spring_force);
         
-        /* Add chemotactic force to Unlabelled T Cells */
+        /* Add diffusion force component to Unlabelled Differentiated T Cells */
+        MAKE_PTR(TCellDiffusionForce<2>, p_diffusion_force);
+        p_diffusion_force->SetDiffusionIntensity(diffusion_intensity);
+        simulator.AddForce(p_diffusion_force);
+        
+        /* Add chemotactic force to Unlabelled Differentiated T Cells */
         MAKE_PTR(TCellChemotacticForce<2>, p_chemotactic_force_cytokines);
         p_chemotactic_force_cytokines->SetVariableName("cytokines");
         p_chemotactic_force_cytokines->SetStrengthParameter(1.0);
         simulator.AddForce(p_chemotactic_force_cytokines);
+        
+        
+        /* Make the PDE, BCs and PDE Domain */
+        AveragedSourceParabolicPde<2> pde(cell_population, dudt_coefficient, diffusion_constant, uptake_rate); // Code has been altered in this part
+        ConstBoundaryCondition<2> bc(0.0);
+        ParabolicPdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
+        pde_and_bc.SetDependentVariableName("cytokines");
+        ChastePoint<2> lower(-pde_boundary, -pde_boundary);
+        ChastePoint<2> upper(pde_boundary, pde_boundary);
+        ChasteCuboid<2> cuboid(lower, upper);
+
+        /* Add PDE modifier component */
+        MAKE_PTR_ARGS(ParabolicBoxDomainPdeModifier<2>, p_pde_modifier, (&pde_and_bc, cuboid));
+        p_pde_modifier->SetOutputGradient(true);
+        simulator.AddSimulationModifier(p_pde_modifier);
+
         
         /* Call solve */
         simulator.Solve();

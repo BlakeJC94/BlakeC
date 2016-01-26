@@ -83,17 +83,14 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
         if (  (p_cell_a->GetMutationState()->IsType<TCellMutationState>()) && (p_cell_b->GetMutationState()->IsType<TCellMutationState>()) 
             && (p_cell_a->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_cell_b->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) )
         {
-            // Get the unit vector parallel to the line joining the two nodes
             c_vector<double, DIM> unit_difference;
             unit_difference = (static_cast<NodeBasedCellPopulation<DIM>*>(&rCellPopulation))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
 
-            // Calculate the value of the rest length
             double rest_length = node_a_radius+node_b_radius;
             
             // Only apply force if the cells are close (repulsion force)
             if (norm_2(unit_difference) < rest_length)
             {
-                // Calculate the force between nodes
                 c_vector<double, DIM> force = this->CalculateForceBetweenNodes(p_node_a->GetIndex(), p_node_b->GetIndex(), rCellPopulation);
                 c_vector<double, DIM> negative_force = -1.0 * force;
                 for (unsigned j=0; j<DIM; j++)
@@ -101,7 +98,6 @@ void TCellTumorSpringForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM
                     assert(!std::isnan(force[j]));
                 }
                 
-                // Add the force contribution to each node
                 p_node_a->AddAppliedForceContribution(force);
                 p_node_b->AddAppliedForceContribution(negative_force);
             }

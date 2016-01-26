@@ -81,6 +81,11 @@ AbstractCellCycleModel* TCellTumorCellCycleModel::CreateCellCycleModel()
     return p_model;
 }
 
+void TCellTumorCellCycleModel::SetSpawnRate(double newValue)
+{
+    mSpawnRate = newValue;
+}
+
 void TCellTumorCellCycleModel::SetG1Duration()
 {
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
@@ -95,10 +100,15 @@ void TCellTumorCellCycleModel::SetG1Duration()
         {
             //mG1Duration = (-log(p_gen->ranf())*GetStemCellG1Duration())/lambda; // E[lambda]
             //mG1Duration = GetStemCellG1Duration() + 0.2*p_gen->ranf(); // U[0,0.2]
-            mMDuration = 0.05;
+            /*mMDuration = 0.05;
             mG1Duration = 0.01;
             mSDuration = 0.01;
-            mG2Duration = 0.01;
+            mG2Duration = 0.01;*/
+            mMDuration = mSpawnRate/4;
+            mG1Duration = mSpawnRate/4;
+            mSDuration = mSpawnRate/4;
+            mG2Duration = mSpawnRate/4;
+            
         }
         // Newly made T Cell, targeted by T Cell teleporter in CellKiller component
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
@@ -128,7 +138,8 @@ void TCellTumorCellCycleModel::SetG1Duration()
         // Active Tumor Cells in simulation domain. Indefinitely divide until killed by T Cell
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 5; // U[5,7] 
+            //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 5; // U[5,7] 
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
         {

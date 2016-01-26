@@ -43,14 +43,41 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "SmartPointers.hpp"
 
+#include "Debug.hpp"
 
 TCellTumorCellKiller::TCellTumorCellKiller(AbstractCellPopulation<2>* pCellPopulation)
-    : AbstractCellKiller<2>(pCellPopulation)
+    : AbstractCellKiller<2>(pCellPopulation),
+    mDomainRadius(5.0),
+    kill_radius_a(5.15),
+    kill_radius_b(6.0)
 {
 }
 
+double TCellTumorCellKiller::GetDomainRadius()
+{
+    return mDomainRadius;
+}
+
+void TCellTumorCellKiller::SetDomainRadius(double newValue)
+{
+    mDomainRadius = newValue;
+}
+
+void TCellTumorCellKiller::SetKillRadiusA(double newValue)
+{
+    kill_radius_a = newValue;
+}
+
+void TCellTumorCellKiller::SetKillRadiusB(double newValue)
+{
+    kill_radius_b = newValue;
+}
+
+
 void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
 {
+    double node_0_coord = (mDomainRadius + 1.5)*cos(M_PI/4);
+    
     // Update CellPopulation and make pointers
     mpCellPopulation->Update(); 
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
@@ -74,41 +101,41 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
         
         /* --==-- 01: T Cell Portal segment --==-- */
         /* Check for newly spawned cells outside "kill-zone" boundary. Daughter cells of the Stem Cell with 
-         * TCellMutation will be Transit Cells with TCellMutation. If there is a Transit TCell in the range (r > 6.0), 
-         * teleoprt that cell to a random point on the circle with radius *slightly* lower than radius of domain and 
+         * TCellMutation will be Transit Cells with TCellMutation. If there is a Transit TCell in the range (r > kill_radius_b), 
+         * teleoprt that cell to a random point on the circle with radius of domain and 
          * change the proliferative type into a differentiated T Cell.
          * Spawning new T Cells moves the Stem Cell slightly, so reset position often. */
          
         // Generate random angular coordinate to teleport a cell to
         RandomNumberGenerator* p_gen_theta = RandomNumberGenerator::Instance();
         
-        // Filter: Transit T Cell that is in the range r > 6.0 
-        if (  (r_coordinate > 6.0) && ((cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (cell_iter->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()))  )
+        // Filter: Transit T Cell that is in the range r > kill_radius_b (Default: 6.0)
+        if (  (r_coordinate > kill_radius_b) && ((cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (cell_iter->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()))  )
         {
             // Teleporter
-            double angular_coord = p_gen_theta->ranf() * 6.283185307;
-            p_node->rGetModifiableLocation()[0] = 4.9 * cos(angular_coord); // Default value = 4.9
-            p_node->rGetModifiableLocation()[1] = 4.9 * sin(angular_coord);
+            double angular_coord = p_gen_theta->ranf() * 2 * M_PI;
+            p_node->rGetModifiableLocation()[0] = mDomainRadius * cos(angular_coord); // Default value = 4.9 ...
+            p_node->rGetModifiableLocation()[1] = mDomainRadius * sin(angular_coord);
             
             // Adds DifferentiatedCellProliferativeType to new T Cells from node 0
             cell_iter->SetCellProliferativeType(p_diff_type);
         }
-        //Filter: All Stem Cells in simulation (i.e. only the Stem T Cell outside domain) 
+        // Filter: All Stem Cells in simulation (i.e. only the Stem T Cell in simulation) 
         else if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {
             // Keep resetting position 
-            p_node->rGetModifiableLocation()[0] = 6;
-            p_node->rGetModifiableLocation()[1] = 6;
+            p_node->rGetModifiableLocation()[0] = node_0_coord; 
+            p_node->rGetModifiableLocation()[1] = node_0_coord;
         }
         
         
         /* --==-- 02: T Cell Killer segment --==-- */
-        /* Check and kill any T Cells in an annular region (5.05 < r < 6.00).
+        /* Check and kill any T Cells in an annular region (kill_radius_a < r < kill_radius_b).
          * Inner radius chosen to be slightly above 5 to slightly increase chance of survival for new T Cells.
          * Outer radius chosen to exclude checking brand new T Cells that had not yet teleported. */
         
-        // Filter: Differentiated T Cells in the range r > 5.05 
-        if (  (cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (cell_iter->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (r_coordinate > 5.05)   )
+        // Filter: T Cells in the range kill_radius_a < r < kill_radius_b (Default: 5.15, 6.0)
+        if (  (cell_iter->GetMutationState()->IsType<TCellMutationState>()) && (r_coordinate > kill_radius_a) && (r_coordinate < kill_radius_b )   )
         {
             cell_iter->Kill();
         }
