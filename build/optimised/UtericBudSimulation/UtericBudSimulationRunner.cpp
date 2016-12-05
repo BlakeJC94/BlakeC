@@ -23,11 +23,11 @@ int main( int argc, char *argv[] ) {
 static UtericBudSimulation suite_UtericBudSimulation;
 
 static CxxTest::List Tests_UtericBudSimulation = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_UtericBudSimulation( "projects/BlakeC/test/UtericBudSimulation/UtericBudSimulation.hpp", 84, "UtericBudSimulation", suite_UtericBudSimulation, Tests_UtericBudSimulation );
+CxxTest::StaticSuiteDescription suiteDescription_UtericBudSimulation( "projects/BlakeC/test/UtericBudSimulation/UtericBudSimulation.hpp", 63, "UtericBudSimulation", suite_UtericBudSimulation, Tests_UtericBudSimulation );
 
 static class TestDescription_UtericBudSimulation_TestUtericBudSimulation : public CxxTest::RealTestDescription {
 public:
- TestDescription_UtericBudSimulation_TestUtericBudSimulation() : CxxTest::RealTestDescription( Tests_UtericBudSimulation, suiteDescription_UtericBudSimulation, 88, "TestUtericBudSimulation" ) {}
+ TestDescription_UtericBudSimulation_TestUtericBudSimulation() : CxxTest::RealTestDescription( Tests_UtericBudSimulation, suiteDescription_UtericBudSimulation, 66, "TestUtericBudSimulation" ) {}
  void runTest() { suite_UtericBudSimulation.TestUtericBudSimulation(); }
 } testDescription_UtericBudSimulation_TestUtericBudSimulation;
 
