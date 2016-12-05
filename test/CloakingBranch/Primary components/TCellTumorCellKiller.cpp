@@ -168,8 +168,7 @@ void TCellTumorCellKiller::CheckAndLabelCellsForApoptosisOrDeath()
                 // Filter: Unlabelled T Cell neighbour
                 if (  (p_neighbour_cell->GetMutationState()->IsType<TCellMutationState>()) && !(p_neighbour_cell->HasCellProperty<CellLabel>())  )
                 {
-                    // Label T Cell neighbour
-                    //cell_iter->AddCellProperty(p_tumor_cell_label);
+                    // Label T Cell neighbour                    
                     p_neighbour_cell->AddCellProperty(p_t_cell_label);
                     break;
                 }

@@ -141,10 +141,26 @@ double AveragedSourceParabolicPde<DIM>::ComputeSourceTerm(const ChastePoint<DIM>
     assert(!mTumorCellDensityOnCoarseElements.empty());
     double TumorCellcoefficient = mUptakeCoefficient * mTumorCellDensityOnCoarseElements[pElement->GetIndex()];
 
-    // The source term is C-d*u
+    // The source term is C-d*u (TODO: update)
     //return coefficient-5.0*u;
     //return TCellcoefficient - mDecayCoefficient * u;
-    return TCellcoefficient - mDecayCoefficient * u - TumorCellcoefficient * u;
+    //return TCellcoefficient - mDecayCoefficient * u - 10 * TumorCellcoefficient * u;
+    
+    //return TCellcoefficient - mDecayCoefficient * u;
+    
+    double source_term = TCellcoefficient - (mDecayCoefficient + 10 * TumorCellcoefficient) * u;
+    if (u > 0.01)
+    {
+        return source_term;
+    }
+    else if ((u > 0) && (u <= 0.01))
+    {
+        return TCellcoefficient - mDecayCoefficient * u ;
+    }
+    else 
+    {
+        return TCellcoefficient;
+    }
 }
 
 template<unsigned DIM>

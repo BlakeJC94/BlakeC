@@ -129,7 +129,7 @@ void TCellTumorCellCycleModel::SetG1Duration()
     
     /* --==-- 02: Tumor Cell division options --==-- */
     // (Increase SetMaxTransitGenerations if there's any issues here)
-    else if (  (mpCell->GetMutationState()->IsType<TumorCellMutationState>()) && !(mpCell->HasCellProperty<CellLabel>())  )
+    else if (mpCell->GetMutationState()->IsType<TumorCellMutationState>())
     {
         if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
         {

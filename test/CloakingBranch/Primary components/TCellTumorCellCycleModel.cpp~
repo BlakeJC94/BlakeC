@@ -139,7 +139,7 @@ void TCellTumorCellCycleModel::SetG1Duration()
         else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
             //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf() + 4; // U[4,6]
-            mG1Duration = GetTransitCellG1Duration() + 5*p_gen->ranf() // U[0,5]
+            mG1Duration = GetTransitCellG1Duration() + 5*p_gen->ranf(); // U[0,5]
             //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
         }
         else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())

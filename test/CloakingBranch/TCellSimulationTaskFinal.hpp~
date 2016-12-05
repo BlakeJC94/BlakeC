@@ -95,7 +95,7 @@ public:
         unsigned simulation_time = 60; // Default = 45
         unsigned sampling_timestep_multiple = 6; //Default = 6
         double t_cell_spawn_rate = 10; // Default = 25 (units: cells/hour)
-	    double diffusion_intensity = 0.25; // Default = 0.1
+	    double diffusion_intensity = 0.25; // Default = 0.1, 
         double chemotactic_strength = 0.8; // Default = 1.0
         
         
@@ -104,7 +104,7 @@ public:
         double diffusion_constant = 5.0; // Default = 1.0
         double t_cell_source_coefficient = 8.0; // Default = 5.0
         double decay_coefficient = 5.0; // Default = 5.0
-        double tumor_cell_sink_coefficient = 0.0; // Default = 0.0
+        double tumor_cell_sink_coefficient = 1000000.0; // Default = 0.0
         
         
         /* Simulation essential parameters (don't change unless required) */
