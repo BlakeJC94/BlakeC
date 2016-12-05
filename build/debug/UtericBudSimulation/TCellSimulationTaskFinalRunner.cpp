@@ -18,12 +18,12 @@ int main( int argc, char *argv[] ) {
  CommandLineArguments::Instance()->p_argv = &argv;
  return CxxTest::ErrorPrinter().run();
 }
-#include "projects/BlakeC/test/CloakingBranch/TCellSimulationTaskFinal.hpp"
+#include "projects/BlakeC/test/UtericBudSimulation/TCellSimulationTaskFinal.hpp"
 
 static TCellSimulation suite_TCellSimulation;
 
 static CxxTest::List Tests_TCellSimulation = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_TCellSimulation( "projects/BlakeC/test/CloakingBranch/TCellSimulationTaskFinal.hpp", 83, "TCellSimulation", suite_TCellSimulation, Tests_TCellSimulation );
+CxxTest::StaticSuiteDescription suiteDescription_TCellSimulation( "projects/BlakeC/test/UtericBudSimulation/TCellSimulationTaskFinal.hpp", 83, "TCellSimulation", suite_TCellSimulation, Tests_TCellSimulation );
 
 static class TestDescription_TCellSimulation_TestTCellSimulation : public CxxTest::RealTestDescription {
 public:

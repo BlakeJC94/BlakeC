@@ -36,11 +36,11 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TCellTumorCellCycleModel_HPP_
 #define TCellTumorCellCycleModel_HPP_
 
-#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
+#include "AbstractSimpleGenerationalCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
 
-class TCellTumorCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
+class TCellTumorCellCycleModel : public AbstractSimpleGenerationalCellCycleModel
 {
     friend class TestSimpleCellCycleModels;
 
@@ -51,7 +51,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractSimpleGenerationalCellCycleModel>(*this);
         archive & mSpawnRate;
 
         SerializableSingleton<RandomNumberGenerator>* p_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
