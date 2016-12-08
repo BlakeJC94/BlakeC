@@ -37,15 +37,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-#include "UniformCellCycleModel.hpp"
+//#include "UniformCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "SimpleTargetAreaModifier.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "SmartPointers.hpp"
-#include "VoronoiDataWriter.hpp"
 
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
@@ -53,6 +51,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LateralForce.hpp"
 //#include "DiffusionForce.hpp"
 #include "BasicDiffusionForce.hpp"
+#include "CMCellCycleModel.hpp"
+//#include "UniformG1GenerationalCellCycleModel.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -69,6 +69,7 @@ public:
         unsigned gforce_strength = 2.0; // Default = 2.0
         unsigned lforce_strength = 1.0; // Default = 1.0 
         double dforce_strength = 0.4; // Default = 0.4;
+        double expdist_parameter = 100;
         
         /* 
         double sim_index = 0;
@@ -78,6 +79,7 @@ public:
 	    out << sim_index;
 	    std::string output_directory = "ThyroidTumorSimulation" + out.str();
 	    */
+        
         
         /* Generate Nodes */ 
         std::vector<Node<2>*> nodes;
@@ -91,23 +93,52 @@ public:
             nodes.push_back(new Node<2>(index, false, x_coord, y_coord+3));
         }
         
+        
         /* Generate Mesh */ 
         NodesOnlyMesh<2> mesh;
         mesh.ConstructNodesWithoutMesh(nodes, 1.5);
         
+        
         /* Generate Cells */
+        std::vector<CellPtr> cells;
+        
+        //MAKE_PTR(StemCellProliferativeType, p_stem_type);
+        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+        //MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        
+        for (unsigned i = 0; i < mesh.GetNumNodes(); i++)
+        {
+            CMCellCycleModel* p_model = new CMCellCycleModel();
+            p_model->SetSpawnRate(expdist_parameter);
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            
+            CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
+            
+            p_cell->SetBirthTime(birth_time);
+            p_cell->SetCellProliferativeType(p_transit_type);
+            
+            p_model->SetMaxTransitGenerations(1000);
+            
+            cells.push_back(p_cell);
+        }
+        /*  ---- START OLD CODE 
         std::vector<CellPtr> cells;
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         CellsGenerator<UniformCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
+            ---- END OLD CODE */
+        
         
         /* Generate CellPopulation*/
         NodeBasedCellPopulation<2> cell_population(mesh, cells);
+        
         
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestUtericBudSimulation");
         simulator.SetEndTime(simulation_time);
+        
         
         /* Add Boundary Conditions */
         c_vector<double, 2> bc_point = zero_vector<double>(2);
@@ -153,6 +184,7 @@ public:
         
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
         simulator.AddForce(p_dforce);
+        
         
 
         simulator.Solve();
