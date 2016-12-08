@@ -60,6 +60,30 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
+private:
+
+    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double divtimeparam, double critconc)
+    {
+        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        
+        for (unsigned i = 0; i < num_cells; i++)
+        {
+            CMCellCycleModel* p_model = new CMCellCycleModel();
+            p_model->SetSpawnRate(divtimeparam);
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            
+            CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
+            
+            p_cell->SetBirthTime(birth_time);
+            p_cell->SetCellProliferativeType(p_transit_type);
+            
+            p_model->SetMaxTransitGenerations(1000);
+            
+            rCells.push_back(p_cell);
+        }
+    }
+
 public:
     void TestUtericBudSimulation() throw (Exception)
     {
@@ -72,15 +96,8 @@ public:
         unsigned lforce_strength = 1.0; // Default = 1.0 
         double dforce_strength = 0.4; // Default = 0.4;
         double expdist_parameter = 100;
+        double div_threshold = 1.0; 
         
-        /* 
-        double sim_index = 0;
-	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);        
-
-	    std::stringstream out;
-	    out << sim_index;
-	    std::string output_directory = "ThyroidTumorSimulation" + out.str();
-	    */
         
         
         /* Generate Nodes */ 
@@ -101,45 +118,23 @@ public:
         mesh.ConstructNodesWithoutMesh(nodes, 1.5);
         
         
+        
         /* Generate Cells */
         std::vector<CellPtr> cells;
+        GenerateCells(mesh.GetNumNodes(), cells, expdist_parameter, div_threshold);
         
-        //MAKE_PTR(StemCellProliferativeType, p_stem_type);
-        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        //MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
-        MAKE_PTR(WildTypeCellMutationState, p_state);
-        
-        for (unsigned i = 0; i < mesh.GetNumNodes(); i++)
-        {
-            CMCellCycleModel* p_model = new CMCellCycleModel();
-            p_model->SetSpawnRate(expdist_parameter);
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
-            
-            CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
-            
-            p_cell->SetBirthTime(birth_time);
-            p_cell->SetCellProliferativeType(p_transit_type);
-            
-            p_model->SetMaxTransitGenerations(1000);
-            
-            cells.push_back(p_cell);
-        }
-        /*  ---- START OLD CODE 
-        std::vector<CellPtr> cells;
-        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        CellsGenerator<UniformCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
-            ---- END OLD CODE */
         
         
         /* Generate CellPopulation*/
         NodeBasedCellPopulation<2> cell_population(mesh, cells);
         
         
+        
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestUtericBudSimulation");
         simulator.SetEndTime(simulation_time);
+        
         
         
         /* Add Boundary Conditions */
@@ -156,6 +151,7 @@ public:
         simulator.AddCellPopulationBoundaryCondition(p_bc2);
         
         
+        
         /* Add Cell Killers */
         c_vector<double, 2> ck_point = zero_vector<double>(2);
         ck_point(1) = 20.0;
@@ -165,6 +161,7 @@ public:
         
         MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer, (&cell_population, ck_point, ck_normal));
         simulator.AddCellKiller(p_killer);
+        
         
         
         /* Add Cell Forces */ 
@@ -182,11 +179,14 @@ public:
         simulator.AddForce(p_dforce);
         
         
+        
         /* Add Simulation modifiers */ 
         MAKE_PTR(ChemTrackingModifier<2>, p_modifier);
         simulator.AddSimulationModifier(p_modifier);
         
-
+        
+        
+        /* Run Simulation */
         simulator.Solve();
     }
 };
