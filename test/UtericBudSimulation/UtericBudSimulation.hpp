@@ -38,16 +38,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AbstractCellBasedTestSuite.hpp"
 
 #include "UniformCellCycleModel.hpp"
-#include "FixedG1GenerationalCellCycleModel.hpp"
-#include "HoneycombMeshGenerator.hpp"
-#include "CylindricalHoneycombMeshGenerator.hpp"
-#include "HoneycombVertexMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
-#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "NodeBasedCellPopulation.hpp"
-#include "VertexBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "NagaiHondaForce.hpp"
 #include "SimpleTargetAreaModifier.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "TransitCellProliferativeType.hpp"
@@ -57,6 +50,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
 #include "GravityForce.hpp"
+#include "LateralForce.hpp"
+//#include "DiffusionForce.hpp"
+#include "BasicDiffusionForce.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -66,10 +62,13 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation Options */
-        unsigned num_cm_cells = 10; // Default = 10
-        unsigned spawn_region_x = 2; // Default = 7, Max = 10
-        unsigned spawn_region_y = 2; // Default = 3.5, Max = 5;
+        unsigned num_cm_cells = 15; // Default = 10
+        unsigned spawn_region_x = 10; // Default = 7, Max = 10
+        unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
         unsigned simulation_time = 10; 
+        unsigned gforce_strength = 2.0; // Default = 2.0
+        unsigned lforce_strength = 1.0; // Default = 1.0 
+        double dforce_strength = 0.4; // Default = 0.4;
         
         /* 
         double sim_index = 0;
@@ -140,11 +139,22 @@ public:
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
         
-        MAKE_PTR_ARGS(GravityForce, p_force, (10.0));
-        simulator.AddForce(p_force);
+        MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
+        simulator.AddForce(p_gforce);
+        
+        MAKE_PTR_ARGS(LateralForce, p_lforce, (lforce_strength));
+        simulator.AddForce(p_lforce);
+        
+        /*
+        MAKE_PTR(DiffusionForce<2>, p_dforce);
+        p_dforce->SetAbsoluteTemperature(123);
+        simulator.AddForce(p_dforce);
+        */
+        
+        MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
+        simulator.AddForce(p_dforce);
         
 
         simulator.Solve();
-
     }
 };

@@ -33,49 +33,38 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef UtericBudCellCycleModel_HPP_
-#define UtericBudCellCycleModel_HPP_
 
-#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
+#include "AbstractForce.hpp"
+#include "NodeBasedCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
 
 
-class UtericBudCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
+class BasicDiffusionForce : public AbstractForce<2>
 {
-    friend class TestSimpleCellCycleModels;
-
-private:
+private : 
+    
+    double mStrength;
 
     friend class boost::serialization::access;
-
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
-        archive & mSpawnRate;
-
-        SerializableSingleton<RandomNumberGenerator>* p_wrapper = RandomNumberGenerator::Instance()->GetSerializationWrapper();
-        archive & p_wrapper;
+        archive & boost::serialization::base_object<AbstractForce<2> >(*this);
+        archive & mStrength;
     }
 
-    double mSpawnRate;
-
-protected:
-
-    void SetG1Duration();
-
-public:
-
-    UtericBudCellCycleModel();
-
-    AbstractCellCycleModel* CreateCellCycleModel();
-
-    void SetSpawnRate(double newValue);
-
-    virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
+public : 
+    BasicDiffusionForce(double);
+    
+    void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
+    
+    double GetStrength();
+    
+    virtual void OutputForceParameters(out_stream& rParamsFile);
+    
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(UtericBudCellCycleModel)
+CHASTE_CLASS_EXPORT(BasicDiffusionForce)
 
-#endif /*UtericBudCellCycleModel_HPP_*/
+

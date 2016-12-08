@@ -33,42 +33,40 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TumorCellMutationState_HPP_
-#define TumorCellMutationState_HPP_
+#include "LateralForce.hpp"
 
-#include "AbstractCellMutationState.hpp"
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
-
-/**
- * Subclass of AbstractCellMutationState defining a 'wild type' mutation state.
- */
-class TumorCellMutationState : public AbstractCellMutationState
+LateralForce::LateralForce(double strength=1.0)
+    : AbstractForce<2>(),
+      mStrength(strength)
 {
-private:
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Archive the cell mutation state.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    assert(mStrength > 0.0);
+}
+
+void LateralForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulation)
+{
+    c_vector<double, 2> force = zero_vector<double>(2);
+    force(0) = -mStrength;
+    
+    for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
     {
-        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+        rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(force);
     }
+}
 
-public:
-    /**
-     * Constructor.
-     */
-    TumorCellMutationState();
-};
+double LateralForce::GetStrength()
+{
+    return mStrength;
+}
 
-#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(TumorCellMutationState)
+void LateralForce::OutputForceParameters(out_stream& rParamsFile)
+{
+    *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength>\n";
+    AbstractForce<2>::OutputForceParameters(rParamsFile);
+}
 
-#endif /* TumorCellMutationState_HPP_ */
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(LateralForce)
+
+
+
+

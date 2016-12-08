@@ -33,73 +33,37 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef TCellTumorSpringForce_HPP_
-#define TCellTumorSpringForce_HPP_
-
-#include "GeneralisedLinearSpringForce.hpp"
+#include "AbstractForce.hpp"
 #include "NodeBasedCellPopulation.hpp"
 
-/**
- * A class for a simple two-body repulsion force law. Designed
- * for use in node-based simulations
- *
- * The force just creates a linear repulsive force between cells
- * with a nonlinear separation less than 2. This force does not
- * take a cell's age or cell cycle phase into account.
- */
-template<unsigned DIM>
-class TCellTumorSpringForce : public GeneralisedLinearSpringForce<DIM>
-{
-private :
 
-    /** Needed for serialization. */
+class LateralForce : public AbstractForce<2>
+{
+private : 
+
+    double mStrength;
+    
     friend class boost::serialization::access;
-    /**
-     * Archive the object and its member variables.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<GeneralisedLinearSpringForce<DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractForce<2> >(*this);
+        archive & mStrength;
     }
 
-public :
+public : 
 
-    /**
-     * Constructor.
-     */
-    TCellTumorSpringForce();
+    LateralForce(double);
     
-    /**
-     * Calculate Spring Force (hopefully)
-     */
-    /*c_vector<double, DIM> CalculateSpringForceBetweenNodes(unsigned nodeAGlobalIndex,
-                                                     unsigned nodeBGlobalIndex,
-                                                     AbstractCellPopulation<ELEMENT_DIM,DIM>& rCellPopulation);*/
+    void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
     
-
-    /**
-     * Overridden AddForceContribution() method.
-     *
-     * @param rCellPopulation reference to the CellPopulation
-     */
-    void AddForceContribution(AbstractCellPopulation<DIM>& rCellPopulation);
-
-    /**
-     * Outputs force Parameters to file
-     *
-     * As this method is pure virtual, it must be overridden
-     * in subclasses.
-     *
-     * @param rParamsFile the file stream to which the parameters are output
-     */
+    double GetStrength();
+    
     virtual void OutputForceParameters(out_stream& rParamsFile);
+    
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(TCellTumorSpringForce)
+CHASTE_CLASS_EXPORT(LateralForce)
 
-#endif /*TCellTumorSpringForce_HPP_*/
+
