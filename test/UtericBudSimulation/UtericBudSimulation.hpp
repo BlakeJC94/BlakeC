@@ -53,6 +53,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BasicDiffusionForce.hpp"
 #include "CMCellCycleModel.hpp"
 //#include "UniformG1GenerationalCellCycleModel.hpp"
+#include "ChemTrackingModifier.hpp"
+//#include "VolumeTrackingModifier.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -176,15 +178,13 @@ public:
         MAKE_PTR_ARGS(LateralForce, p_lforce, (lforce_strength));
         simulator.AddForce(p_lforce);
         
-        /*
-        MAKE_PTR(DiffusionForce<2>, p_dforce);
-        p_dforce->SetAbsoluteTemperature(123);
-        simulator.AddForce(p_dforce);
-        */
-        
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
         simulator.AddForce(p_dforce);
         
+        
+        /* Add Simulation modifiers */ 
+        MAKE_PTR(ChemTrackingModifier<2>, p_modifier);
+        simulator.AddSimulationModifier(p_modifier);
         
 
         simulator.Solve();
