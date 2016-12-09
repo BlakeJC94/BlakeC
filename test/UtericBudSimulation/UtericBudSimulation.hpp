@@ -43,6 +43,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "TransitCellProliferativeType.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
 #include "SmartPointers.hpp"
 
 #include "PlaneBoundaryCondition.hpp"
@@ -71,12 +72,16 @@ private:
         {
             CMCellCycleModel* p_model = new CMCellCycleModel();
             p_model->SetSpawnRate(divtimeparam);
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            //double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
             
-            p_cell->SetBirthTime(birth_time);
+            //p_cell->SetBirthTime(birth_time);
             p_cell->SetCellProliferativeType(p_transit_type);
+            
+            p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
+            p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
+            // \todo: put these in a seperate function 'SetInitialConcentrations'
             
             p_model->SetMaxTransitGenerations(1000);
             
@@ -88,14 +93,14 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation Options */
-        unsigned num_cm_cells = 15; // Default = 10
+        unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
         unsigned simulation_time = 10; 
         unsigned gforce_strength = 2.0; // Default = 2.0
         unsigned lforce_strength = 1.0; // Default = 1.0 
-        double dforce_strength = 0.4; // Default = 0.4;
-        double expdist_parameter = 100;
+        double dforce_strength = 0.3; // Default = 0.4;
+        double expdist_parameter = 25;
         double div_threshold = 1.0; 
         
         
@@ -109,7 +114,7 @@ public:
         {
             double x_coord = spawn_region_x * p_gen_x->ranf();
             double y_coord = spawn_region_y * p_gen_y->ranf();
-            nodes.push_back(new Node<2>(index, false, x_coord, y_coord+3));
+            nodes.push_back(new Node<2>(index, false, x_coord, y_coord));
         }
         
         
@@ -133,6 +138,7 @@ public:
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestUtericBudSimulation");
+        //simulator.SetSamplingTimestepMultiple(6);
         simulator.SetEndTime(simulation_time);
         
         
@@ -177,6 +183,7 @@ public:
         
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
         simulator.AddForce(p_dforce);
+        
         
         
         

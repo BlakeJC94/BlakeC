@@ -38,6 +38,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
+#include "CellLabel.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 CMCellCycleModel::CMCellCycleModel()
 {
@@ -87,16 +89,34 @@ void CMCellCycleModel::SetG1Duration()
     mG2Duration = mSpawnRate/4;
     */
     
+    //double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+    //double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+    
+    
+    
     double lambda = mSpawnRate;
 
     if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
     {
-        mG1Duration = GetStemCellG1Duration() + 4*p_gen->ranf(); // U[14,18] 
+        NEVER_REACHED;
+        //mG1Duration = GetStemCellG1Duration() + 4*p_gen->ranf(); // U[14,18] 
         // StemCellG1Duration = 10
     }
     else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
     {
-        mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
+        /*
+        mMDuration = mSpawnRate/4;
+        mG1Duration = mSpawnRate/4;
+        mSDuration = mSpawnRate/4;
+        mG2Duration = mSpawnRate/4;
+        */
+        
+        mMDuration = 0.01;
+        mG1Duration = 0.01;
+        mSDuration = 0.01;
+        mG1Duration = 0.01; // U[4,6] 
+        
+        //mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
         //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
         // TransitCellG1Duration = 4;
     }
@@ -108,6 +128,61 @@ void CMCellCycleModel::SetG1Duration()
     {
         NEVER_REACHED;
     }
+}
+
+void CMCellCycleModel::UpdateCellCyclePhase()
+{
+    double div_threshold = 0.6; 
+    
+    /* Insert set up for specifying specific div thresholds here 
+    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
+    {
+        div_threshold = 0.5;
+    }
+    else
+    {
+        NEVER_REACHED;
+    }
+    
+    
+    if (mpCell->HasCellProperty<CellLabel>())
+    {
+        div_threshold = 0.7;
+    }
+    */
+    
+    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+    
+    //double chem_level = conc_a + conc_b;
+    
+    
+    // Perhaps restrict cells to allow transit -> diff, but not vice versa??
+    if (conc_a >= div_threshold && conc_b >= div_threshold)
+    {
+        boost::shared_ptr<AbstractCellProperty> p_transit_type =
+                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_transit_type);
+    }
+    else
+    {
+        boost::shared_ptr<AbstractCellProperty> p_diff_type =
+            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_diff_type);
+    }
+    
+    AbstractSimplePhaseBasedCellCycleModel::UpdateCellCyclePhase();
+}
+
+void CMCellCycleModel::InitialiseDaughterCell()
+{
+
+
+    boost::shared_ptr<AbstractCellProperty> p_transit_type =
+            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
+    mpCell->SetCellProliferativeType(p_transit_type);
+
+    AbstractSimplePhaseBasedCellCycleModel::InitialiseDaughterCell();
 }
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

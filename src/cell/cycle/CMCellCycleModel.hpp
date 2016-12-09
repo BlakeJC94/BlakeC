@@ -104,6 +104,10 @@ protected:
 public:
 
     CMCellCycleModel();
+    
+    virtual void UpdateCellCyclePhase();
+    
+    virtual void InitialiseDaughterCell();
 
     AbstractCellCycleModel* CreateCellCycleModel();
     
