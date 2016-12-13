@@ -44,31 +44,12 @@ GravityForce::GravityForce(double strength=1.0)
 
 void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulation)
 {
-    c_vector<double, 2> down_force = zero_vector<double>(2);
-    c_vector<double, 2> bc_repulsion = zero_vector<double>(2);
-    
-    down_force(1) = -mStrength;
+    c_vector<double, 2> force = zero_vector<double>(2);
+    force(1) = -mStrength;
     
     for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
     {
-        
-        
-        CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
-        double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
-        
-        
-        if (cell_location_y < 2.0)
-        {
-            //bc_repulsion(1) = 1.2 * mStrength;
-            bc_repulsion(1) = 1.2 * mStrength * (2.0 - cell_location_y)/2.0;
-            
-            rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(bc_repulsion);
-        }
-        
-        
-        rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
-        
-        
+        rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(force);
     }
 }
 

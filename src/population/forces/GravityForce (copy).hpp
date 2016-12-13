@@ -33,59 +33,37 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "GravityForce.hpp"
 
-GravityForce::GravityForce(double strength=1.0)
-    : AbstractForce<2>(), 
-      mStrength(strength)
-{
-    assert(mStrength > 0.0);
-}
+#include "AbstractForce.hpp"
+#include "NodeBasedCellPopulation.hpp"
 
-void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulation)
+
+class GravityForce : public AbstractForce<2>
 {
-    c_vector<double, 2> down_force = zero_vector<double>(2);
-    c_vector<double, 2> bc_repulsion = zero_vector<double>(2);
-    
-    down_force(1) = -mStrength;
-    
-    for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
+private : 
+
+    double mStrength;
+
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
     {
-        
-        
-        CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
-        double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
-        
-        
-        if (cell_location_y < 2.0)
-        {
-            //bc_repulsion(1) = 1.2 * mStrength;
-            bc_repulsion(1) = 1.2 * mStrength * (2.0 - cell_location_y)/2.0;
-            
-            rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(bc_repulsion);
-        }
-        
-        
-        rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
-        
-        
+        archive & boost::serialization::base_object<AbstractForce<2> >(*this);
+        archive & mStrength;
     }
-}
 
-double GravityForce::GetStrength()
-{
-    return mStrength;
-}
-
-void GravityForce::OutputForceParameters(out_stream& rParamsFile)
-{
-    *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength>\n";
-    AbstractForce<2>::OutputForceParameters(rParamsFile);
-}
-
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(GravityForce)
-
+public : 
+    GravityForce(double);
     
+    void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
+    
+    double GetStrength();
+    
+    virtual void OutputForceParameters(out_stream& rParamsFile);
+    
+};
+
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(GravityForce)
     
     
