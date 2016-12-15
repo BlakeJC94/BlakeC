@@ -56,6 +56,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "ChemTrackingModifier.hpp"
 //#include "VolumeTrackingModifier.hpp"
+#include "NodeVelocityWriter.hpp"
+#include "CellProliferativeTypesCountWriter.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -96,12 +98,14 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 10; 
+        unsigned simulation_time = 100; 
+        
         unsigned gforce_strength = 2.0; // Default = 2.0
         unsigned lforce_strength = 1.0; // Default = 1.0 
         double dforce_strength = 0.3; // Default = 0.4;
+        
         double expdist_parameter = 25;
-        double div_threshold = 1.0; 
+        double div_threshold = 1.0; // todo: IMPLEMENT THIS!
         
         
         
@@ -135,10 +139,17 @@ public:
         
         
         
+        
+        /* Add Cell Writer */
+        cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
+        cell_population.AddPopulationWriter<NodeVelocityWriter>();
+        
+        
+        
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestUtericBudSimulation");
-        //simulator.SetSamplingTimestepMultiple(6);
+        simulator.SetSamplingTimestepMultiple(6);
         simulator.SetEndTime(simulation_time);
         
         

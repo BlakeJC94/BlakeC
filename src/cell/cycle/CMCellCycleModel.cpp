@@ -110,14 +110,14 @@ void CMCellCycleModel::SetG1Duration()
         mSDuration = mSpawnRate/4;
         mG2Duration = mSpawnRate/4;
         */
-        
+        /*
         mMDuration = 0.01;
         mG1Duration = 0.01;
         mSDuration = 0.01;
         mG1Duration = 0.01; // U[4,6] 
-        
+        */
         //mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
-        //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
+        mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
         // TransitCellG1Duration = 4;
     }
     else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
@@ -132,7 +132,7 @@ void CMCellCycleModel::SetG1Duration()
 
 void CMCellCycleModel::UpdateCellCyclePhase()
 {
-    double div_threshold = 0.6; 
+    double div_threshold = 0.2; //0.6
     
     /* Insert set up for specifying specific div thresholds here 
     if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
@@ -156,8 +156,19 @@ void CMCellCycleModel::UpdateCellCyclePhase()
     
     //double chem_level = conc_a + conc_b;
     
+    // If A transit cell is outside prolif region, become differentiated.
+    if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+    {
+        if (conc_a < div_threshold || conc_b < div_threshold)
+        {
+            boost::shared_ptr<AbstractCellProperty> p_diff_type =
+            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
+            mpCell->SetCellProliferativeType(p_diff_type);
+        }
+    }
     
-    // Perhaps restrict cells to allow transit -> diff, but not vice versa??
+    
+    /*
     if (conc_a >= div_threshold && conc_b >= div_threshold)
     {
         boost::shared_ptr<AbstractCellProperty> p_transit_type =
@@ -170,6 +181,7 @@ void CMCellCycleModel::UpdateCellCyclePhase()
             mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
         mpCell->SetCellProliferativeType(p_diff_type);
     }
+    */
     
     AbstractSimplePhaseBasedCellCycleModel::UpdateCellCyclePhase();
 }
