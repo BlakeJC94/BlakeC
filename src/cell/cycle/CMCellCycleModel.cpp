@@ -111,7 +111,14 @@ void CMCellCycleModel::UpdateCellCyclePhase()
         mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
         mpCell->SetCellProliferativeType(p_diff_type);
     }
+    /*else
+    {
+        boost::shared_ptr<AbstractCellProperty> p_transit_type =
+        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_transit_type);
+    }*/
 }
+
 
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
@@ -160,6 +167,47 @@ void CMCellCycleModel::SetG1Duration()
     if (mG1Duration < mMinimumGapDuration)
     {
         mG1Duration = mMinimumGapDuration;
+    }
+    
+    
+    // Prolif region = region where A and B is greater than div_threshold
+    //double div_threshold = 0.4; //0.6
+    double div_threshold = mDivThreshold;
+    
+    /* Insert set up for specifying specific div thresholds here 
+     * (To be implemented when attachment procedure is written)
+    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
+    {
+        div_threshold = 0.5;
+    }
+    else
+    {
+        NEVER_REACHED;
+    }
+    
+    if (mpCell->HasCellProperty<CellLabel>())
+    {
+        div_threshold = 0.7;
+    }
+    */
+    
+    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+    
+    AbstractSimpleGenerationalCellCycleModel::UpdateCellCyclePhase();
+    
+    // If a cell is outside prolif region, become differentiated.
+    if (conc_a < div_threshold || conc_b < div_threshold)
+    {
+        boost::shared_ptr<AbstractCellProperty> p_diff_type =
+        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_diff_type);
+    }
+    else
+    {
+        boost::shared_ptr<AbstractCellProperty> p_transit_type =
+        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_transit_type);
     }
 }
 

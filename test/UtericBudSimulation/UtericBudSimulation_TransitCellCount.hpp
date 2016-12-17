@@ -66,9 +66,10 @@ class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
-    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double divtimeparam, double critconc)
+    void GenerateCells(unsigned num_cells, unsigned num_transit_cells, std::vector<CellPtr>& rCells, double divtimeparam, double critconc)
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
         
         for (unsigned i = 0; i < num_cells; i++)
@@ -80,7 +81,7 @@ private:
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
             
-            p_cell->SetCellProliferativeType(p_transit_type);
+            //p_cell->SetCellProliferativeType(p_transit_type);
             
             /* Enabling this segment seems to cause a bug:
              * Cells sould change to diff when outside region of proliferation (ROP), but 
@@ -90,8 +91,20 @@ private:
             p_cell->SetBirthTime(birth_time);
             */
             
-            p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
-            p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
+            if (i <= num_transit_cells)
+            {
+                p_cell->SetCellProliferativeType(p_transit_type);
+                p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
+                p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
+            }
+            else
+            {
+                p_cell->SetCellProliferativeType(p_diff_type);
+                p_cell->GetCellData()->SetItem("concentrationA", 0.0); 
+                p_cell->GetCellData()->SetItem("concentrationB", 0.0); 
+            }
+            
+            
             
             p_model->SetMaxTransitGenerations(1000);
             
@@ -106,7 +119,7 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 100; 
+        unsigned simulation_time = 80; 
         unsigned simulation_output_mult = 120;
         
         unsigned gforce_strength = 2.0; // Default = 2.0
@@ -124,7 +137,7 @@ public:
         std::vector<Node<2>*> nodes;
         RandomNumberGenerator* p_gen_x = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_y = RandomNumberGenerator::Instance();
-        
+        /*
         for (unsigned index = 0; index < num_cm_cells; index++)
         {
             double x_coord = spawn_region_x * p_gen_x->ranf();
@@ -132,7 +145,21 @@ public:
             
             nodes.push_back(new Node<2>(index, false, x_coord, y_coord));
         }
-        
+        */
+        for (unsigned index = 0; index < num_transit_cells; index++)
+        {
+            double x_coord = spawn_region_x * div_threshold * p_gen_x->ranf();
+            double y_coord = spawn_region_y * div_threshold * p_gen_y->ranf();
+            
+            nodes.push_back(new Node<2>(index, false, x_coord, y_coord));
+        }
+        for (unsigned index = num_transit_cells; index < num_cm_cells; index++)
+        {
+            double x_coord = spawn_region_x * (div_threshold * (p_gen_x->ranf() - 1) + 1);
+            double y_coord = spawn_region_y * (div_threshold * (p_gen_y->ranf() - 1) + 1);
+            
+            nodes.push_back(new Node<2>(index, false, x_coord, y_coord));
+        }
         
         
         /* Generate Mesh */ 
@@ -143,7 +170,7 @@ public:
         
         /* Generate Cells */
         std::vector<CellPtr> cells;
-        GenerateCells(mesh.GetNumNodes(), cells, expdist_parameter, div_threshold);
+        GenerateCells(mesh.GetNumNodes(), num_transit_cells, cells, expdist_parameter, div_threshold);
         
         
         
