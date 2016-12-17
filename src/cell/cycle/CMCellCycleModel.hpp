@@ -36,6 +36,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "AbstractSimpleGenerationalCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
+//#include "BConcentration.hpp"
 
 /**
 Modified from UniformG1GenerationalCellCycleModel and TCellTumorCellCycleModel from vacation scholars project 2016.
@@ -64,9 +65,10 @@ private:
     }
     
     double mSpawnRate;
+    double mDivThreshold;
 
 protected:
-
+    
     /**
      * Set the duration of G1 phase. This method is called on each cell at the
      * start of a simulation, and for both daughter cells immediately following
@@ -112,6 +114,8 @@ public:
     AbstractCellCycleModel* CreateCellCycleModel();
     
     void SetSpawnRate(double newValue);
+    
+    void SetDivThreshold(double newValue);
 
     virtual void OutputCellCycleModelParameters(out_stream& rParamsFile);
 };

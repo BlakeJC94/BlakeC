@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2005-2015, University of Oxford.
+Copyright (c) 2005-2016, University of Oxford.
 All rights reserved.
 
 University of Oxford means the Chancellor, Masters and Scholars of the
@@ -33,40 +33,15 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "LateralForce.hpp"
+#include "ChasteSerialization.hpp"
+#include "AbstractCellPopulation.hpp"
 
-LateralForce::LateralForce(double strength=1.0)
-    : AbstractForce<2>(),
-      mStrength(strength)
+class BConcentration : public SerializableSingleton<2> >
 {
-    //assert(mStrength > 0.0);
-}
+private:
 
-void LateralForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulation)
-{
-    c_vector<double, 2> force = zero_vector<double>(2);
-    force(0) = -mStrength;
+    static BConcentration* mpInstance;
     
-    for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
-    {
-        rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(force);
-    }
-}
-
-double LateralForce::GetStrength()
-{
-    return mStrength;
-}
-
-void LateralForce::OutputForceParameters(out_stream& rParamsFile)
-{
-    *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength>\n";
-    AbstractForce<2>::OutputForceParameters(rParamsFile);
-}
-
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(LateralForce)
-
-
-
-
+    double mLength;
+    
+    AbstractCellPopulation<2>

@@ -71,6 +71,11 @@ void CMCellCycleModel::SetSpawnRate(double newValue)
     mSpawnRate = newValue;
 }
 
+void CMCellCycleModel::SetDivThreshold(double newValue)
+{
+    mDivThreshold = newValue;
+}
+
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
     return new CMCellCycleModel(*this);
@@ -78,29 +83,15 @@ AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 
 void CMCellCycleModel::SetG1Duration()
 {
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-
     assert(mpCell != NULL);
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     
-    /* Old code used for making new tumor cells at constant rate.
-    mMDuration = mSpawnRate/4;
-    mG1Duration = mSpawnRate/4;
-    mSDuration = mSpawnRate/4;
-    mG2Duration = mSpawnRate/4;
-    */
-    
-    //double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
-    //double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
-    
-    
-    
-    double lambda = mSpawnRate;
+    //double lambda = mSpawnRate; // To be re-implemented when needed
 
     if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
     {
         NEVER_REACHED;
         //mG1Duration = GetStemCellG1Duration() + 4*p_gen->ranf(); // U[14,18] 
-        // StemCellG1Duration = 10
     }
     else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
     {
@@ -117,8 +108,8 @@ void CMCellCycleModel::SetG1Duration()
         mG1Duration = 0.01; // U[4,6] 
         */
         //mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
-        mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
-        // TransitCellG1Duration = 4;
+        //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
+        mG1Duration = p_gen->NormalRandomDeviate(10,1.5); // U[4,6]
     }
     else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
     {
@@ -128,13 +119,21 @@ void CMCellCycleModel::SetG1Duration()
     {
         NEVER_REACHED;
     }
+    
+    if (mG1Duration < mMinimumGapDuration)
+    {
+        mG1Duration = mMinimumGapDuration;
+    }
 }
 
 void CMCellCycleModel::UpdateCellCyclePhase()
 {
-    double div_threshold = 0.2; //0.6
+    // Prolif region = region where A and B is greater than div_threshold
+    //double div_threshold = 0.4; //0.6
+    double div_threshold = mDivThreshold;
     
     /* Insert set up for specifying specific div thresholds here 
+     * (To be implemented when attachment procedure is written)
     if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
         div_threshold = 0.5;
@@ -143,7 +142,6 @@ void CMCellCycleModel::UpdateCellCyclePhase()
     {
         NEVER_REACHED;
     }
-    
     
     if (mpCell->HasCellProperty<CellLabel>())
     {
@@ -166,22 +164,6 @@ void CMCellCycleModel::UpdateCellCyclePhase()
             mpCell->SetCellProliferativeType(p_diff_type);
         }
     }
-    
-    
-    /*
-    if (conc_a >= div_threshold && conc_b >= div_threshold)
-    {
-        boost::shared_ptr<AbstractCellProperty> p_transit_type =
-                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
-        mpCell->SetCellProliferativeType(p_transit_type);
-    }
-    else
-    {
-        boost::shared_ptr<AbstractCellProperty> p_diff_type =
-            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
-        mpCell->SetCellProliferativeType(p_diff_type);
-    }
-    */
     
     AbstractSimplePhaseBasedCellCycleModel::UpdateCellCyclePhase();
 }

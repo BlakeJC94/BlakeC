@@ -58,6 +58,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "VolumeTrackingModifier.hpp"
 #include "NodeVelocityWriter.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
+#include "CellAgesWriter.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -74,11 +75,12 @@ private:
         {
             CMCellCycleModel* p_model = new CMCellCycleModel();
             p_model->SetSpawnRate(divtimeparam);
-            //double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            p_model->SetDivThreshold(critconc);
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
             
-            //p_cell->SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
             p_cell->SetCellProliferativeType(p_transit_type);
             
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
@@ -98,14 +100,14 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 100; 
+        unsigned simulation_time = 50; 
         
-        unsigned gforce_strength = 2.0; // Default = 2.0
-        unsigned lforce_strength = 1.0; // Default = 1.0 
+        unsigned gforce_strength = 1.8; // Default = 2.0
+        unsigned lforce_strength = 0.9; // Default = 1.0 
         double dforce_strength = 0.3; // Default = 0.4;
         
         double expdist_parameter = 25;
-        double div_threshold = 1.0; // todo: IMPLEMENT THIS!
+        double div_threshold = 0.6; //0.5
         
         
         
@@ -143,6 +145,7 @@ public:
         /* Add Cell Writer */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddPopulationWriter<NodeVelocityWriter>();
+        cell_population.AddCellWriter<CellAgesWriter>();
         
         
         
