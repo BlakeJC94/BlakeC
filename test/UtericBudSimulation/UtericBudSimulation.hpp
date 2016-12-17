@@ -76,16 +76,22 @@ private:
             CMCellCycleModel* p_model = new CMCellCycleModel();
             p_model->SetSpawnRate(divtimeparam);
             p_model->SetDivThreshold(critconc);
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            
             
             CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
             
-            p_cell->SetBirthTime(birth_time);
             p_cell->SetCellProliferativeType(p_transit_type);
+            
+            /* Enabling this segment seems to cause a bug:
+             * Cells sould change to diff when outside region of proliferation (ROP), but 
+             * enabling this seems to override that and allow a few cells to divide 
+             * outside ROP. Resulting daughter cells remain transit and cannot be changed.
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            p_cell->SetBirthTime(birth_time);
+            */
             
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
-            // \todo: put these in a seperate function 'SetInitialConcentrations'
             
             p_model->SetMaxTransitGenerations(1000);
             
@@ -100,14 +106,15 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 50; 
+        unsigned simulation_time = 100; 
+        unsigned simulation_output_mult = 120;
         
-        unsigned gforce_strength = 1.8; // Default = 2.0
-        unsigned lforce_strength = 0.9; // Default = 1.0 
+        unsigned gforce_strength = 2.0; // Default = 2.0
+        unsigned lforce_strength = 1.0; // Default = 1.0 
         double dforce_strength = 0.3; // Default = 0.4;
         
         double expdist_parameter = 25;
-        double div_threshold = 0.6; //0.5
+        double div_threshold = 0.4; //0.5
         
         
         
@@ -152,7 +159,7 @@ public:
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestUtericBudSimulation");
-        simulator.SetSamplingTimestepMultiple(6);
+        simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetEndTime(simulation_time);
         
         

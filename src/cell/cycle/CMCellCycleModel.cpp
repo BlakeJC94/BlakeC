@@ -76,6 +76,43 @@ void CMCellCycleModel::SetDivThreshold(double newValue)
     mDivThreshold = newValue;
 }
 
+void CMCellCycleModel::UpdateCellCyclePhase()
+{
+    // Prolif region = region where A and B is greater than div_threshold
+    //double div_threshold = 0.4; //0.6
+    double div_threshold = mDivThreshold;
+    
+    /* Insert set up for specifying specific div thresholds here 
+     * (To be implemented when attachment procedure is written)
+    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
+    {
+        div_threshold = 0.5;
+    }
+    else
+    {
+        NEVER_REACHED;
+    }
+    
+    if (mpCell->HasCellProperty<CellLabel>())
+    {
+        div_threshold = 0.7;
+    }
+    */
+    
+    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+    
+    AbstractSimpleGenerationalCellCycleModel::UpdateCellCyclePhase();
+    
+    // If a cell is outside prolif region, become differentiated.
+    if (conc_a < div_threshold || conc_b < div_threshold)
+    {
+        boost::shared_ptr<AbstractCellProperty> p_diff_type =
+        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
+        mpCell->SetCellProliferativeType(p_diff_type);
+    }
+}
+
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
     return new CMCellCycleModel(*this);
@@ -109,7 +146,7 @@ void CMCellCycleModel::SetG1Duration()
         */
         //mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
         //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
-        mG1Duration = p_gen->NormalRandomDeviate(10,1.5); // U[4,6]
+        mG1Duration = p_gen->NormalRandomDeviate(10.0, 1.5); // U[4,6]
     }
     else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
     {
@@ -126,48 +163,8 @@ void CMCellCycleModel::SetG1Duration()
     }
 }
 
-void CMCellCycleModel::UpdateCellCyclePhase()
-{
-    // Prolif region = region where A and B is greater than div_threshold
-    //double div_threshold = 0.4; //0.6
-    double div_threshold = mDivThreshold;
-    
-    /* Insert set up for specifying specific div thresholds here 
-     * (To be implemented when attachment procedure is written)
-    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
-    {
-        div_threshold = 0.5;
-    }
-    else
-    {
-        NEVER_REACHED;
-    }
-    
-    if (mpCell->HasCellProperty<CellLabel>())
-    {
-        div_threshold = 0.7;
-    }
-    */
-    
-    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
-    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
-    
-    //double chem_level = conc_a + conc_b;
-    
-    // If A transit cell is outside prolif region, become differentiated.
-    if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-    {
-        if (conc_a < div_threshold || conc_b < div_threshold)
-        {
-            boost::shared_ptr<AbstractCellProperty> p_diff_type =
-            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
-            mpCell->SetCellProliferativeType(p_diff_type);
-        }
-    }
-    
-    AbstractSimplePhaseBasedCellCycleModel::UpdateCellCyclePhase();
-}
 
+/*
 void CMCellCycleModel::InitialiseDaughterCell()
 {
 
@@ -178,10 +175,14 @@ void CMCellCycleModel::InitialiseDaughterCell()
 
     AbstractSimplePhaseBasedCellCycleModel::InitialiseDaughterCell();
 }
+*/
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    // No new parameters to output, so just call method on direct parent class
+    *rParamsFile << "\t\t\t<DivisionThreshold>" << mDivThreshold << "</DivisionThreshold>\n";
+    *rParamsFile << "\t\t\t<SpawnRate>" << mSpawnRate << "</SpawnRate>\n";
+
+    // Call method on direct parent class
     AbstractSimpleGenerationalCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 
