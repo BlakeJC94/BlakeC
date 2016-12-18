@@ -37,7 +37,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-//#include "UniformCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -50,13 +49,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlaneBasedCellKiller.hpp"
 #include "GravityForce.hpp"
 #include "LateralForce.hpp"
-//#include "DiffusionForce.hpp"
 #include "BasicDiffusionForce.hpp"
 #include "CMCellCycleModel.hpp"
-//#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "ChemTrackingModifier.hpp"
-//#include "VolumeTrackingModifier.hpp"
-#include "NodeVelocityWriter.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
 
@@ -106,17 +101,15 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 100; 
+        unsigned simulation_time = 200; 
         unsigned simulation_output_mult = 120;
         
-        unsigned gforce_strength = 2.0; // Default = 2.0
-        unsigned lforce_strength = 1.0; // Default = 1.0 
-        double dforce_strength = 0.3; // Default = 0.4;
+        unsigned gforce_strength = 1.9990; // Default = 2.0
+        unsigned lforce_strength = 0.9995; // Default = 1.0 
+        double dforce_strength = 0.2; // Default = 0.4;
         
         double expdist_parameter = 25;
-        double div_threshold = 0.4; //0.5
-        
-        unsigned num_transit_cells = 10;
+        double div_threshold = 0.5; //0.5
         
         
         
@@ -155,7 +148,6 @@ public:
         
         /* Add Cell Writer */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
-        cell_population.AddPopulationWriter<NodeVelocityWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         
         
@@ -165,6 +157,8 @@ public:
         simulator.SetOutputDirectory("TestUtericBudSimulation");
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetEndTime(simulation_time);
+        simulator.SetOutputCellVelocities(true);
+        simulator.SetOutputDivisionLocations(true);
         
         
         
