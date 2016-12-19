@@ -107,7 +107,9 @@ public:
 
     CMCellCycleModel();
     
-    virtual void UpdateCellCyclePhase();
+    //virtual void UpdateCellCyclePhase();
+    
+    virtual bool ReadyToDivide();
 
     AbstractCellCycleModel* CreateCellCycleModel();
     

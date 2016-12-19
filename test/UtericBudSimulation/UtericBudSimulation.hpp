@@ -101,7 +101,7 @@ public:
         unsigned num_cm_cells = 30; // Default = 10
         unsigned spawn_region_x = 10; // Default = 7, Max = 10
         unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
-        unsigned simulation_time = 200; 
+        unsigned simulation_time = 100; 
         unsigned simulation_output_mult = 120;
         
         unsigned gforce_strength = 1.9990; // Default = 2.0
