@@ -120,7 +120,7 @@ void CMCellCycleModel::UpdateCellCyclePhase()
     /*
 }
 */
-/*
+
 bool CMCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
@@ -142,7 +142,6 @@ bool CMCellCycleModel::ReadyToDivide()
         div_threshold = 0.7;
     }
     */
-    /*
     double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
     double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
     
@@ -165,7 +164,7 @@ bool CMCellCycleModel::ReadyToDivide()
     
     return mReadyToDivide;
 }
-*/
+
 
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
@@ -219,40 +218,19 @@ void CMCellCycleModel::SetG1Duration()
     }
 }
 
-double CMCellCycleModel::GetChemALevel() const
-{
-    assert(mpCell != NULL);
-    double level = 0;
-    level = ChemConcentration<2>::Instance()->GetChemALevel(mpCell);
-    
-    return level;
-}
 
-void CMCellCycleModel::UpdateCellCyclePhase()
-{
-    double div_threshold = mDivThreshold;
-    
-    double conc_a = GetChemALevel();
-    
-    if (conc_a < div_threshold)
-    {
-        boost::shared_ptr<AbstractCellProperty> p_diff_type =
-            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
-        mpCell->SetCellProliferativeType(p_diff_type);
-    }
-    
-    AbstractSimplePhaseBasedCellCycleModel::UpdateCellCyclePhase();
-}
-
+/*
 void CMCellCycleModel::InitialiseDaughterCell()
 {
+
+
     boost::shared_ptr<AbstractCellProperty> p_transit_type =
             mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
     mpCell->SetCellProliferativeType(p_transit_type);
 
     AbstractSimplePhaseBasedCellCycleModel::InitialiseDaughterCell();
 }
-
+*/
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {

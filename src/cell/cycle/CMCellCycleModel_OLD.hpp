@@ -36,7 +36,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "AbstractSimpleGenerationalCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "ChemConcentration.hpp"
+//#include "BConcentration.hpp"
 
 /**
 Modified from UniformG1GenerationalCellCycleModel and TCellTumorCellCycleModel from vacation scholars project 2016.
@@ -68,9 +68,6 @@ private:
     double mDivThreshold;
 
 protected:
-    
-    
-    double GetChemALevel() const;
     
     /**
      * Set the duration of G1 phase. This method is called on each cell at the
@@ -110,11 +107,9 @@ public:
 
     CMCellCycleModel();
     
-    virtual void UpdateCellCyclePhase();
+    //virtual void UpdateCellCyclePhase();
     
-    virtual void InitialiseDaughterCell();
-    
-    //virtual bool ReadyToDivide();
+    virtual bool ReadyToDivide();
 
     AbstractCellCycleModel* CreateCellCycleModel();
     

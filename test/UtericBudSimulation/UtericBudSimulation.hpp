@@ -54,6 +54,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ChemTrackingModifier.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
+#include "ChemConcentration.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -143,6 +144,8 @@ public:
         /* Generate CellPopulation*/
         NodeBasedCellPopulation<2> cell_population(mesh, cells);
         
+        ChemConcentration<2>::Instance()->SetCellPopulation(cell_population);
+        
         
         
         
@@ -214,5 +217,7 @@ public:
         
         /* Run Simulation */
         simulator.Solve();
+        
+        ChemConcentration<2>::Destroy();
     }
 };
