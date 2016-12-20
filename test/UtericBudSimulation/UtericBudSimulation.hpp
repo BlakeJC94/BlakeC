@@ -54,6 +54,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ChemTrackingModifier.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
+#include "CellLabel.hpp"
 
 #include "FakePetscSetup.hpp"
 
@@ -112,6 +113,14 @@ public:
         double div_threshold = 0.5; //0.5
         
         
+        //double sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str());
+	    double sim_index = 0;
+	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);        
+
+	    std::stringstream out;
+	    out << sim_index;
+	    std::string output_directory = "UtericBudSimulation" + out.str();
+        
         
         /* Generate Nodes */ 
         std::vector<Node<2>*> nodes;
@@ -154,7 +163,8 @@ public:
         
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestUtericBudSimulation");
+        //simulator.SetOutputDirectory("TestUtericBudSimulation");
+        simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetEndTime(simulation_time);
         simulator.SetOutputCellVelocities(true);

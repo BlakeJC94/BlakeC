@@ -1,0 +1,11 @@
+Running 1 test
+Changing directory from '/home/blake/Workspace/Projects/BlakeC/' to '/home/blake/Workspace/Chaste/'.
+CWD now: /home/blake/Workspace/Chaste
+
+
+ ***** UtericBudSimulation.hpp *****
+
+
+Entering TestUtericBudSimulation
+Passed
+OK!
