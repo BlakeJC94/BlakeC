@@ -34,7 +34,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CMCellCycleModel.hpp"
-#include "Exception.hpp"
+#include "RandomNumberGenerator.hpp"
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
@@ -42,203 +42,100 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "WildTypeCellMutationState.hpp"
 
 CMCellCycleModel::CMCellCycleModel()
+    : AbstractCellCycleModel(),
+      mDivisionThreshold(0.5),
+      mMinimumDivisionAge(10.0)
 {
 }
 
 CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
-   : AbstractSimpleGenerationalCellCycleModel(rModel)
+   : AbstractCellCycleModel(rModel),
+     mDivisionThreshold(rModel.mDivisionThreshold),
+     mMinimumDivisionAge(rModel.mMinimumDivisionAge)
 {
     /*
-     * The member variables mGeneration and mMaxTransitGeneration are
-     * initialized in the AbstractSimpleGenerationalCellCycleModel
-     * constructor.
-     *
-     * The member variables mCurrentCellCyclePhase, mG1Duration,
-     * mMinimumGapDuration, mStemCellG1Duration, mTransitCellG1Duration,
-     * mSDuration, mG2Duration and mMDuration are initialized in the
-     * AbstractPhaseBasedCellCycleModel constructor.
+     * Initialize only those member variables defined in this class.
      *
      * The member variables mBirthTime, mReadyToDivide and mDimension
      * are initialized in the AbstractCellCycleModel constructor.
-     *
-     * Note that mG1Duration is (re)set as soon as InitialiseDaughterCell()
-     * is called on the new cell-cycle model.
      */
 }
-
-void CMCellCycleModel::SetSpawnRate(double newValue)
-{
-    mSpawnRate = newValue;
-}
-
-void CMCellCycleModel::SetDivThreshold(double newValue)
-{
-    mDivThreshold = newValue;
-}
-/*
-void CMCellCycleModel::UpdateCellCyclePhase()
-{
-    // Prolif region = region where A and B is greater than div_threshold
-    //double div_threshold = 0.4; //0.6
-    double div_threshold = mDivThreshold;
-    
-    /* Insert set up for specifying specific div thresholds here 
-     * (To be implemented when attachment procedure is written)
-    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
-    {
-        div_threshold = 0.5;
-    }
-    else
-    {
-        NEVER_REACHED;
-    }
-    
-    if (mpCell->HasCellProperty<CellLabel>())
-    {
-        div_threshold = 0.7;
-    }
-    */
-    /*
-    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
-    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
-    
-    AbstractSimpleGenerationalCellCycleModel::UpdateCellCyclePhase();
-    
-    // If a cell is outside prolif region, become differentiated.
-    if (conc_a < div_threshold || conc_b < div_threshold)
-    {
-        boost::shared_ptr<AbstractCellProperty> p_diff_type =
-        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
-        mpCell->SetCellProliferativeType(p_diff_type);
-    }
-    /*else
-    {
-        boost::shared_ptr<AbstractCellProperty> p_transit_type =
-        mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
-        mpCell->SetCellProliferativeType(p_transit_type);
-    }*/
-    /*
-}
-*/
 
 bool CMCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
-    
-    double div_threshold = mDivThreshold;
-    /* Insert set up for specifying specific div thresholds here 
-     * (To be implemented when attachment procedure is written)
-    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
-    {
-        div_threshold = 0.5;
-    }
-    else
-    {
-        NEVER_REACHED;
-    }
-    
-    if (mpCell->HasCellProperty<CellLabel>())
-    {
-        div_threshold = 0.7;
-    }
-    */
-    double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
-    double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     
     if (!mReadyToDivide)
     {
-        if (  (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()) && (conc_a < div_threshold || conc_b < div_threshold)  )
+        double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+        double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+        double div_threshold = mDivisionThreshold;
+        
+        if (conc_a < div_threshold || conc_b < div_threshold)
         {
             boost::shared_ptr<AbstractCellProperty> p_diff_type =
             mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
             mpCell->SetCellProliferativeType(p_diff_type);
+            mReadyToDivide = false;
         }
         
-        UpdateCellCyclePhase();
-        if ((mCurrentCellCyclePhase != G_ZERO_PHASE) &&
-            (GetAge() >= GetMDuration() + GetG1Duration() + GetSDuration() + GetG2Duration()))
+        double RandomDivisionAge = p_gen->NormalRandomDeviate(mMinimumDivisionAge, 1.0);
+        if (RandomDivisionAge < 7.0)
+        {
+            RandomDivisionAge = mMinimumDivisionAge;
+        }
+        
+        if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
         }
     }
-    
     return mReadyToDivide;
 }
-
 
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
     return new CMCellCycleModel(*this);
 }
 
-void CMCellCycleModel::SetG1Duration()
+void CMCellCycleModel::SetDivisionThreshold(double divisionThreshold)
 {
-    assert(mpCell != NULL);
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-    
-    //double lambda = mSpawnRate; // To be re-implemented when needed
-
-    if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
-    {
-        NEVER_REACHED;
-        //mG1Duration = GetStemCellG1Duration() + 4*p_gen->ranf(); // U[14,18] 
-    }
-    else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-    {
-        /*
-        mMDuration = mSpawnRate/4;
-        mG1Duration = mSpawnRate/4;
-        mSDuration = mSpawnRate/4;
-        mG2Duration = mSpawnRate/4;
-        */
-        /*
-        mMDuration = 0.01;
-        mG1Duration = 0.01;
-        mSDuration = 0.01;
-        mG1Duration = 0.01; // U[4,6] 
-        */
-        //mG1Duration = (-log(p_gen->ranf()))/mSpawnRate; // E[mSpawnRate]
-        //mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] 
-        
-        mG1Duration = p_gen->NormalRandomDeviate(5.0, 1.5); 
-        
-    }
-    else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
-    {
-        mG1Duration = DBL_MAX;
-    }
-    else
-    {
-        NEVER_REACHED;
-    }
-    
-    if (mG1Duration < mMinimumGapDuration)
-    {
-        mG1Duration = mMinimumGapDuration;
-    }
+    mDivisionThreshold = divisionThreshold;
 }
 
-
-/*
-void CMCellCycleModel::InitialiseDaughterCell()
+double CMCellCycleModel::GetDivisionThreshold()
 {
-
-
-    boost::shared_ptr<AbstractCellProperty> p_transit_type =
-            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
-    mpCell->SetCellProliferativeType(p_transit_type);
-
-    AbstractSimplePhaseBasedCellCycleModel::InitialiseDaughterCell();
+    return mDivisionThreshold;
 }
-*/
+
+void CMCellCycleModel::SetMinimumDivisionAge(double minimumDivisionAge)
+{
+    mMinimumDivisionAge = minimumDivisionAge;
+}
+
+double CMCellCycleModel::GetMinimumDivisionAge()
+{
+    return mMinimumDivisionAge;
+}
+
+double CMCellCycleModel::GetAverageTransitCellCycleTime()
+{
+    return mMinimumDivisionAge;
+}
+
+double CMCellCycleModel::GetAverageStemCellCycleTime()
+{
+    return mMinimumDivisionAge;
+}
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<DivisionThreshold>" << mDivThreshold << "</DivisionThreshold>\n";
-    *rParamsFile << "\t\t\t<SpawnRate>" << mSpawnRate << "</SpawnRate>\n";
+    *rParamsFile << "\t\t\t<DivisionProbability>" << mDivisionThreshold << "</DivisionProbability>\n";
+    *rParamsFile << "\t\t\t<MinimumDivisionAge>" << mMinimumDivisionAge << "</MinimumDivisionAge>\n";
 
     // Call method on direct parent class
-    AbstractSimpleGenerationalCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
+    AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
 }
 
 // Serialization for Boost >= 1.36

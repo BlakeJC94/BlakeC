@@ -48,7 +48,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
 #include "GravityForce.hpp"
-#include "LateralForce.hpp"
 #include "BasicDiffusionForce.hpp"
 #include "CMCellCycleModel.hpp"
 #include "ChemTrackingModifier.hpp"
@@ -56,6 +55,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellAgesWriter.hpp"
 #include "CellLabel.hpp"
 
+#include "Debug.hpp"
 #include "FakePetscSetup.hpp"
 
 class UtericBudSimulation : public AbstractCellBasedTestSuite
@@ -69,14 +69,15 @@ private:
         
         for (unsigned i = 0; i < num_cells; i++)
         {
-            CMCellCycleModel* p_model = new CMCellCycleModel();
-            p_model->SetSpawnRate(divtimeparam);
-            p_model->SetDivThreshold(critconc);
+            CMCellCycleModel* p_model = new CMCellCycleModel;
+            p_model->SetMinimumDivisionAge(10.0);
+            p_model->SetDivisionThreshold(critconc);
             
             
-            CellPtr p_cell(new Cell(p_state, p_model, NULL, false));
+            CellPtr p_cell(new Cell(p_state, p_model));
             
             p_cell->SetCellProliferativeType(p_transit_type);
+            p_cell->InitialiseCellCycleModel();
             
             /* Enabling this segment seems to cause a bug:
              * Cells sould change to diff when outside region of proliferation (ROP), but 
@@ -89,8 +90,6 @@ private:
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
             
-            p_model->SetMaxTransitGenerations(1000);
-            
             rCells.push_back(p_cell);
         }
     }
@@ -98,28 +97,32 @@ private:
 public:
     void TestUtericBudSimulation() throw (Exception)
     {
-        /* Simulation Options */
-        unsigned num_cm_cells = 30; // Default = 10
-        unsigned spawn_region_x = 10; // Default = 7, Max = 10
-        unsigned spawn_region_y = 5; // Default = 3.5, Max = 5
+        /* Simulation options */
+        unsigned num_cm_cells = 30; // Default = 30
+        unsigned spawn_region_x = 10; // Default = 10
+        unsigned spawn_region_y = 5; // Default = 5
+        
         unsigned simulation_time = 100; 
         unsigned simulation_output_mult = 120;
         
-        unsigned gforce_strength = 1.9990; // Default = 2.0
-        unsigned lforce_strength = 0.9995; // Default = 1.0 
-        double dforce_strength = 0.2; // Default = 0.4;
+        unsigned gforce_strength = 1.0; // Default = 2.0
+        double dforce_strength = 0.3; // Default = 0.3;
         
-        double expdist_parameter = 25;
+        double divtimeparam = 10.0; // Default = 10.0
         double div_threshold = 0.5; //0.5
         
         
-        //double sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str());
+        
+        /* Batch simulation runner options */
 	    double sim_index = 0;
-	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);        
-
+	    
+	    // Uncomment this line then compile and build before running batch script.
+	    //double sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
+	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
+	    
 	    std::stringstream out;
 	    out << sim_index;
-	    std::string output_directory = "UtericBudSimulation" + out.str();
+	    std::string output_directory = "UtericBudSimulation_" + out.str();
         
         
         /* Generate Nodes */ 
@@ -131,7 +134,6 @@ public:
         {
             double x_coord = spawn_region_x * p_gen_x->ranf();
             double y_coord = spawn_region_y * p_gen_y->ranf();
-            
             nodes.push_back(new Node<2>(index, false, x_coord, y_coord));
         }
         
@@ -145,7 +147,7 @@ public:
         
         /* Generate Cells */
         std::vector<CellPtr> cells;
-        GenerateCells(mesh.GetNumNodes(), cells, expdist_parameter, div_threshold);
+        GenerateCells(mesh.GetNumNodes(), cells, divtimeparam, div_threshold);
         
         
         
@@ -155,7 +157,7 @@ public:
         
         
         
-        /* Add Cell Writer */
+        /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         
@@ -163,16 +165,14 @@ public:
         
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
-        //simulator.SetOutputDirectory("TestUtericBudSimulation");
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetEndTime(simulation_time);
         simulator.SetOutputCellVelocities(true);
-        simulator.SetOutputDivisionLocations(true);
         
         
         
-        /* Add Boundary Conditions */
+        /* Add BoundaryConditions */
         c_vector<double, 2> bc_point = zero_vector<double>(2);
         c_vector<double, 2> bc_normal_1 = zero_vector<double>(2);
         bc_normal_1(1) = -1.0;
@@ -187,7 +187,7 @@ public:
         
         
         
-        /* Add Cell Killers */
+        /* Add CellKillers */
         c_vector<double, 2> ck_point = zero_vector<double>(2);
         ck_point(1) = 20.0;
         
@@ -199,7 +199,7 @@ public:
         
         
         
-        /* Add Cell Forces */ 
+        /* Add CellForces */ 
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
@@ -207,16 +207,13 @@ public:
         MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
         simulator.AddForce(p_gforce);
         
-        MAKE_PTR_ARGS(LateralForce, p_lforce, (lforce_strength));
-        simulator.AddForce(p_lforce);
-        
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
         simulator.AddForce(p_dforce);
         
         
         
         
-        /* Add Simulation modifiers */ 
+        /* Add SimulationModifiers */ 
         MAKE_PTR(ChemTrackingModifier<2>, p_modifier);
         simulator.AddSimulationModifier(p_modifier);
         
