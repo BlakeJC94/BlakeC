@@ -113,7 +113,7 @@ public:
 	    double sim_index = 0;
 	    
 	    // Uncomment this line then compile and build before running batch script.
-	    //sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
+	    sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
 	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
 	    
 	    std::stringstream out;
