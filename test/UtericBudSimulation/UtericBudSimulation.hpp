@@ -70,22 +70,18 @@ private:
         for (unsigned i = 0; i < num_cells; i++)
         {
             CMCellCycleModel* p_model = new CMCellCycleModel;
-            p_model->SetMinimumDivisionAge(10.0);
+            p_model->SetAverageDivisionAge(10.0);
             p_model->SetDivisionThreshold(critconc);
             
             
             CellPtr p_cell(new Cell(p_state, p_model));
             
             p_cell->SetCellProliferativeType(p_transit_type);
-            p_cell->InitialiseCellCycleModel();
+            //p_cell->InitialiseCellCycleModel();
             
-            /* Enabling this segment seems to cause a bug:
-             * Cells sould change to diff when outside region of proliferation (ROP), but 
-             * enabling this seems to override that and allow a few cells to divide 
-             * outside ROP. Resulting daughter cells remain transit and cannot be changed.
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() * (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration());
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
-            */
+            
             
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
@@ -106,7 +102,7 @@ public:
         unsigned simulation_output_mult = 120;
         
         unsigned gforce_strength = 1.0; // Default = 2.0
-        double dforce_strength = 0.3; // Default = 0.3;
+        double dforce_strength = 0.2; // Default = 0.3;
         
         double divtimeparam = 10.0; // Default = 10.0
         double div_threshold = 0.5; //0.5
@@ -117,12 +113,13 @@ public:
 	    double sim_index = 0;
 	    
 	    // Uncomment this line then compile and build before running batch script.
-	    //double sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
+	    //sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
 	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
 	    
 	    std::stringstream out;
 	    out << sim_index;
 	    std::string output_directory = "UtericBudSimulation_" + out.str();
+        
         
         
         /* Generate Nodes */ 
@@ -169,6 +166,7 @@ public:
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetEndTime(simulation_time);
         simulator.SetOutputCellVelocities(true);
+        simulator.SetOutputDivisionLocations(true);
         
         
         

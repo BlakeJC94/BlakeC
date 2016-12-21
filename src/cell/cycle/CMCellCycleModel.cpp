@@ -41,17 +41,19 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellLabel.hpp"
 #include "WildTypeCellMutationState.hpp"
 
+#include "Debug.hpp"
+
 CMCellCycleModel::CMCellCycleModel()
     : AbstractCellCycleModel(),
       mDivisionThreshold(0.5),
-      mMinimumDivisionAge(10.0)
+      mAverageDivisionAge(10.0)
 {
 }
 
 CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
    : AbstractCellCycleModel(rModel),
      mDivisionThreshold(rModel.mDivisionThreshold),
-     mMinimumDivisionAge(rModel.mMinimumDivisionAge)
+     mAverageDivisionAge(rModel.mAverageDivisionAge)
 {
     /*
      * Initialize only those member variables defined in this class.
@@ -72,21 +74,39 @@ bool CMCellCycleModel::ReadyToDivide()
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
         double div_threshold = mDivisionThreshold;
         
-        if (conc_a < div_threshold || conc_b < div_threshold)
+        
+        /* I know this segment looks dumb, but trust me on this. We had issues with
+         * Transit cells being recorded in celltypes.dat and rapid divisions, this
+         * appeared to fix the issue. */
+        if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+        {
+            boost::shared_ptr<AbstractCellProperty> p_transit_type =
+                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
+            mpCell->SetCellProliferativeType(p_transit_type);
+        }
+        
+        /* If a transit cell leaves the proliferation region, set it to a 
+         * differentiated cell and set mReadyToDivide to false. */
+        if (  (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()) && (conc_a < div_threshold || conc_b < div_threshold)  )
         {
             boost::shared_ptr<AbstractCellProperty> p_diff_type =
-            mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
+                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
             mpCell->SetCellProliferativeType(p_diff_type);
             mReadyToDivide = false;
         }
         
-        double RandomDivisionAge = p_gen->NormalRandomDeviate(mMinimumDivisionAge, 1.0);
-        if (RandomDivisionAge < 7.0)
+        /* Generate a random minimum division time, Normal RV with
+         * mean = mAverageDivisionAge and standard deviation = 1.0
+         * If a negative number is generated, set it to the mean. */
+        double RandomDivisionAge = p_gen->NormalRandomDeviate(mAverageDivisionAge, 1.0);
+        if (RandomDivisionAge < 0)
         {
-            RandomDivisionAge = mMinimumDivisionAge;
+            RandomDivisionAge = mAverageDivisionAge;
         }
         
-        if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
+        /* If a transit cell reaches age larger than the random division time, then set
+         * mReadyForDivision to true */
+        if (  (GetAge() > mAverageDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
         }
@@ -109,30 +129,30 @@ double CMCellCycleModel::GetDivisionThreshold()
     return mDivisionThreshold;
 }
 
-void CMCellCycleModel::SetMinimumDivisionAge(double minimumDivisionAge)
+void CMCellCycleModel::SetAverageDivisionAge(double AverageDivisionAge)
 {
-    mMinimumDivisionAge = minimumDivisionAge;
+    mAverageDivisionAge = AverageDivisionAge;
 }
 
-double CMCellCycleModel::GetMinimumDivisionAge()
+double CMCellCycleModel::GetAverageDivisionAge()
 {
-    return mMinimumDivisionAge;
+    return mAverageDivisionAge;
 }
 
 double CMCellCycleModel::GetAverageTransitCellCycleTime()
 {
-    return mMinimumDivisionAge;
+    return mAverageDivisionAge;
 }
 
 double CMCellCycleModel::GetAverageStemCellCycleTime()
 {
-    return mMinimumDivisionAge;
+    return mAverageDivisionAge;
 }
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<DivisionProbability>" << mDivisionThreshold << "</DivisionProbability>\n";
-    *rParamsFile << "\t\t\t<MinimumDivisionAge>" << mMinimumDivisionAge << "</MinimumDivisionAge>\n";
+    *rParamsFile << "\t\t\t<AverageDivisionAge>" << mAverageDivisionAge << "</AverageDivisionAge>\n";
 
     // Call method on direct parent class
     AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);

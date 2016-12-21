@@ -25,14 +25,13 @@ for k = 2:total_jobs
     meanpopulationdata = ((k-1)*meanpopulationdata + populationdata)./k;
 end
 
-
 figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
 
 simtime = 120*(populationdata(:,1)); 
 diffcells = populationdata(:,4);
 transitcells = populationdata(:,3);
-
 totalcells = transitcells + diffcells;
+
 plot(simtime, totalcells, 'k', simtime, diffcells, 'r',...
     simtime, transitcells, 'b');
 legend('Total', 'Differentiated', 'Transit');

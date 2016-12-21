@@ -43,7 +43,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * dividing per hour.
  *
  * The class includes two parameters: the first, mDivisionThreshold, defines the probability
- * of dividing per hour; the second, mMinimumDivisionAge, defines a minimum age at which cells
+ * of dividing per hour; the second, mAverageDivisionAge, defines a minimum age at which cells
  * may divide.
  */
 class CMCellCycleModel : public AbstractCellCycleModel
@@ -62,7 +62,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         archive & mDivisionThreshold;
-        archive & mMinimumDivisionAge;
+        archive & mAverageDivisionAge;
     }
 
 protected:
@@ -76,7 +76,7 @@ protected:
      * Minimum age of a cell at which it may divide.
      * Defaults to 1 hour.
      */
-    double mMinimumDivisionAge;
+    double mAverageDivisionAge;
 
     /**
      * Protected copy-constructor for use by CreateCellCycleModel.
@@ -106,7 +106,7 @@ public:
     /**
      * Overridden ReadyToDivide() method.
      *
-     * If the cell's age is greater than mMinimumDivisionAge, then we draw a uniform
+     * If the cell's age is greater than mAverageDivisionAge, then we draw a uniform
      * random number r ~ U[0,1]. If r < mDivisionThreshold*dt, where dt is the
      * simulation time step, then the cell is ready to divide and we return true.
      * Otherwise, the cell is not yet ready to divide and we return false.
@@ -138,18 +138,18 @@ public:
     double GetDivisionThreshold();
 
     /**
-     * Set the value of mMinimumDivisionAge.
+     * Set the value of mAverageDivisionAge.
      *
-     * @param minimumDivisionAge the new value of mMinimumDivisionAge
+     * @param AverageDivisionAge the new value of mAverageDivisionAge
      */
-    void SetMinimumDivisionAge(double minimumDivisionAge);
+    void SetAverageDivisionAge(double AverageDivisionAge);
 
     /**
-     * Get mMinimumDivisionAge.
+     * Get mAverageDivisionAge.
      *
-     * @return mMinimumDivisionAge
+     * @return mAverageDivisionAge
      */
-    double GetMinimumDivisionAge();
+    double GetAverageDivisionAge();
 
     /**
      * Overridden GetAverageTransitCellCycleTime() method.
