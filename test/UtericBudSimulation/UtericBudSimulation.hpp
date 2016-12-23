@@ -111,9 +111,7 @@ public:
         
         /* Batch simulation runner options */
 	    double sim_index = 0;
-	    
-	    // Uncomment this line then compile and build before running batch script.
-	    sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); 
+	    //sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); // Uncomment this line then compile and build before running batch script.
 	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
 	    
 	    std::stringstream out;
@@ -153,7 +151,6 @@ public:
         
         
         
-        
         /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
@@ -171,29 +168,38 @@ public:
         
         
         /* Add BoundaryConditions */
-        c_vector<double, 2> bc_point = zero_vector<double>(2);
+        c_vector<double, 2> bc_point_1 = zero_vector<double>(2);
         c_vector<double, 2> bc_normal_1 = zero_vector<double>(2);
         bc_normal_1(1) = -1.0;
+        
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, bc_point_1, bc_normal_1));
+        simulator.AddCellPopulationBoundaryCondition(p_bc1);
+        
+        c_vector<double, 2> bc_point_2 = zero_vector<double>(2);
         c_vector<double, 2> bc_normal_2 = zero_vector<double>(2);
         bc_normal_2(0) = -1.0;
         
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, bc_point, bc_normal_1));
-        simulator.AddCellPopulationBoundaryCondition(p_bc1);
-        
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, bc_point, bc_normal_2));
+        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, bc_point_2, bc_normal_2));
         simulator.AddCellPopulationBoundaryCondition(p_bc2);
         
         
         
         /* Add CellKillers */
-        c_vector<double, 2> ck_point = zero_vector<double>(2);
-        ck_point(1) = 20.0;
+        c_vector<double, 2> ck_point_1 = zero_vector<double>(2);
+        ck_point_1(1) = 20.0;
+        c_vector<double, 2> ck_normal_1 = zero_vector<double>(2);
+        ck_normal_1(1) = 1.0;
         
-        c_vector<double, 2> ck_normal = zero_vector<double>(2);
-        ck_normal(1) = 1.0;
+        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_1, (&cell_population, ck_point_1, ck_normal_1));
+        simulator.AddCellKiller(p_killer_1);
         
-        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer, (&cell_population, ck_point, ck_normal));
-        simulator.AddCellKiller(p_killer);
+        c_vector<double, 2> ck_point_2 = zero_vector<double>(2);
+        ck_point_2(0) = 40.0;
+        c_vector<double, 2> ck_normal_2 = zero_vector<double>(2);
+        ck_normal_2(0) = 1.0;
+        
+        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_2, (&cell_population, ck_point_2, ck_normal_2));
+        simulator.AddCellKiller(p_killer_2);
         
         
         
@@ -210,7 +216,6 @@ public:
         
         
         
-        
         /* Add SimulationModifiers */ 
         MAKE_PTR(ChemTrackingModifier<2>, p_modifier);
         simulator.AddSimulationModifier(p_modifier);
@@ -219,5 +224,8 @@ public:
         
         /* Run Simulation */
         simulator.Solve();
+        
+        
+        
     }
 };
