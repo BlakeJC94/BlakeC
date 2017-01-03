@@ -56,6 +56,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellLabel.hpp"
 #include "AttachedCellMutationState.hpp"
 #include "AttachedCellMutationStatesCountWriter.hpp"
+#include "AttachmentModifier.hpp"
 
 #include "Debug.hpp"
 #include "FakePetscSetup.hpp"
@@ -231,8 +232,11 @@ public:
         
         
         /* Add SimulationModifiers */ 
-        MAKE_PTR(ChemTrackingModifier<2>, p_modifier);
-        simulator.AddSimulationModifier(p_modifier);
+        MAKE_PTR(ChemTrackingModifier<2>, p_chem_modifier);
+        simulator.AddSimulationModifier(p_chem_modifier);
+        
+        MAKE_PTR(AttachmentModifier<2>, p_attach_modifier);
+        simulator.AddSimulationModifier(p_attach_modifier);
         
         
         
