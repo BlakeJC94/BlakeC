@@ -35,7 +35,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "AttachmentModifier.hpp"
 #include "MeshBasedCellPopulation.hpp"
+#include "RandomNumberGenerator.hpp"
+#include "SmartPointers.hpp"
 
+#include "WildTypeCellMutationState.hpp"
 #include "AttachedCellMutationState.hpp"
 
 template<unsigned DIM>
@@ -65,6 +68,8 @@ template<unsigned DIM>
 void AttachmentModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation)
 {
     rCellPopulation.Update();
+    MAKE_PTR(AttachedCellMutationState, p_attached_state);
+    MAKE_PTR(WildTypeCellMutationState, p_state);
     
     for (typename AbstractMesh<DIM, DIM>::NodeIterator node_iter = rCellPopulation.rGetMesh().GetNodeIteratorBegin();
          node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
@@ -74,19 +79,30 @@ void AttachmentModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& rC
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
         
         unsigned AttachmentProbability = 0.2;
+        unsigned DetachmentProbability = 0.6;
 
 
         double dt = SimulationTime::Instance()->GetTimeStep();
-        /*
-        if (!(p_cell->GetMutationState()->IsType<AttachedMutationState>()) 
+        
+        if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
         {
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
-            if (p_gen->ranf() < AttachmentProbability*dt)
+            if (p_gen->ranf() < AttachmentProbability)
             {
-                // .....
+                p_cell->SetMutationState(p_attached_state);
             }
         }
-        */
+        else
+        {
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+            if (p_gen->ranf() < DetachmentProbability)
+            {
+                p_cell->SetMutationState(p_state);
+            }
+        }
+        
+        
+        
         
     }
 }
