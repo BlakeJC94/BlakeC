@@ -98,7 +98,7 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 100; 
+        unsigned simulation_time = 100; // Changed from 200
         unsigned simulation_output_mult = 120;
         
         unsigned gforce_strength = 1.0; // Default = 2.0
@@ -193,6 +193,11 @@ public:
         MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_1, (&cell_population, ck_point_1, ck_normal_1));
         simulator.AddCellKiller(p_killer_1);
         
+        /* BUG: CellKillers cause an error when they remove cells: 
+         * projects/BlakeC/test/UtericBudSimulation/UtericBudSimulation.hpp:94: Error: Test failed: 
+         * Chaste error: cell_based/src/population/AbstractCellPopulation.cpp:335: Location index input argument does not correspond to a Cell
+         * Failed */
+
         c_vector<double, 2> ck_point_2 = zero_vector<double>(2);
         ck_point_2(0) = 40.0;
         c_vector<double, 2> ck_normal_2 = zero_vector<double>(2);
