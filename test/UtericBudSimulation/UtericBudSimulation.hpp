@@ -54,6 +54,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
 #include "CellLabel.hpp"
+#include "AttachedCellMutationState.hpp"
+#include "AttachedCellMutationStatesCountWriter.hpp"
 
 #include "Debug.hpp"
 #include "FakePetscSetup.hpp"
@@ -66,6 +68,7 @@ private:
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(AttachedCellMutationState, p_attached_state);
         
         for (unsigned i = 0; i < num_cells; i++)
         {
@@ -78,6 +81,11 @@ private:
             
             p_cell->SetCellProliferativeType(p_transit_type);
             //p_cell->InitialiseCellCycleModel();
+            
+            if (RandomNumberGenerator::Instance()->ranf() < 0.2)
+            {
+                p_cell->SetMutationState(p_attached_state);
+            }
             
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
@@ -154,6 +162,7 @@ public:
         /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
+        cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
         
         
         
