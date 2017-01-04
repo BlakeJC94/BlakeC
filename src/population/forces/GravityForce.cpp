@@ -34,6 +34,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "GravityForce.hpp"
+#include "AttachedCellMutationState.hpp"
 
 GravityForce::GravityForce(double strength=1.0)
     : AbstractForce<2>(), 
@@ -51,24 +52,22 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
     
     for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
     {
-        
-        
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
         double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
         
-        
         if (cell_location_y < 2.0)
         {
-            //bc_repulsion(1) = 1.2 * mStrength;
             bc_repulsion(1) = 1.2 * mStrength * (2.0 - cell_location_y)/2.0;
             
             rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(bc_repulsion);
         }
         
+        if (p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
+        {
+            down_force(1) = -2.0 * mStrength;
+        }
         
         rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
-        
-        
     }
 }
 

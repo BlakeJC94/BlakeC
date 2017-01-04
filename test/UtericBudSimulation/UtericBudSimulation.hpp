@@ -36,6 +36,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+#include "FakePetscSetup.hpp"
 
 #include "CellsGenerator.hpp"
 #include "NodeBasedCellPopulation.hpp"
@@ -59,7 +60,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachmentModifier.hpp"
 
 #include "Debug.hpp"
-#include "FakePetscSetup.hpp"
+
 
 class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
@@ -70,6 +71,7 @@ private:
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
         MAKE_PTR(AttachedCellMutationState, p_attached_state);
+        MAKE_PTR(CellLabel, p_label);
         
         for (unsigned i = 0; i < num_cells; i++)
         {
@@ -81,12 +83,14 @@ private:
             CellPtr p_cell(new Cell(p_state, p_model));
             
             p_cell->SetCellProliferativeType(p_transit_type);
-            //p_cell->InitialiseCellCycleModel();
+            p_cell->InitialiseCellCycleModel();
             
+            /*
             if (RandomNumberGenerator::Instance()->ranf() < 0.2)
             {
-                p_cell->SetMutationState(p_attached_state);
+                p_cell->AddCellProperty(p_label);
             }
+            */
             
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);

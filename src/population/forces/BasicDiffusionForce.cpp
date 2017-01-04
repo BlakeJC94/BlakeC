@@ -34,6 +34,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "BasicDiffusionForce.hpp"
+#include "AttachedCellMutationState.hpp"
 
 BasicDiffusionForce::BasicDiffusionForce(double strength=1.0)
     : AbstractForce<2>(),
@@ -55,6 +56,7 @@ void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellP
         ++node_iter)
     {
         unsigned node_index = node_iter->GetIndex();
+        CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
         double node_radius = node_iter->GetRadius();
         
         if (node_radius == 0)
@@ -63,17 +65,19 @@ void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellP
         }
         
         double nu = dynamic_cast<AbstractOffLatticeCellPopulation<2>*>(&rCellPopulation)->GetDampingConstant(node_index);
-        
         double diffusion_const_scaling = msBoltzmannConstant*mAbsoluteTemperature/(6.0*mViscosity*M_PI);
         double diffusion_constant = diffusion_const_scaling/node_radius;
         
+        
         c_vector<double, 2> force = zero_vector<double>(2);
         
-        for (unsigned i=0; i<2; i++)
+        if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
         {
-            double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
-            
-            force[i] = mStrength*(nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
+            for (unsigned i=0; i<2; i++)
+            {
+                double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
+                force[i] = mStrength*(nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
+            }
         }
         
         node_iter->AddAppliedForceContribution(force);

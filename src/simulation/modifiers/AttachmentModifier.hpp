@@ -59,7 +59,7 @@ public:
 
     virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
 
-    void UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
+    void UpdateCellStates(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 };
