@@ -112,11 +112,11 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 150; // Changed from 200
+        unsigned simulation_time = 300; // Changed from 200
         unsigned simulation_output_mult = 120;
         
-        double gforce_strength = 1.0; // Default = 1.0
-        double dforce_strength = 0.2; // Default = 0.2;
+        double gforce_strength = 0.5; // Default = 1.0
+        double dforce_strength = 0.25; // Default = 0.2;
         
         double divtimeparam = 10.0; // Default = 10.0
         double div_threshold = 0.5; // 0.5
@@ -136,7 +136,7 @@ public:
         
         /* Batch simulation runner options */
 	    double sim_index = 0;
-	    //sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); // Uncomment this line then compile and build before running batch script.
+	    sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); // Uncomment this line then compile and build before running batch script.
 	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
 	    
 	    std::stringstream out;
