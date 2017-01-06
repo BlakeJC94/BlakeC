@@ -61,7 +61,7 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         
         if (cell_location_y < 2.0)
         {
-            bc_repulsion(1) = 1.2 * mStrength * (2.0 - cell_location_y)/2.0;
+            bc_repulsion(1) = 2.0 * mStrength * (2.0 - cell_location_y)/2.0; // 1.2 * ...
             
             rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(bc_repulsion);
         }

@@ -36,7 +36,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachedCellMutationState.hpp"
 
 AttachedCellMutationState::AttachedCellMutationState()
-    : AbstractCellMutationState(4)
+    : AbstractCellMutationState(10)
 {}
 
 #include "SerializationExportWrapperForCpp.hpp"

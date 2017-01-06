@@ -40,11 +40,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "WildTypeCellMutationState.hpp"
 #include "AttachedCellMutationState.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 AttachmentModifier<DIM>::AttachmentModifier()
-    : AbstractCellBasedSimulationModifier<DIM>()
+    : AbstractCellBasedSimulationModifier<DIM>(),
+      mAttachmentProbability(0.1),
+      mDetachmentProbability(0.6),
+      mAttachmentHeight(1.0)
 {
 }
 
@@ -63,18 +65,34 @@ template<unsigned DIM>
 void AttachmentModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory)
 {
     UpdateCellStates(rCellPopulation);
+    /*
+    SimulationTime* p_simulation_time = SimulationTime::Instance();
+    double current_time = p_simulation_time->GetTime();
+    
+    double time_now = p_simulation_time->GetTime();
+    std::ostringstream time_string;
+    time_string << time_now;
+    
+    std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
+    mSimulationOutputDirectory = results_directory;
+    
+    OutputFileHandler output_file_handler(results_directory+"/", true);
+    
+    mrCellPopulation.OpenWritersFiles(output_file_handler);
+    
+    mpDivisionLocationFile = output_file_handler.OpenOutputFile("smoof.dat");
+    */
 }
 
 template<unsigned DIM>
 void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& rCellPopulation)
 {
-    //TRACE("smoof");
     rCellPopulation.Update();
     MAKE_PTR(AttachedCellMutationState, p_attached_state);
     MAKE_PTR(WildTypeCellMutationState, p_state);
     
-    double AttachmentProbability = 0.1;
-    double DetachmentProbability = 0.7;
+    double AttachmentProbability = mAttachmentProbability;
+    double DetachmentProbability = mDetachmentProbability;
     
     for (typename AbstractMesh<DIM, DIM>::NodeIterator node_iter = rCellPopulation.rGetMesh().GetNodeIteratorBegin();
          node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
@@ -88,7 +106,7 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
         if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
         {
             double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
-            if ((p_gen->ranf() < AttachmentProbability * dt) && (cell_location_y < 2.0))
+            if ((p_gen->ranf() < AttachmentProbability * dt) && (cell_location_y < mAttachmentHeight))
             {
                 p_cell->SetMutationState(p_attached_state);
             }
@@ -101,6 +119,42 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
             }
         }
     }
+}
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::SetAttachmentProbability(double attachmentProbability)
+{
+    mAttachmentProbability = attachmentProbability;
+}
+
+template<unsigned DIM>
+double AttachmentModifier<DIM>::GetAttachmentProbability()
+{
+    return mAttachmentProbability;
+}
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::SetDetachmentProbability(double detachmentProbability)
+{
+    mDetachmentProbability = detachmentProbability;
+}
+
+template<unsigned DIM>
+double AttachmentModifier<DIM>::GetDetachmentProbability()
+{
+    return mDetachmentProbability;
+}
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::SetAttachmentHeight(double attachmentHeight)
+{
+    mAttachmentHeight = attachmentHeight;
+}
+
+template<unsigned DIM>
+double AttachmentModifier<DIM>::GetAttachmentHeight()
+{
+    return mAttachmentHeight;
 }
 
 template<unsigned DIM>

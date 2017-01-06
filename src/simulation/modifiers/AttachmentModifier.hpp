@@ -41,13 +41,28 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<unsigned DIM>
 class AttachmentModifier : public AbstractCellBasedSimulationModifier<DIM, DIM>
 {
+private:
+
     friend class boost::serialization::access;
     
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellBasedSimulationModifier<DIM,DIM> >(*this);
+        archive & mAttachmentProbability;
+        archive & mDetachmentProbability;
+        archive & mAttachmentHeight;
     }
+    
+    
+protected: 
+
+    double mAttachmentProbability;
+    
+    double mDetachmentProbability;
+    
+    double mAttachmentHeight;
+    
     
 public:
 
@@ -60,6 +75,18 @@ public:
     virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
 
     void UpdateCellStates(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
+    
+    void SetAttachmentProbability(double attachmentProbability);
+
+    double GetAttachmentProbability();
+    
+    void SetDetachmentProbability(double detachmentProbability);
+
+    double GetDetachmentProbability();
+    
+    void SetAttachmentHeight(double attachmentHeight);
+
+    double GetAttachmentHeight();
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 };

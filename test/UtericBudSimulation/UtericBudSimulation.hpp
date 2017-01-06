@@ -112,19 +112,25 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 100; // Changed from 200
+        unsigned simulation_time = 150; // Changed from 200
         unsigned simulation_output_mult = 120;
         
-        unsigned gforce_strength = 1.0; // Default = 2.0
-        double dforce_strength = 0.2; // Default = 0.3;
+        double gforce_strength = 1.0; // Default = 1.0
+        double dforce_strength = 0.2; // Default = 0.2;
         
         double divtimeparam = 10.0; // Default = 10.0
-        double div_threshold = 0.5; //0.5
+        double div_threshold = 0.5; // 0.5
+        
+        double attached_damping_constant = 10.0;
+        double attachment_probability = 0.4;
+        double detachment_probability = 0.5;
+        double attachment_height = 0.02;
+        
         
         
         /* Start timer */
-        clock_t t1,t2;
-        t1=clock();
+        clock_t t1, t2;
+        t1 = clock();
         
         
         
@@ -167,6 +173,11 @@ public:
         
         /* Generate CellPopulation*/
         NodeBasedCellPopulation<2> cell_population(mesh, cells);
+        
+        
+        
+        /* Adjust damping constant for attached cells */
+        cell_population.SetDampingConstantMutant(attached_damping_constant);
         
         
         
@@ -230,7 +241,7 @@ public:
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
-        // Note : Gravity force serems to result in an error with cell killer!
+        
         MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
         simulator.AddForce(p_gforce);
         
@@ -244,13 +255,16 @@ public:
         simulator.AddSimulationModifier(p_chem_modifier);
         
         MAKE_PTR(AttachmentModifier<2>, p_attach_modifier);
+        p_attach_modifier->SetAttachmentProbability(attachment_probability);
+        p_attach_modifier->SetDetachmentProbability(detachment_probability);
+        p_attach_modifier->SetAttachmentHeight(attachment_height);
         simulator.AddSimulationModifier(p_attach_modifier);
         
         
         
         /* Run Simulation */
         simulator.Solve();
-        t2=clock();
+        t2 = clock();
         float seconds = (((float)t2-(float)t1) / CLOCKS_PER_SEC);
         cout << "Runtime : " << seconds << " seconds" << endl;
         
