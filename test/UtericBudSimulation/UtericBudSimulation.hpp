@@ -58,6 +58,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachedCellMutationState.hpp"
 #include "AttachedCellMutationStatesCountWriter.hpp"
 #include "AttachmentModifier.hpp"
+#include "AttachmentStateWriter.hpp"
 
 #include "Debug.hpp"
 
@@ -121,6 +122,11 @@ public:
         double div_threshold = 0.5; //0.5
         
         
+        /* Start timer */
+        clock_t t1,t2;
+        t1=clock();
+        
+        
         
         /* Batch simulation runner options */
 	    double sim_index = 0;
@@ -168,7 +174,7 @@ public:
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
-        
+        cell_population.AddCellWriter<AttachmentStateWriter>();
         
         
         /* Begin OffLatticeSimulation */ 
@@ -246,8 +252,9 @@ public:
         
         /* Run Simulation */
         simulator.Solve();
-        
-        
+        t2=clock();
+        float seconds = (((float)t2-(float)t1) / CLOCKS_PER_SEC);
+        cout << "Runtime : " << seconds << " seconds" << endl;
         
     }
 };

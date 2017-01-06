@@ -87,7 +87,8 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
         
         if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
         {
-            if (p_gen->ranf() < AttachmentProbability * dt)
+            double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
+            if ((p_gen->ranf() < AttachmentProbability * dt) && (cell_location_y < 2.0))
             {
                 p_cell->SetMutationState(p_attached_state);
             }
@@ -105,7 +106,6 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
 template<unsigned DIM>
 void AttachmentModifier<DIM>::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
-    // No parameters to output, so just call method on direct parent class
     AbstractCellBasedSimulationModifier<DIM>::OutputSimulationModifierParameters(rParamsFile);
 }
 
