@@ -177,7 +177,6 @@ public:
         cell_population.AddCellWriter<AttachmentStateWriter>();
         
         
-        
         /* Begin OffLatticeSimulation */ 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
@@ -207,17 +206,20 @@ public:
         
         /* Add CellKillers */
         c_vector<double, 2> ck_point_1 = zero_vector<double>(2);
-        ck_point_1(1) = 10.0;
+        ck_point_1(1) = 20.0;
         c_vector<double, 2> ck_normal_1 = zero_vector<double>(2);
         ck_normal_1(1) = 1.0;
         
         MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_1, (&cell_population, ck_point_1, ck_normal_1));
         simulator.AddCellKiller(p_killer_1);
         
-        
+        /* BUG: CellKillers cause an error when they remove cells: 
+         * projects/BlakeC/test/UtericBudSimulation/UtericBudSimulation.hpp:94: Error: Test failed: 
+         * Chaste error: cell_based/src/population/AbstractCellPopulation.cpp:335: Location index input argument does not correspond to a Cell
+         * Failed */
 
         c_vector<double, 2> ck_point_2 = zero_vector<double>(2);
-        ck_point_2(0) = 20.0;
+        ck_point_2(0) = 40.0;
         c_vector<double, 2> ck_normal_2 = zero_vector<double>(2);
         ck_normal_2(0) = 1.0;
         
@@ -230,7 +232,7 @@ public:
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
-        // Note : Gravity force serems to result in an error with cell killer!
+        
         MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
         simulator.AddForce(p_gforce);
         

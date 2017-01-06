@@ -50,9 +50,13 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
     
     down_force(1) = -mStrength;
     
-    for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
+    for (typename AbstractMesh<2, 2>::NodeIterator node_iter = rCellPopulation.rGetMesh().GetNodeIteratorBegin(); 
+        node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
+        ++node_iter)
     {
+        unsigned node_index = node_iter->GetIndex();
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
+        
         double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
         
         if (cell_location_y < 2.0)
@@ -67,8 +71,10 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
             down_force(1) = -2.0 * mStrength;
         }
         
+        
         rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
     }
+    
 }
 
 double GravityForce::GetStrength()
