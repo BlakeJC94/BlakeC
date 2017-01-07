@@ -63,20 +63,28 @@ private:
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         archive & mDivisionThreshold;
         archive & mAverageDivisionAge;
+        archive & mStdDivisionAge;
     }
 
 protected:
     /**
-     * Probability of dividing per hour.
-     * Defaults to 0.1.
+     * Minimum threshold for chem A and chem B concentration for proliferative state.
+     * Defaults to 0.5.
      */
     double mDivisionThreshold;
 
     /**
-     * Minimum age of a cell at which it may divide.
-     * Defaults to 1 hour.
+     * Average age of a cell at which it may divide.
+     * Defaults to 10 hours.
      */
     double mAverageDivisionAge;
+    
+    
+    /**
+     * Standard deviation of age of a cell at which it may divide.
+     * Defaults to 1 hour.
+     */
+    double mStdDivisionAge;
 
     /**
      * Protected copy-constructor for use by CreateCellCycleModel.
@@ -150,6 +158,21 @@ public:
      * @return mAverageDivisionAge
      */
     double GetAverageDivisionAge();
+    
+    
+    /**
+     * Set the value of mStdDivisionAge.
+     *
+     * @param AverageDivisionAge the new value of mAverageDivisionAge
+     */
+    void SetStdDivisionAge(double StdDivisionAge);
+
+    /**
+     * Get mStdDivisionAge.
+     *
+     * @return mAverageDivisionAge
+     */
+    double GetStdDivisionAge();
 
     /**
      * Overridden GetAverageTransitCellCycleTime() method.

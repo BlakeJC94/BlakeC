@@ -67,7 +67,7 @@ class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
-    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double divtimeparam, double critconc)
+    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double div_age_mean, double div_age_std, double critconc)
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
@@ -77,7 +77,8 @@ private:
         for (unsigned i = 0; i < num_cells; i++)
         {
             CMCellCycleModel* p_model = new CMCellCycleModel;
-            p_model->SetAverageDivisionAge(10.0);
+            p_model->SetAverageDivisionAge(div_age_mean);
+            p_model->SetStdDivisionAge(div_age_std);
             p_model->SetDivisionThreshold(critconc);
             
             
@@ -108,17 +109,18 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */
-        unsigned num_cm_cells = 30; // Default = 30
+        unsigned num_cm_cells = 80; // Default = 30
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 300; // Changed from 200
+        unsigned simulation_time = 400; // Changed from 200
         unsigned simulation_output_mult = 120;
         
         double gforce_strength = 0.5; // Default = 1.0
-        double dforce_strength = 0.25; // Default = 0.2;
+        double dforce_strength = 0.2; // Default = 0.2;
         
-        double divtimeparam = 10.0; // Default = 10.0
+        double div_age_mean = 10.0; // Default = 10.0
+        double div_age_std = 2.0; 
         double div_threshold = 0.5; // 0.5
         
         double attached_damping_constant = 10.0;
@@ -167,7 +169,7 @@ public:
         
         /* Generate Cells */
         std::vector<CellPtr> cells;
-        GenerateCells(mesh.GetNumNodes(), cells, divtimeparam, div_threshold);
+        GenerateCells(mesh.GetNumNodes(), cells, div_age_mean, div_age_std, div_threshold);
         
         
         
@@ -205,6 +207,7 @@ public:
         bc_normal_1(1) = -1.0;
         
         MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, bc_point_1, bc_normal_1));
+        p_bc1->SetUseJiggledNodesOnPlane(true);
         simulator.AddCellPopulationBoundaryCondition(p_bc1);
         
         c_vector<double, 2> bc_point_2 = zero_vector<double>(2);
@@ -212,6 +215,7 @@ public:
         bc_normal_2(0) = -1.0;
         
         MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, bc_point_2, bc_normal_2));
+        p_bc2->SetUseJiggledNodesOnPlane(true);
         simulator.AddCellPopulationBoundaryCondition(p_bc2);
         
         

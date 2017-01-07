@@ -46,14 +46,16 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 CMCellCycleModel::CMCellCycleModel()
     : AbstractCellCycleModel(),
       mDivisionThreshold(0.5),
-      mAverageDivisionAge(10.0)
+      mAverageDivisionAge(10.0), 
+      mStdDivisionAge(1.0)
 {
 }
 
 CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
    : AbstractCellCycleModel(rModel),
      mDivisionThreshold(rModel.mDivisionThreshold),
-     mAverageDivisionAge(rModel.mAverageDivisionAge)
+     mAverageDivisionAge(rModel.mAverageDivisionAge),
+     mStdDivisionAge(rModel.mStdDivisionAge)
 {
     /*
      * Initialize only those member variables defined in this class.
@@ -96,9 +98,9 @@ bool CMCellCycleModel::ReadyToDivide()
         }
         
         /* Generate a random minimum division time, Normal RV with
-         * mean = mAverageDivisionAge and standard deviation = 1.0
+         * mean = mAverageDivisionAge and standard deviation = mStdDivisionAge
          * If a negative number is generated, set it to the mean. */
-        double RandomDivisionAge = p_gen->NormalRandomDeviate(mAverageDivisionAge, 1.0);
+        double RandomDivisionAge = p_gen->NormalRandomDeviate(mAverageDivisionAge, mStdDivisionAge);
         if (RandomDivisionAge < 0)
         {
             RandomDivisionAge = mAverageDivisionAge;
@@ -139,6 +141,16 @@ double CMCellCycleModel::GetAverageDivisionAge()
     return mAverageDivisionAge;
 }
 
+void CMCellCycleModel::SetStdDivisionAge(double StdDivisionAge)
+{
+    mStdDivisionAge = StdDivisionAge;
+}
+
+double CMCellCycleModel::GetStdDivisionAge()
+{
+    return mStdDivisionAge;
+}
+
 double CMCellCycleModel::GetAverageTransitCellCycleTime()
 {
     return mAverageDivisionAge;
@@ -151,8 +163,9 @@ double CMCellCycleModel::GetAverageStemCellCycleTime()
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<DivisionProbability>" << mDivisionThreshold << "</DivisionProbability>\n";
+    *rParamsFile << "\t\t\t<DivisionThreshold>" << mDivisionThreshold << "</DivisionThreshold>\n";
     *rParamsFile << "\t\t\t<AverageDivisionAge>" << mAverageDivisionAge << "</AverageDivisionAge>\n";
+    *rParamsFile << "\t\t\t<StandardDeviationDivisionAge>" << mStdDivisionAge << "</StandardDeviationDivisionAge>\n";
 
     // Call method on direct parent class
     AbstractCellCycleModel::OutputCellCycleModelParameters(rParamsFile);
