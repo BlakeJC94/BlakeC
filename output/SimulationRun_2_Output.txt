@@ -7,6 +7,8 @@ CWD now: /home/blake/Workspace/Chaste
 
 
 Entering TestUtericBudSimulation
-Runtime : 191.507 seconds
+DEBUG: batch = 1
+DEBUG: sim_index = 2
+Runtime : 9.51928 seconds
 Passed
 OK!

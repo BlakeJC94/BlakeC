@@ -52,6 +52,7 @@ private:
         archive & mAttachmentProbability;
         archive & mDetachmentProbability;
         archive & mAttachmentHeight;
+        archive & mOutputAttachmentDurations;
     }
     
     
@@ -62,6 +63,8 @@ protected:
     double mDetachmentProbability;
     
     double mAttachmentHeight;
+    
+    bool mOutputAttachmentDurations;
     
     
 public:
@@ -87,6 +90,10 @@ public:
     void SetAttachmentHeight(double attachmentHeight);
 
     double GetAttachmentHeight();
+    
+    bool GetOutputAttachmentDurations();
+    
+    void SetOutputAttachmentDurations(bool outputAttachmentDurations);
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 };

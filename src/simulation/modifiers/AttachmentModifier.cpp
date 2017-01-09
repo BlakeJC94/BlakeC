@@ -46,7 +46,8 @@ AttachmentModifier<DIM>::AttachmentModifier()
     : AbstractCellBasedSimulationModifier<DIM>(),
       mAttachmentProbability(0.1),
       mDetachmentProbability(0.6),
-      mAttachmentHeight(1.0)
+      mAttachmentHeight(1.0),
+      mOutputAttachmentDurations(false)
 {
 }
 
@@ -155,6 +156,18 @@ template<unsigned DIM>
 double AttachmentModifier<DIM>::GetAttachmentHeight()
 {
     return mAttachmentHeight;
+}
+
+template<unsigned DIM>
+bool AttachmentModifier<DIM>::GetOutputAttachmentDurations()
+{
+    return mOutputAttachmentDurations;
+}
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::SetOutputAttachmentDurations(bool outputAttachmentDurations)
+{
+    mOutputAttachmentDurations = outputAttachmentDurations;
 }
 
 template<unsigned DIM>

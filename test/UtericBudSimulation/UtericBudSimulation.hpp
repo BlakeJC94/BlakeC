@@ -113,7 +113,7 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 400; // Changed from 200
+        unsigned simulation_time = 50;//400; // Changed from 200
         unsigned simulation_output_mult = 120;
         
         double gforce_strength = 0.5; // Default = 1.0
@@ -130,16 +130,18 @@ public:
         
         
         
-        /* Start timer */
+        /* Setup timer, random number generator seed and output directory */
         clock_t t1, t2;
         t1 = clock();
         
-        
-        
-        /* Batch simulation runner options */
 	    double sim_index = 0;
-	    sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str()); // Uncomment this line then compile and build before running batch script.
-	    RandomNumberGenerator::Instance()->Reseed(100.0*sim_index);    
+	    
+	    if (CommandLineArguments::Instance()->OptionExists("-sim_index"))
+	    {
+	        sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str());
+        }
+        
+        RandomNumberGenerator::Instance()->Reseed(100.0 * sim_index * (double)t1);
 	    
 	    std::stringstream out;
 	    out << sim_index;
@@ -262,6 +264,7 @@ public:
         p_attach_modifier->SetAttachmentProbability(attachment_probability);
         p_attach_modifier->SetDetachmentProbability(detachment_probability);
         p_attach_modifier->SetAttachmentHeight(attachment_height);
+        p_attach_modifier->SetOutputAttachmentDurations(true);
         simulator.AddSimulationModifier(p_attach_modifier);
         
         
@@ -269,7 +272,7 @@ public:
         /* Run Simulation */
         simulator.Solve();
         t2 = clock();
-        float seconds = (((float)t2-(float)t1) / CLOCKS_PER_SEC);
+        float seconds = (((float)t2 - (float)t1) / CLOCKS_PER_SEC);
         cout << "Runtime : " << seconds << " seconds" << endl;
         
     }
