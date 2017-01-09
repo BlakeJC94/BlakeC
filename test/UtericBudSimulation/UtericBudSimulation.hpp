@@ -58,7 +58,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachedCellMutationState.hpp"
 #include "AttachedCellMutationStatesCountWriter.hpp"
 #include "AttachmentModifier.hpp"
-#include "AttachmentStateWriter.hpp"
 
 #include "Debug.hpp"
 
@@ -100,6 +99,7 @@ private:
             
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
+            p_cell->GetCellData()->SetItem("AttachTime", 0);
             
             rCells.push_back(p_cell);
         }
@@ -189,7 +189,6 @@ public:
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
-        cell_population.AddCellWriter<AttachmentStateWriter>();
         
         
         
@@ -265,6 +264,7 @@ public:
         p_attach_modifier->SetDetachmentProbability(detachment_probability);
         p_attach_modifier->SetAttachmentHeight(attachment_height);
         p_attach_modifier->SetOutputAttachmentDurations(true);
+        p_attach_modifier->SetSimIndex(sim_index);
         simulator.AddSimulationModifier(p_attach_modifier);
         
         

@@ -41,13 +41,20 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "WildTypeCellMutationState.hpp"
 #include "AttachedCellMutationState.hpp"
 
+#include "AbstractCellBasedSimulation.hpp"
+#include "OutputFileHandler.hpp"
+#include <sstream>
+
+#include "Debug.hpp"
+
 template<unsigned DIM>
 AttachmentModifier<DIM>::AttachmentModifier()
     : AbstractCellBasedSimulationModifier<DIM>(),
       mAttachmentProbability(0.1),
       mDetachmentProbability(0.6),
       mAttachmentHeight(1.0),
-      mOutputAttachmentDurations(false)
+      mOutputAttachmentDurations(false),
+      mSimIndex(0)
 {
 }
 
@@ -66,23 +73,20 @@ template<unsigned DIM>
 void AttachmentModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory)
 {
     UpdateCellStates(rCellPopulation);
-    /*
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
-    double current_time = p_simulation_time->GetTime();
     
-    double time_now = p_simulation_time->GetTime();
-    std::ostringstream time_string;
-    time_string << time_now;
-    
-    std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
-    mSimulationOutputDirectory = results_directory;
-    
-    OutputFileHandler output_file_handler(results_directory+"/", true);
-    
-    mrCellPopulation.OpenWritersFiles(output_file_handler);
-    
-    mpDivisionLocationFile = output_file_handler.OpenOutputFile("smoof.dat");
-    */
+    if (mOutputAttachmentDurations)
+    {
+        //std::string smoof = AbstractCellBasedSimulation<2,2>::GetOutputDirectory();
+        //PRINT_VARIABLE(smoof);
+        
+        std::stringstream out;
+	    out << mSimIndex;
+	    std::string output_directory = "UtericBudSimulation_" + out.str() + "/results_from_time_0/";   
+        
+        OutputFileHandler handler(output_directory, true);
+        
+        mpAttachmentDurationsFile = handler.OpenOutputFile("attachmentdurations.dat");
+    }
 }
 
 template<unsigned DIM>
@@ -110,6 +114,16 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
             if ((p_gen->ranf() < AttachmentProbability * dt) && (cell_location_y < mAttachmentHeight))
             {
                 p_cell->SetMutationState(p_attached_state);
+                
+                if (mOutputAttachmentDurations)
+                {
+                    // Write time of attachment to CellData
+                    SimulationTime* p_simulation_time = SimulationTime::Instance();
+                    double current_time = p_simulation_time->GetTime();
+                
+                    p_cell->GetCellData()->SetItem("AttachTime", current_time);
+                }
+                
             }
         }
         else
@@ -117,10 +131,39 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
             if (p_gen->ranf() < DetachmentProbability * dt)
             {
                 p_cell->SetMutationState(p_state);
+                
+                if (mOutputAttachmentDurations)
+                {
+                    // Get time of attachment to subtract from current time 
+                    double AttachTime = p_cell->GetCellData()->GetItem("AttachTime");
+                    
+                    SimulationTime* p_simulation_time = SimulationTime::Instance();
+                    double current_time = p_simulation_time->GetTime();
+                    
+                    double AttachmentDuration = current_time - AttachTime;
+                
+                    p_cell->GetCellData()->SetItem("AttachTime", 0);
+                
+                    // Write attachment suration to .dat
+                    *mpAttachmentDurationsFile << AttachmentDuration << "\t";
+                    
+                    
+                    //mpAttachmentDurationsFile->close();
+                }
             }
         }
     }
 }
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::UpdateAtEndOfSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation)
+{
+    if (mOutputAttachmentDurations)
+    {
+        mpAttachmentDurationsFile->close();
+    }
+}
+
 
 template<unsigned DIM>
 void AttachmentModifier<DIM>::SetAttachmentProbability(double attachmentProbability)
@@ -171,10 +214,23 @@ void AttachmentModifier<DIM>::SetOutputAttachmentDurations(bool outputAttachment
 }
 
 template<unsigned DIM>
+double AttachmentModifier<DIM>::GetSimIndex()
+{
+    return mSimIndex;
+}
+
+template<unsigned DIM>
+void AttachmentModifier<DIM>::SetSimIndex(double index)
+{
+    mSimIndex = index;
+}
+
+template<unsigned DIM>
 void AttachmentModifier<DIM>::OutputSimulationModifierParameters(out_stream& rParamsFile)
 {
     AbstractCellBasedSimulationModifier<DIM>::OutputSimulationModifierParameters(rParamsFile);
 }
+
 
 // Explicit instantiation
 template class AttachmentModifier<1>;

@@ -53,6 +53,7 @@ private:
         archive & mDetachmentProbability;
         archive & mAttachmentHeight;
         archive & mOutputAttachmentDurations;
+        archive & mSimIndex;
     }
     
     
@@ -66,6 +67,10 @@ protected:
     
     bool mOutputAttachmentDurations;
     
+    out_stream mpAttachmentDurationsFile;
+    
+    double mSimIndex;
+    
     
 public:
 
@@ -76,6 +81,8 @@ public:
     virtual void UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
 
     virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
+    
+    virtual void UpdateAtEndOfSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
 
     void UpdateCellStates(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
     
@@ -94,6 +101,10 @@ public:
     bool GetOutputAttachmentDurations();
     
     void SetOutputAttachmentDurations(bool outputAttachmentDurations);
+    
+    double GetSimIndex();
+    
+    void SetSimIndex(double index);
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 };
