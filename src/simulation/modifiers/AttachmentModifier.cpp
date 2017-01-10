@@ -76,16 +76,8 @@ void AttachmentModifier<DIM>::SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellP
     
     if (mOutputAttachmentDurations)
     {
-        //std::string smoof = AbstractCellBasedSimulation<2,2>::GetOutputDirectory();
-        //PRINT_VARIABLE(smoof);
-        
-        std::stringstream out;
-	    out << mSimIndex;
-	    std::string output_directory = "UtericBudSimulation_" + out.str() + "/results_from_time_0/";   
-        
-        OutputFileHandler handler(output_directory, true);
-        
-        mpAttachmentDurationsFile = handler.OpenOutputFile("attachmentdurations.dat");
+        OutputFileHandler file_handler(outputDirectory+"/", false);
+        mpAttachmentDurationsFile = file_handler.OpenOutputFile("attachmentdurations.dat");
     }
 }
 

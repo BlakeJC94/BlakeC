@@ -85,14 +85,12 @@ private:
             
             p_cell->SetCellProliferativeType(p_transit_type);
             p_cell->InitialiseCellCycleModel();
-            
             /*
             if (RandomNumberGenerator::Instance()->ranf() < 0.2)
             {
                 p_cell->AddCellProperty(p_label);
             }
             */
-            
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
             
@@ -109,11 +107,11 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */
-        unsigned num_cm_cells = 80; // Default = 30
+        unsigned initial_cm_cells = 100; // Default = 30
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 50;//400; // Changed from 200
+        unsigned simulation_time = 400;//400; // Changed from 200
         unsigned simulation_output_mult = 120;
         
         double gforce_strength = 0.5; // Default = 1.0
@@ -154,7 +152,7 @@ public:
         RandomNumberGenerator* p_gen_x = RandomNumberGenerator::Instance();
         RandomNumberGenerator* p_gen_y = RandomNumberGenerator::Instance();
         
-        for (unsigned index = 0; index < num_cm_cells; index++)
+        for (unsigned index = 0; index < initial_cm_cells; index++)
         {
             double x_coord = spawn_region_x * p_gen_x->ranf();
             double y_coord = spawn_region_y * p_gen_y->ranf();
@@ -188,7 +186,6 @@ public:
         /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
-        cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
         
         
         
@@ -263,13 +260,13 @@ public:
         p_attach_modifier->SetAttachmentProbability(attachment_probability);
         p_attach_modifier->SetDetachmentProbability(detachment_probability);
         p_attach_modifier->SetAttachmentHeight(attachment_height);
-        p_attach_modifier->SetOutputAttachmentDurations(true);
+        p_attach_modifier->SetOutputAttachmentDurations(true); 
         p_attach_modifier->SetSimIndex(sim_index);
         simulator.AddSimulationModifier(p_attach_modifier);
         
         
         
-        /* Run Simulation */
+        /* Run Simulation and output runtime */
         simulator.Solve();
         t2 = clock();
         float seconds = (((float)t2 - (float)t1) / CLOCKS_PER_SEC);

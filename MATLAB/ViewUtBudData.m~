@@ -228,7 +228,6 @@ end
 
 bar(binranges, bincounts, 'histc');
 title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
-xlabel('time'); ylabel('counts');
 
 end
 
@@ -247,11 +246,11 @@ for k=1:partitions_total
     tmpdata = u .* indicies;
     av_data(k) = sum(tmpdata)/sum(indicies);
     
-%     Removing this check makes the data inflated, since this stops the
-%     addition of NaNs?
-    if sum(indicies) == 0
-        av_data(k) = 0;
-    end
+    % Removing this check makes the data inflated, since this stops the
+    % addition of NaNs?
+%     if sum(indicies) == 0
+%         av_data(k) = 0;
+%     end
 end
 
 end
