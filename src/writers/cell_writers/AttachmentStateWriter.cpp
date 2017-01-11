@@ -41,7 +41,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AttachmentStateWriter<ELEMENT_DIM, SPACE_DIM>::AttachmentStateWriter()
     : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("cellattachment.dat")
 {
-    this->mVtkCellDataName = "Attachment";
+    this->mVtkCellDataName = "AttachmentState";
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
