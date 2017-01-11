@@ -128,6 +128,7 @@ public:
         double attached_damping_constant = 100.0;
         
         
+        
         /* Setup timer, output directory and RNG seed */
         clock_t t1, t2;
         t1 = clock();
