@@ -188,32 +188,71 @@ set(gcf,'PaperPositionMode','auto'); print('Fig05 Mean age vs y end', '-dpng', '
 %% Attachment time histogram
 % Plots histogram of the attachment times
 
-% AttachmentData = cell(1,TotalJobs);
-% AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
-% MaxValue = max(AttachmentData{1});
-% for k = 2:TotalJobs
-%     AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
-%     temp = max(AttachmentData{k});
-%     if temp > MaxValue
-%         MaxValue = temp;
-%     end
-% end
-% 
-% MaxValue = ceil(MaxValue);
-% binranges = 0:MaxValue;
-% 
-% bincounts = histc(AttachmentData{1}, binranges);
-% for k = 2:TotalJobs
-%     bincounts = bincounts + histc(AttachmentData{k}, binranges);
-% end
-% 
-% figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
-% bar(binranges, bincounts, 'histc');
-% title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
-% xlabel('time'); ylabel('counts');
-% set(gcf,'PaperPositionMode','auto'); print('Attachment time histogram', '-dpng', '-r0');
+if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+    
+    AttachmentData = cell(1,TotalJobs);
+    AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+    MaxValue = max(AttachmentData{1});
+    for k = 2:TotalJobs
+        AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+        temp = max(AttachmentData{k});
+        if temp > MaxValue
+            MaxValue = temp;
+        end
+    end
+    
+    MaxValue = ceil(MaxValue);
+    binranges = 0:MaxValue;
+    
+    bincounts = histc(AttachmentData{1}, binranges);
+    for k = 2:TotalJobs
+        bincounts = bincounts + histc(AttachmentData{k}, binranges);
+    end
+    
+    figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+    bar(binranges, bincounts, 'histc');
+    title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+    xlabel('time'); ylabel('counts');
+    set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
+    
+end
 
-toc
+
+if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+
+    AttachmentData = cell(1,TotalJobs);
+    AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+    MaxValue = max(AttachmentData{1});
+    binranges = 0:MaxValue;
+    bincounts = histc(AttachmentData{1}, binranges);
+    a = histc(AttachmentData{1}, binranges);
+
+    for k = 2:TotalJobs
+        AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+        temp = max(AttachmentData{k});
+        if temp > MaxValue
+            MaxValue = temp;
+            binranges = 0:MaxValue;
+        end
+        b = histc(AttachmentData{k}, binranges);
+        spacefill = zeros(1, abs(length(b) - length(a)));
+        
+        if length(bincounts) < length(b)
+            bincounts = [bincounts, spacefill] + b;
+%             a = [a, spacefill];
+        elseif length(bincounts) > length(b)
+            bincounts = bincounts + [b, spacefill];
+        end 
+        c = a + b;
+        
+        bincounts = bincounts + histc(AttachmentData{k}, binranges);
+    end
+
+
+end
+
+
+
 
 
 end
@@ -268,7 +307,35 @@ end
 %     x = VelocityData{end}(3:5:end-3);
 %     u = VelocityData{end}(5:5:end-1);
 %     av_udata = barplotdatagen(x, u, BinSize_ux, max_x);
+%     % if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
 %     
+%     AttachmentData = cell(1,TotalJobs);
+%     AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+%     MaxValue = max(AttachmentData{1});
+%     for k = 2:TotalJobs
+%         AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+%         temp = max(AttachmentData{k});
+%         if temp > MaxValue
+%             MaxValue = temp;
+%         end
+%     end
+%     
+%     MaxValue = ceil(MaxValue);
+%     binranges = 0:MaxValue;
+%     
+%     bincounts = histc(AttachmentData{1}, binranges);
+%     for k = 2:TotalJobs
+%         bincounts = bincounts + histc(AttachmentData{k}, binranges);
+%     end
+%     
+%     figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+%     bar(binranges, bincounts, 'histc');
+%     title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+%     xlabel('time'); ylabel('counts');
+%     set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
+%     
+% end
+
 %     MeanHVelocityData = ((k-1)*MeanHVelocityData + av_udata)./k;
 % end
 % 
@@ -357,7 +424,35 @@ end
 % figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
 % 
 % VelocityData = LoadNonConstantLengthData('testoutput/UtericBudSimulation_0/results_from_time_0/cellvelocities.dat');
-% x = VelocityData{1}(3:5:end-3);
+% x = VelocityData{1}(3:5% if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+%     
+%     AttachmentData = cell(1,TotalJobs);
+%     AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+%     MaxValue = max(AttachmentData{1});
+%     for k = 2:TotalJobs
+%         AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+%         temp = max(AttachmentData{k});
+%         if temp > MaxValue
+%             MaxValue = temp;
+%         end
+%     end
+%     
+%     MaxValue = ceil(MaxValue);
+%     binranges = 0:MaxValue;
+%     
+%     bincounts = histc(AttachmentData{1}, binranges);
+%     for k = 2:TotalJobs
+%         bincounts = bincounts + histc(AttachmentData{k}, binranges);
+%     end
+%     
+%     figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+%     bar(binranges, bincounts, 'histc');
+%     title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+%     xlabel('time'); ylabel('counts');
+%     set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
+%     
+% end
+:end-3);
 % v = VelocityData{1}(6:5:end);
 % av_vdata = barplotdatagen(x, v, BinSize_vx, max_x);
 % for j = 2:length(VelocityData)
@@ -396,7 +491,35 @@ end
 %   x = horizontal position
 %   age = age of cell
 % Size of partition elements specified by 'BinSize_agex' input.
-% Maximum x specified by 'max_x' input.
+% Maximum x specified by 'max_x% if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+%     
+%     AttachmentData = cell(1,TotalJobs);
+%     AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+%     MaxValue = max(AttachmentData{1});
+%     for k = 2:TotalJobs
+%         AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+%         temp = max(AttachmentData{k});
+%         if temp > MaxValue
+%             MaxValue = temp;
+%         end
+%     end
+%     
+%     MaxValue = ceil(MaxValue);
+%     binranges = 0:MaxValue;
+%     
+%     bincounts = histc(AttachmentData{1}, binranges);
+%     for k = 2:TotalJobs
+%         bincounts = bincounts + histc(AttachmentData{k}, binranges);
+%     end
+%     
+%     figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+%     bar(binranges, bincounts, 'histc');
+%     title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+%     xlabel('time'); ylabel('counts');
+%     set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
+%     
+% end
+' input.
 % figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
 % 
 % agedata = LoadNonConstantLengthData('testoutput/UtericBudSimulation_0/results_from_time_0/cellages.dat');
@@ -455,3 +578,38 @@ end
 % bar(BinSize_agey*(1:numel(MeanAgeYData)) - (BinSize_agey/2), MeanAgeYData);
 % title(['cell age vs. vertical position at end of ', num2str(TotalJobs), ' simulations'], fontopt{:});
 % xlabel('y'); ylabel('age');
+
+
+
+
+%% Attachment time histogram (OLD CODE)
+% Plots histogram of the attachment times
+
+% if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+%     
+%     AttachmentData = cell(1,TotalJobs);
+%     AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
+%     MaxValue = max(AttachmentData{1});
+%     for k = 2:TotalJobs
+%         AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
+%         temp = max(AttachmentData{k});
+%         if temp > MaxValue
+%             MaxValue = temp;
+%         end
+%     end
+%     
+%     MaxValue = ceil(MaxValue);
+%     binranges = 0:MaxValue;
+%     
+%     bincounts = histc(AttachmentData{1}, binranges);
+%     for k = 2:TotalJobs
+%         bincounts = bincounts + histc(AttachmentData{k}, binranges);
+%     end
+%     
+%     figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+%     bar(binranges, bincounts, 'histc');
+%     title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+%     xlabel('time'); ylabel('counts');
+%     set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
+%     
+% end
