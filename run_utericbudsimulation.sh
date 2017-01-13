@@ -7,7 +7,7 @@
 # scons co=1 b=GccOpt ts=projects/Ozzy/test/CellBasedComparison/TestMorphogenMonolayer.hpp
 #
 
-num_sims=30;
+num_sims=20;
 
 for (( i=0 ; i<${num_sims} ; i++))
 do

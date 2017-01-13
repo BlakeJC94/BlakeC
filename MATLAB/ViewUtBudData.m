@@ -48,12 +48,23 @@ tic;
 
 PopulationData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/celltypes.dat');
 MeanPopulationData = PopulationData;
+
+if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat', 'file') ~= 0
+    AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
+    MeanAttachmentData = AttachmentData;
+end
+
 for k = 2:TotalJobs
     PopulationData = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/celltypes.dat']);
     MeanPopulationData = ((k-1)*MeanPopulationData + PopulationData)./k;
+    
+    if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+        AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
+        MeanAttachmentData = ((k-1)*MeanAttachmentData + AttachmentData)./k;
+    end
 end
 
-AvPopulationDataOut{1} = 120*(MeanPopulationData(:,1));
+AvPopulationDataOut{1} = MeanPopulationData(:,1);
 AvPopulationDataOut{2} = MeanPopulationData(:,4);
 AvPopulationDataOut{3} = MeanPopulationData(:,3);
 AvPopulationDataOut{4} = MeanPopulationData(:,4) + MeanPopulationData(:,3);
@@ -64,9 +75,16 @@ TransitCells = AvPopulationDataOut{3};
 TotalCells = AvPopulationDataOut{4};
 
 figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
-plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
+if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+    plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
+    SimTime, TransitCells, 'b', SimTime, MeanAttachmentData.data(:,3),'m');
+legend('Total', 'Differentiated', 'Transit', 'Attached', 'Location', 'Best');
+else
+    plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
     SimTime, TransitCells, 'b');
 legend('Total', 'Differentiated', 'Transit', 'Location', 'Best');
+end
+
 title(['Average number of cells over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('simulation time'); ylabel('no. of cells');
 set(gcf,'PaperPositionMode','auto'); print('Fig01 Mean no. cells vs time', '-dpng', '-r0');

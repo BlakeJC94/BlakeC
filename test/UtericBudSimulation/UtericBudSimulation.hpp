@@ -58,6 +58,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachedCellMutationState.hpp"
 #include "AttachmentStateWriter.hpp"
 #include "AttachmentModifier.hpp"
+#include "AttachedCellMutationStatesCountWriter.hpp"
 
 #include "Debug.hpp"
 
@@ -111,7 +112,7 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 300;
+        unsigned simulation_time = 500;
         unsigned simulation_output_mult = 120;
         
         double gforce_strength = 1.0; 
@@ -122,7 +123,7 @@ public:
         double div_threshold = 0.5; // 0.5
         
         bool attachment = true;
-        double attachment_probability = 0.4;
+        double attachment_probability = 0.5;
         double detachment_probability = 0.5;
         double attachment_height = 0.02;
         double attached_damping_constant = 100.0;
@@ -185,6 +186,7 @@ public:
         
         /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
+        cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellWriter<AttachmentStateWriter>();
         
