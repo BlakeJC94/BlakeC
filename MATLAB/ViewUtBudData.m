@@ -51,7 +51,7 @@ MeanPopulationData = PopulationData;
 
 if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat', 'file') ~= 0
     AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
-    MeanAttachmentData = AttachmentData;
+    MeanAttachmentData = AttachmentData.data;
 end
 
 for k = 2:TotalJobs
@@ -60,7 +60,7 @@ for k = 2:TotalJobs
     
     if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
         AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
-        MeanAttachmentData = ((k-1)*MeanAttachmentData + AttachmentData)./k;
+        MeanAttachmentData = ((k-1)*MeanAttachmentData + AttachmentData.data)./k;
     end
 end
 
@@ -77,7 +77,7 @@ TotalCells = AvPopulationDataOut{4};
 figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
 if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
     plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
-    SimTime, TransitCells, 'b', SimTime, MeanAttachmentData.data(:,3),'m');
+    SimTime, TransitCells, 'b', SimTime, MeanAttachmentData(:,3),'m');
 legend('Total', 'Differentiated', 'Transit', 'Attached', 'Location', 'Best');
 else
     plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...

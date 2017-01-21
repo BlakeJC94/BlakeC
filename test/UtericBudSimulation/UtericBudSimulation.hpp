@@ -114,6 +114,7 @@ public:
         
         unsigned simulation_time = 500;
         unsigned simulation_output_mult = 120;
+        double simulation_Dt = 1.0/200.0;
         
         double gforce_strength = 1.0; 
         double dforce_strength = 0.25; 
@@ -124,7 +125,7 @@ public:
         
         bool attachment = true;
         double attachment_probability = 0.5;
-        double detachment_probability = 0.5;
+        double detachment_probability = 1.0;
         double attachment_height = 0.02;
         double attached_damping_constant = 100.0;
         
@@ -196,6 +197,7 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
+        simulator.SetDt(simulation_Dt);
         simulator.SetEndTime(simulation_time);
         simulator.SetOutputCellVelocities(true);
         simulator.SetOutputDivisionLocations(true);
@@ -274,9 +276,19 @@ public:
         
         /* Run Simulation and output runtime */
         simulator.Solve();
+        
         t2 = clock();
         float seconds = (((float)t2 - (float)t1) / CLOCKS_PER_SEC);
-        cout << "Runtime : " << seconds << " seconds" << endl;
+        if (seconds > 60)
+        {
+            float minutes = floor(seconds/60);
+            seconds = seconds - 60 * minutes;
+            cout << "Runtime : " << minutes << " minutes and " << seconds << " seconds" << endl;
+        }
+        else 
+        {
+            cout << "Runtime : " << seconds << " seconds" << endl;
+        }
         
     }
 };
