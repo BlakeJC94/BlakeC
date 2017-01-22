@@ -112,21 +112,24 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 500;
+        unsigned simulation_time = 300;
         unsigned simulation_output_mult = 120;
         double simulation_Dt = 1.0/200.0;
         
         double gforce_strength = 1.0; 
         double dforce_strength = 0.25; 
         
+        double gforce_repulsion_distance = 2.0;
+        double gforce_repulsion_multiplier = 3.0;
+        double gforce_attachment_multiplier = 5.0;
+        
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_threshold = 0.5; // 0.5
         
-        bool attachment = true;
         double attachment_probability = 0.5;
         double detachment_probability = 1.0;
-        double attachment_height = 0.02;
+        double attachment_height = 0.04;
         double attached_damping_constant = 100.0;
         
         
@@ -145,7 +148,7 @@ public:
 	    out << sim_index;
 	    std::string output_directory = "UtericBudSimulation_" + out.str();
 	    
-	    RandomNumberGenerator::Instance()->Reseed(100.0 * sim_index * (double)t1);
+	    RandomNumberGenerator::Instance()->Reseed(100.0 * sim_index);
         
         
         
@@ -250,6 +253,9 @@ public:
         simulator.AddForce(p_linear_force);
         
         MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
+        p_gforce->SetRepulsionDistance(gforce_repulsion_distance);
+        p_gforce->SetRepulsionMultiplier(gforce_repulsion_multiplier);
+        p_gforce->SetAttachmentMultiplier(gforce_attachment_multiplier);
         simulator.AddForce(p_gforce);
         
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));
@@ -261,17 +267,13 @@ public:
         MAKE_PTR(ChemTrackingModifier<2>, p_chem_modifier);
         simulator.AddSimulationModifier(p_chem_modifier);
         
-        if (attachment)
-        {
-            MAKE_PTR(AttachmentModifier<2>, p_attach_modifier);
-            p_attach_modifier->SetAttachmentProbability(attachment_probability);
-            p_attach_modifier->SetDetachmentProbability(detachment_probability);
-            p_attach_modifier->SetAttachmentHeight(attachment_height);
-            p_attach_modifier->SetOutputAttachmentDurations(true); 
-            p_attach_modifier->SetSimIndex(sim_index);
-            simulator.AddSimulationModifier(p_attach_modifier);
-        }
-        
+        MAKE_PTR(AttachmentModifier<2>, p_attach_modifier);
+        p_attach_modifier->SetAttachmentProbability(attachment_probability);
+        p_attach_modifier->SetDetachmentProbability(detachment_probability);
+        p_attach_modifier->SetAttachmentHeight(attachment_height);
+        p_attach_modifier->SetOutputAttachmentDurations(true); 
+        simulator.AddSimulationModifier(p_attach_modifier);
+
         
         
         /* Run Simulation and output runtime */
@@ -283,7 +285,14 @@ public:
         {
             float minutes = floor(seconds/60);
             seconds = seconds - 60 * minutes;
-            cout << "Runtime : " << minutes << " minutes and " << seconds << " seconds" << endl;
+            if (minutes == 1)
+            {
+                cout << "Runtime : " << minutes << " minute and " << seconds << " seconds" << endl;
+            }
+            else
+            {
+                cout << "Runtime : " << minutes << " minutes and " << seconds << " seconds" << endl;
+            }
         }
         else 
         {

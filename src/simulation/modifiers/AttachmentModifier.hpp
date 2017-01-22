@@ -53,7 +53,6 @@ private:
         archive & mDetachmentProbability;
         archive & mAttachmentHeight;
         archive & mOutputAttachmentDurations;
-        archive & mSimIndex;
     }
     
     
@@ -68,8 +67,6 @@ protected:
     bool mOutputAttachmentDurations;
     
     out_stream mpAttachmentDurationsFile;
-    
-    double mSimIndex;
     
     
 public:

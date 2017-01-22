@@ -50,7 +50,18 @@ private :
     {
         archive & boost::serialization::base_object<AbstractForce<2> >(*this);
         archive & mStrength;
+        archive & mRepulsionDistance;
+        archive & mRepulsionMultiplier;
+        archive & mAttachmentMultiplier;
     }
+
+protected:
+
+    double mRepulsionDistance;
+    
+    double mRepulsionMultiplier;
+    
+    double mAttachmentMultiplier;
 
 public : 
     GravityForce(double);
@@ -58,6 +69,18 @@ public :
     void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
     
     double GetStrength();
+    
+    void SetRepulsionDistance(double repulsionDist);
+    
+    double GetRepulsionDistance();
+    
+    void SetRepulsionMultiplier(double repulsionMult);
+    
+    double GetRepulsionMultiplier();
+    
+    void SetAttachmentMultiplier(double attachMult);
+    
+    double GetAttachmentMultiplier();
     
     virtual void OutputForceParameters(out_stream& rParamsFile);
     

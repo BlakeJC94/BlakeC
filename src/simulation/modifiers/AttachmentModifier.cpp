@@ -53,8 +53,7 @@ AttachmentModifier<DIM>::AttachmentModifier()
       mAttachmentProbability(0.1),
       mDetachmentProbability(0.6),
       mAttachmentHeight(1.0),
-      mOutputAttachmentDurations(false),
-      mSimIndex(0)
+      mOutputAttachmentDurations(false)
 {
 }
 
@@ -203,18 +202,6 @@ template<unsigned DIM>
 void AttachmentModifier<DIM>::SetOutputAttachmentDurations(bool outputAttachmentDurations)
 {
     mOutputAttachmentDurations = outputAttachmentDurations;
-}
-
-template<unsigned DIM>
-double AttachmentModifier<DIM>::GetSimIndex()
-{
-    return mSimIndex;
-}
-
-template<unsigned DIM>
-void AttachmentModifier<DIM>::SetSimIndex(double index)
-{
-    mSimIndex = index;
 }
 
 template<unsigned DIM>
