@@ -137,9 +137,6 @@ void AttachmentModifier<DIM>::UpdateCellStates(AbstractCellPopulation<DIM,DIM>& 
                 
                     // Write attachment suration to .dat
                     *mpAttachmentDurationsFile << AttachmentDuration << "\t";
-                    
-                    
-                    //mpAttachmentDurationsFile->close();
                 }
             }
         }

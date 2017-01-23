@@ -33,28 +33,31 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "AbstractCellMutationState.hpp"
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include "AbstractCellWriter.hpp"
 
-class AttachedCellMutationState : public AbstractCellMutationState
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class RVStateWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-
     friend class boost::serialization::access;
-    
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+        archive & boost::serialization::base_object<AbstractCellWriter<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
-    
-public: 
 
-    AttachedCellMutationState();
+public:
+
+    RVStateWriter();
     
+    double GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
+    
+    virtual void VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(AttachedCellMutationState)
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(RVStateWriter)
+
 

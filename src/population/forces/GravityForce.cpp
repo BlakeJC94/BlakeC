@@ -35,13 +35,15 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GravityForce.hpp"
 #include "AttachedCellMutationState.hpp"
+#include "RVCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 GravityForce::GravityForce(double strength=1.0)
     : AbstractForce<2>(), 
       mStrength(strength),
       mRepulsionDistance(2.0),
-      mRepulsionMultiplier(3.0),
-      mAttachmentMultiplier(3.0)
+      mRepulsionMultiplier(2.0),
+      mAttachmentMultiplier(10.0)
 {
 }
 
@@ -50,8 +52,6 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
     c_vector<double, 2> down_force = zero_vector<double>(2);
     c_vector<double, 2> bc_repulsion = zero_vector<double>(2);
     
-    double repulsion_dist = 2.0;
-    
     for (typename AbstractMesh<2, 2>::NodeIterator node_iter = rCellPopulation.rGetMesh().GetNodeIteratorBegin(); 
         node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
         ++node_iter)
@@ -59,20 +59,29 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         unsigned node_index = node_iter->GetIndex();
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
         
-        if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
+        if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
         {
+            down_force(0) = 50.0;
+            //down_force(1) = 10.0;
+        }
+        
+        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
+        {
+            down_force(0) = 0;
             down_force(1) = -mStrength;
             
             double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
-            
-            if (cell_location_y < repulsion_dist)
+            if (cell_location_y < mRepulsionDistance)
             {
-                down_force(1) = 2.0 * mStrength * (repulsion_dist - cell_location_y)/repulsion_dist;
+                down_force(1) = mRepulsionMultiplier * mStrength * (mRepulsionDistance - cell_location_y)/mRepulsionDistance;
             }
+            
         }
-        else if (p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
+        
+        if (p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
         {
-            down_force(1) = -10.0 * mStrength;
+            down_force(0) = 0;
+            down_force(1) = -mAttachmentMultiplier * mStrength;
         }
         
         rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);

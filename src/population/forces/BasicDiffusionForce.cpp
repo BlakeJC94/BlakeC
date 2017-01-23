@@ -35,6 +35,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BasicDiffusionForce.hpp"
 #include "AttachedCellMutationState.hpp"
+#include "RVCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 BasicDiffusionForce::BasicDiffusionForce(double strength=1.0)
     : AbstractForce<2>(),
@@ -71,7 +73,7 @@ void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellP
         
         c_vector<double, 2> force = zero_vector<double>(2);
         
-        if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
+        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
         {
             for (unsigned i=0; i<2; i++)
             {

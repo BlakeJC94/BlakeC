@@ -37,7 +37,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-class AttachedCellMutationState : public AbstractCellMutationState
+class RVCellMutationState : public AbstractCellMutationState
 {
 private:
 
@@ -51,10 +51,10 @@ private:
     
 public: 
 
-    AttachedCellMutationState();
+    RVCellMutationState();
     
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(AttachedCellMutationState)
+CHASTE_CLASS_EXPORT(RVCellMutationState)
 

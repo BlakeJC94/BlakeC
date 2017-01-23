@@ -40,6 +40,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "CellLabel.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "RVCellMutationState.hpp"
+#include "SmartPointers.hpp"
 
 #include "Debug.hpp"
 
@@ -69,8 +71,16 @@ bool CMCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    MAKE_PTR(RVCellMutationState, p_rv_state);
     
-    if (!mReadyToDivide)
+    MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+    MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+    
+    double rv_threshold = 0.1;
+    double dt = SimulationTime::Instance()->GetTimeStep();
+    double RVProbability = 0.01;
+    
+    if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
         double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
@@ -82,8 +92,6 @@ bool CMCellCycleModel::ReadyToDivide()
          * appeared to fix the issue. */
         if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
-            boost::shared_ptr<AbstractCellProperty> p_transit_type =
-                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<TransitCellProliferativeType>();
             mpCell->SetCellProliferativeType(p_transit_type);
         }
         
@@ -91,11 +99,19 @@ bool CMCellCycleModel::ReadyToDivide()
          * differentiated cell and set mReadyToDivide to false. */
         if (  (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()) && (conc_a < div_threshold || conc_b < div_threshold)  )
         {
-            boost::shared_ptr<AbstractCellProperty> p_diff_type =
-                mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DifferentiatedCellProliferativeType>();
             mpCell->SetCellProliferativeType(p_diff_type);
             mReadyToDivide = false;
         }
+        
+        /* If a differentiated cell has B > 0.9 then apply the RV mutation 
+         * state with random chance (first try deterministic). */
+        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b < 0.1) && (p_gen->ranf() < RVProbability * dt)  )
+        //if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b < 0.1)  )
+        {
+            mpCell->SetMutationState(p_rv_state);
+            mReadyToDivide = false;
+        }
+        
         
         /* Generate a random minimum division time, Normal RV with
          * mean = mAverageDivisionAge and standard deviation = mStdDivisionAge
@@ -113,6 +129,9 @@ bool CMCellCycleModel::ReadyToDivide()
             mReadyToDivide = true;
         }
     }
+    
+    
+    
     return mReadyToDivide;
 }
 

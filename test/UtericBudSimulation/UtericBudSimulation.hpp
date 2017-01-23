@@ -38,7 +38,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FakePetscSetup.hpp"
 
-#include "CellsGenerator.hpp"
+#include "WildTypeCellMutationState.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -59,6 +59,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AttachmentStateWriter.hpp"
 #include "AttachmentModifier.hpp"
 #include "AttachedCellMutationStatesCountWriter.hpp"
+
+#include "RVCellMutationState.hpp"
+#include "RVStateWriter.hpp"
 
 #include "Debug.hpp"
 
@@ -112,7 +115,7 @@ public:
         unsigned spawn_region_x = 10; // Default = 10
         unsigned spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 300;
+        unsigned simulation_time = 200;
         unsigned simulation_output_mult = 120;
         double simulation_Dt = 1.0/200.0;
         
@@ -120,16 +123,16 @@ public:
         double dforce_strength = 0.25; 
         
         double gforce_repulsion_distance = 2.0;
-        double gforce_repulsion_multiplier = 3.0;
-        double gforce_attachment_multiplier = 5.0;
+        double gforce_repulsion_multiplier = 2.0;
+        double gforce_attachment_multiplier = 10.0;
         
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_threshold = 0.5; // 0.5
         
         double attachment_probability = 0.5;
-        double detachment_probability = 1.0;
-        double attachment_height = 0.04;
+        double detachment_probability = 0.5;
+        double attachment_height = 0.75;
         double attached_damping_constant = 100.0;
         
         
@@ -193,6 +196,7 @@ public:
         cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellWriter<AttachmentStateWriter>();
+        cell_population.AddCellWriter<RVStateWriter>();
         
         
         

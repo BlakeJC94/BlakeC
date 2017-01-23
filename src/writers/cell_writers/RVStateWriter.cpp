@@ -33,28 +33,53 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "AbstractCellMutationState.hpp"
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
+#include "RVStateWriter.hpp"
+#include "AbstractCellPopulation.hpp"
+#include "RVCellMutationState.hpp"
 
-class AttachedCellMutationState : public AbstractCellMutationState
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+RVStateWriter<ELEMENT_DIM, SPACE_DIM>::RVStateWriter()
+    : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("rvcells.dat")
 {
-private:
+    this->mVtkCellDataName = "RenalVesicleCells";
+}
 
-    friend class boost::serialization::access;
-    
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double RVStateWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+{
+    return pCell->GetMutationState()->IsType<RVCellMutationState>();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void RVStateWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+{
+    // Write location index corresponding to cell
+    *this->mpOutStream << pCellPopulation->GetLocationIndexUsingCell(pCell) << " ";
+
+    // Write cell location
+    c_vector<double, SPACE_DIM> cell_location = pCellPopulation->GetLocationOfCellCentre(pCell);
+    for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+        *this->mpOutStream << cell_location[i] << " ";
     }
-    
-public: 
 
-    AttachedCellMutationState();
-    
-};
+    // Write cell attachment state
+    *this->mpOutStream << pCell->GetMutationState()->IsType<RVCellMutationState>() << " ";
+}
 
-#include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(AttachedCellMutationState)
+
+
+// Explicit instantiation
+template class RVStateWriter<1,1>;
+template class RVStateWriter<1,2>;
+template class RVStateWriter<2,2>;
+template class RVStateWriter<1,3>;
+template class RVStateWriter<2,3>;
+template class RVStateWriter<3,3>;
+
+#include "SerializationExportWrapperForCpp.hpp"
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(RVStateWriter)
+
 
