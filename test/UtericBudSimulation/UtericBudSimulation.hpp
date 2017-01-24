@@ -37,14 +37,18 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FakePetscSetup.hpp"
+#include "SmartPointers.hpp"
+//#include "Debug.hpp"
 
-#include "WildTypeCellMutationState.hpp"
 #include "NodeBasedCellPopulation.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
-#include "SmartPointers.hpp"
+#include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
+#include "CellProliferativeTypesCountWriter.hpp"
+#include "CellAgesWriter.hpp"
 
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
@@ -52,18 +56,14 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BasicDiffusionForce.hpp"
 #include "CMCellCycleModel.hpp"
 #include "ChemTrackingModifier.hpp"
-#include "CellProliferativeTypesCountWriter.hpp"
-#include "CellAgesWriter.hpp"
-#include "CellLabel.hpp"
 #include "AttachedCellMutationState.hpp"
-#include "AttachmentStateWriter.hpp"
 #include "AttachmentModifier.hpp"
-#include "AttachedCellMutationStatesCountWriter.hpp"
-
+//#include "AttachedCellMutationStatesCountWriter.hpp"
 #include "RVCellMutationState.hpp"
-#include "RVStateWriter.hpp"
+#include "UtericBudMutationStateWriter.hpp"
+#include "SelectivePlaneBoundaryCondition.hpp"
 
-#include "Debug.hpp"
+
 
 
 class UtericBudSimulation : public AbstractCellBasedTestSuite
@@ -98,7 +98,6 @@ private:
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
             
-            
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
             p_cell->GetCellData()->SetItem("AttachTime", 0);
@@ -111,12 +110,16 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */
-        unsigned initial_cm_cells = 100; 
-        unsigned spawn_region_x = 10; // Default = 10
-        unsigned spawn_region_y = 5; // Default = 5
+        double initial_cm_cells = 100; 
+        double spawn_region_x = 10; // Default = 10
+        double spawn_region_y = 5; // Default = 5
         
-        unsigned simulation_time = 200;
-        unsigned simulation_output_mult = 120;
+        double simulation_region_x = 20;
+        double simulation_region_y = 10;
+        double permeable_barrier_x = 18;
+        
+        double simulation_time = 100;
+        double simulation_output_mult = 120;
         double simulation_Dt = 1.0/200.0;
         
         double gforce_strength = 1.0; 
@@ -128,12 +131,13 @@ public:
         
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
-        double div_threshold = 0.5; // 0.5
+        double div_threshold = 0.5; 
         
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
         double attachment_height = 0.75;
         double attached_damping_constant = 100.0;
+        
         
         
         
@@ -193,10 +197,8 @@ public:
         
         /* Add CellWriters */
         cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
-        cell_population.AddCellPopulationCountWriter<AttachedCellMutationStatesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
-        cell_population.AddCellWriter<AttachmentStateWriter>();
-        cell_population.AddCellWriter<RVStateWriter>();
+        cell_population.AddCellWriter<UtericBudMutationStateWriter>();
         
         
         
@@ -228,26 +230,33 @@ public:
         p_bc2->SetUseJiggledNodesOnPlane(true);
         simulator.AddCellPopulationBoundaryCondition(p_bc2);
         
+        c_vector<double, 2> bc_point_3 = zero_vector<double>(2);
+        bc_point_3(0) = permeable_barrier_x;
+        c_vector<double, 2> bc_normal_3 = zero_vector<double>(2);
+        bc_normal_3(0) = 1.0;
+        
+        MAKE_PTR_ARGS(SelectivePlaneBoundaryCondition<2>, p_bc3, (&cell_population, bc_point_3, bc_normal_3));
+        //p_bc3->SetUseJiggledNodesOnPlane(true);
+        simulator.AddCellPopulationBoundaryCondition(p_bc3);
+        
         
         
         /* Add CellKillers */
         c_vector<double, 2> ck_point_1 = zero_vector<double>(2);
-        ck_point_1(1) = 10.0;
+        ck_point_1(0) = simulation_region_x;
         c_vector<double, 2> ck_normal_1 = zero_vector<double>(2);
-        ck_normal_1(1) = 1.0;
+        ck_normal_1(0) = 1.0;
         
-        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_1, (&cell_population, ck_point_1, ck_normal_1));
-        simulator.AddCellKiller(p_killer_1);
+        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_x, (&cell_population, ck_point_1, ck_normal_1));
+        simulator.AddCellKiller(p_killer_x);
         
-        
-
         c_vector<double, 2> ck_point_2 = zero_vector<double>(2);
-        ck_point_2(0) = 20.0;
+        ck_point_2(1) = simulation_region_y;
         c_vector<double, 2> ck_normal_2 = zero_vector<double>(2);
-        ck_normal_2(0) = 1.0;
+        ck_normal_2(1) = 1.0;
         
-        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_2, (&cell_population, ck_point_2, ck_normal_2));
-        simulator.AddCellKiller(p_killer_2);
+        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer_y, (&cell_population, ck_point_2, ck_normal_2));
+        simulator.AddCellKiller(p_killer_y);
         
         
         
