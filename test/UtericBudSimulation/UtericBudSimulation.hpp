@@ -73,6 +73,7 @@ private:
     void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double div_age_mean, double div_age_std, double critconc)
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
         MAKE_PTR(AttachedCellMutationState, p_attached_state);
         MAKE_PTR(CellLabel, p_label);
@@ -87,14 +88,17 @@ private:
             
             CellPtr p_cell(new Cell(p_state, p_model));
             
-            p_cell->SetCellProliferativeType(p_transit_type);
             p_cell->InitialiseCellCycleModel();
+            
+            p_cell->SetCellProliferativeType(p_transit_type);
             /*
             if (RandomNumberGenerator::Instance()->ranf() < 0.2)
             {
-                p_cell->AddCellProperty(p_label);
+                p_cell->SetCellProliferativeType(p_transit_type);
+                //p_cell->AddCellProperty(p_label);
             }
             */
+            
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
             
@@ -118,7 +122,7 @@ public:
         double simulation_region_y = 10;
         double permeable_barrier_x = 18;
         
-        double simulation_time = 100;
+        double simulation_time = 200;
         double simulation_output_mult = 120;
         double simulation_Dt = 1.0/200.0;
         

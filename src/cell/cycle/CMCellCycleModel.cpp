@@ -89,24 +89,20 @@ bool CMCellCycleModel::ReadyToDivide()
         
         /* I know this segment looks dumb, but trust me on this. We had issues with
          * Transit cells being recorded in celltypes.dat and rapid divisions, this
-         * appeared to fix the issue. */
+         * appeared to fix the issue. 
+         * ... At least it used to. Celltypes no longer seems to be counting properly */
+        /*
         if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
         {
             mpCell->SetCellProliferativeType(p_transit_type);
         }
+        */
         
-        /* If a transit cell leaves the proliferation region, set it to a 
-         * differentiated cell and set mReadyToDivide to false. */
-        if (  (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>()) && (conc_a < div_threshold || conc_b < div_threshold)  )
-        {
-            mpCell->SetCellProliferativeType(p_diff_type);
-            mReadyToDivide = false;
-        }
         
         /* If a differentiated cell has B > 0.9 then apply the RV mutation 
          * state with random chance (first try deterministic). */
-        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b < 0.1) && (p_gen->ranf() < RVProbability * dt)  )
-        //if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b < 0.1)  )
+        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > 0.9) && (p_gen->ranf() < RVProbability * dt)  )
+        //if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > 0.9)  )
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;
@@ -123,14 +119,21 @@ bool CMCellCycleModel::ReadyToDivide()
         }
         
         /* If a transit cell reaches age larger than the random division time, then set
-         * mReadyForDivision to true */
+         * mReadyToDivide to true */
         if (  (GetAge() > mAverageDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
+            
+            /* Dividing transit cells have a chance (proportional to conc_b) to 
+             * become non-proliferative differentiated cells and produce a 
+             * non-proliferative differentiated daughter cell. */
+            double DiffProbability = conc_b;
+            if (p_gen->ranf() < DiffProbability)
+            {
+                mpCell->SetCellProliferativeType(p_diff_type);
+            }
         }
     }
-    
-    
     
     return mReadyToDivide;
 }
