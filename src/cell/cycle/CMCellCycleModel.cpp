@@ -47,7 +47,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CMCellCycleModel::CMCellCycleModel()
     : AbstractCellCycleModel(),
-      mDivisionThreshold(0.5),
+      mRVThreshold(0.9),
+      mRVProbability(0.1),
       mAverageDivisionAge(10.0), 
       mStdDivisionAge(1.0)
 {
@@ -55,7 +56,8 @@ CMCellCycleModel::CMCellCycleModel()
 
 CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
    : AbstractCellCycleModel(rModel),
-     mDivisionThreshold(rModel.mDivisionThreshold),
+     mRVThreshold(rModel.mRVThreshold),
+     mRVProbability(rModel.mRVProbability),
      mAverageDivisionAge(rModel.mAverageDivisionAge),
      mStdDivisionAge(rModel.mStdDivisionAge)
 {
@@ -89,15 +91,15 @@ bool CMCellCycleModel::ReadyToDivide()
     MAKE_PTR(TransitCellProliferativeType, p_transit_type);
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
     
-    double rv_threshold = 0.1;
     double dt = SimulationTime::Instance()->GetTimeStep();
-    double RVProbability = 0.01;
+    double RVProbability = mRVProbability;
+    double diff_threshold = mRVThreshold;
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
         double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
-        double div_threshold = mDivisionThreshold;
+        
         
         
         /* I know this segment looks dumb, but trust me on this. We had issues with
@@ -114,7 +116,8 @@ bool CMCellCycleModel::ReadyToDivide()
         
         /* If a differentiated cell has B > 0.9 then apply the RV mutation 
          * state with random chance (first try deterministic). */
-        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > 0.9) && (p_gen->ranf() < RVProbability * dt)  )
+        
+        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;
@@ -157,14 +160,24 @@ AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
     return new CMCellCycleModel(*this);
 }
 
-void CMCellCycleModel::SetDivisionThreshold(double divisionThreshold)
+void CMCellCycleModel::SetRVThreshold(double rvThreshold)
 {
-    mDivisionThreshold = divisionThreshold;
+    mRVThreshold = rvThreshold;
 }
 
-double CMCellCycleModel::GetDivisionThreshold()
+double CMCellCycleModel::GetRVThreshold()
 {
-    return mDivisionThreshold;
+    return mRVThreshold;
+}
+
+void CMCellCycleModel::SetRVProbability(double rvProbability)
+{
+    mRVProbability = rvProbability;
+}
+
+double CMCellCycleModel::GetRVProbability()
+{
+    return mRVProbability;
 }
 
 void CMCellCycleModel::SetAverageDivisionAge(double AverageDivisionAge)
@@ -212,7 +225,8 @@ double CMCellCycleModel::GenerateDivisionAge()
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<DivisionThreshold>" << mDivisionThreshold << "</DivisionThreshold>\n";
+    *rParamsFile << "\t\t\t<DifferentiationThreshold>" << mRVThreshold << "</DifferentiationThreshold>\n";
+    *rParamsFile << "\t\t\t<DifferentiationProbability>" << mRVProbability << "</DifferentiationProbability>\n";
     *rParamsFile << "\t\t\t<AverageDivisionAge>" << mAverageDivisionAge << "</AverageDivisionAge>\n";
     *rParamsFile << "\t\t\t<StandardDeviationDivisionAge>" << mStdDivisionAge << "</StandardDeviationDivisionAge>\n";
 

@@ -210,7 +210,7 @@ c_vector<double, SPACE_DIM> BasicLinearSpringForce<ELEMENT_DIM,SPACE_DIM>::Calcu
         {
             //log(x+1) is undefined for x<=-1
             assert(overlap > -rest_length_final);
-            c_vector<double, SPACE_DIM> temp = 6.0*multiplication_factor*spring_stiffness * unit_difference * rest_length_final* log(1.0 + overlap/rest_length_final);
+            c_vector<double, SPACE_DIM> temp = 3.0*multiplication_factor*spring_stiffness * unit_difference * rest_length_final* log(1.0 + overlap/rest_length_final);
             return temp;
         }
         else

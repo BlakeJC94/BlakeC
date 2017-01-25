@@ -61,17 +61,17 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mDivisionThreshold;
+        archive & mRVThreshold;
+        archive & mRVProbability;
         archive & mAverageDivisionAge;
         archive & mStdDivisionAge;
     }
 
 protected:
-    /**
-     * Minimum threshold for chem A and chem B concentration for proliferative state.
-     * Defaults to 0.5.
-     */
-    double mDivisionThreshold;
+    
+    double mRVThreshold;
+    
+    double mRVProbability;
 
     /**
      * Average age of a cell at which it may divide.
@@ -119,7 +119,7 @@ public:
      * Overridden ReadyToDivide() method.
      *
      * If the cell's age is greater than mAverageDivisionAge, then we draw a uniform
-     * random number r ~ U[0,1]. If r < mDivisionThreshold*dt, where dt is the
+     * random number r ~ U[0,1]. If r < mRVThreshold*dt, where dt is the
      * simulation time step, then the cell is ready to divide and we return true.
      * Otherwise, the cell is not yet ready to divide and we return false.
      *
@@ -136,18 +136,32 @@ public:
     AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Set the value of mDivisionThreshold.
+     * Set the value of mRVThreshold.
      *
-     * @param divisionThreshold the new value of mDivisionThreshold
+     * @param divisionThreshold the new value of mRVThreshold
      */
-    void SetDivisionThreshold(double divisionThreshold);
+    void SetRVThreshold(double rvThreshold);
 
     /**
-     * Get mDivisionThreshold.
+     * Get mRVThreshold.
      *
-     * @return mDivisionThreshold
+     * @return mRVThreshold
      */
-    double GetDivisionThreshold();
+    double GetRVThreshold();
+    
+    /**
+     * Set the value of mRVThreshold.
+     *
+     * @param divisionThreshold the new value of mRVThreshold
+     */
+    void SetRVProbability(double rvProbability);
+
+    /**
+     * Get mRVProbability.
+     *
+     * @return mRVProbability
+     */
+    double GetRVProbability();
 
     /**
      * Set the value of mAverageDivisionAge.

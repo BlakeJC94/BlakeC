@@ -61,8 +61,8 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         
         if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
         {
-            down_force(0) = 25.0;
-            //down_force(1) = 10.0;
+            down_force(0) = mStrength;
+            down_force(1) = 0;
         }
         
         if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())

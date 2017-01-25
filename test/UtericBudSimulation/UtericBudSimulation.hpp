@@ -64,6 +64,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "UtericBudMutationStateWriter.hpp"
 #include "SelectivePlaneBoundaryCondition.hpp"
 #include "BasicLinearSpringForce.hpp"
+#include "UtericBudCellTypesCountWriter.hpp"
 
 
 
@@ -72,7 +73,7 @@ class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
-    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double div_age_mean, double div_age_std, double critconc)
+    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double div_age_mean, double div_age_std, double critconc, double diffprob)
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
@@ -85,7 +86,8 @@ private:
             CMCellCycleModel* p_model = new CMCellCycleModel;
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
-            p_model->SetDivisionThreshold(critconc);
+            p_model->SetRVThreshold(critconc);
+            p_model->SetRVProbability(diffprob);
             
             
             CellPtr p_cell(new Cell(p_state, p_model));
@@ -140,7 +142,9 @@ public:
         
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
-        double div_threshold = 0.5; 
+        
+        double RV_diff_threshold = 0.9; 
+        double RV_diff_probability = 0.5; 
         
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
@@ -190,7 +194,7 @@ public:
         
         /* Generate Cells */
         std::vector<CellPtr> cells;
-        GenerateCells(mesh.GetNumNodes(), cells, div_age_mean, div_age_std, div_threshold);
+        GenerateCells(mesh.GetNumNodes(), cells, div_age_mean, div_age_std, RV_diff_threshold, RV_diff_probability);
         
         
         
@@ -205,7 +209,8 @@ public:
         
         
         /* Add CellWriters */
-        cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
+        //cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
+        cell_population.AddCellPopulationCountWriter<UtericBudCellTypesCountWriter>();
         cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellWriter<UtericBudMutationStateWriter>();
         
@@ -270,7 +275,8 @@ public:
         
         
         /* Add CellForces */ 
-        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        //MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        MAKE_PTR(BasicLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
         

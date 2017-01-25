@@ -73,7 +73,7 @@ void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellP
         
         c_vector<double, 2> force = zero_vector<double>(2);
         
-        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
+        if (!(p_cell->GetMutationState()->IsType<AttachedCellMutationState>()))
         {
             for (unsigned i=0; i<2; i++)
             {
