@@ -49,6 +49,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellLabel.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
+//#include "RepulsionForce.hpp"
 
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
@@ -62,6 +63,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RVCellMutationState.hpp"
 #include "UtericBudMutationStateWriter.hpp"
 #include "SelectivePlaneBoundaryCondition.hpp"
+#include "BasicLinearSpringForce.hpp"
 
 
 
