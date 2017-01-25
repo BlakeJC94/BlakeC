@@ -110,6 +110,10 @@ public:
      * Constructor.
      */
     CMCellCycleModel();
+    
+    void Initialise();
+    
+    void InitialiseDaughterCell();
 
     /**
      * Overridden ReadyToDivide() method.
@@ -187,6 +191,13 @@ public:
      * @return the average cell cycle time for cells of stem proliferative type
      */
     double GetAverageStemCellCycleTime();
+    
+    /**
+     * Quick function for Generating a new division age for cells. to be called 
+     * in Initialise(), InitialiseDaughterCell() and ReadyToDivide(). Draws from 
+     * normal distribution with mean mAverageDivisionAge and std deviation mStdDivisionAge
+     */
+    double GenerateDivisionAge();
 
     /**
      * Overridden OutputCellCycleModelParameters() method.

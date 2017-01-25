@@ -67,6 +67,19 @@ CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
      */
 }
 
+void CMCellCycleModel::Initialise()
+{
+    double RandomDivisionAge = GenerateDivisionAge();
+    mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
+}
+
+void CMCellCycleModel::InitialiseDaughterCell()
+{
+    double RandomDivisionAge = GenerateDivisionAge();
+    mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
+}
+
+
 bool CMCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
@@ -102,35 +115,36 @@ bool CMCellCycleModel::ReadyToDivide()
         /* If a differentiated cell has B > 0.9 then apply the RV mutation 
          * state with random chance (first try deterministic). */
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > 0.9) && (p_gen->ranf() < RVProbability * dt)  )
-        //if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > 0.9)  )
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;
+            mpCell->GetCellData()->SetItem("DivAge", 0);
         }
         
         
-        /* Generate a random minimum division time, Normal RV with
-         * mean = mAverageDivisionAge and standard deviation = mStdDivisionAge
-         * If a negative number is generated, set it to the mean. */
-        double RandomDivisionAge = p_gen->NormalRandomDeviate(mAverageDivisionAge, mStdDivisionAge);
-        if (RandomDivisionAge < 0)
-        {
-            RandomDivisionAge = mAverageDivisionAge;
-        }
-        
-        /* If a transit cell reaches age larger than the random division time, then set
+        double RandomDivisionAge = mpCell->GetCellData()->GetItem("DivAge");
+        /* If a transit cell reaches age larger than the RandomDivisionAge, then set
          * mReadyToDivide to true */
-        if (  (GetAge() > mAverageDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
+        if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
             
             /* Dividing transit cells have a chance (proportional to conc_b) to 
              * become non-proliferative differentiated cells and produce a 
-             * non-proliferative differentiated daughter cell. */
+             * non-proliferative differentiated daughter cell. 
+             * 
+             * If it doesnt differentiate and divide, then remain as transit and divide.
+             * Draw a new division age as well (Daughter will get new div age in
+             * InitialiseDaughterCell(). */
             double DiffProbability = conc_b;
             if (p_gen->ranf() < DiffProbability)
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
+            }
+            else 
+            {
+                double RandomDivisionAge = GenerateDivisionAge();
+                mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
             }
         }
     }
@@ -181,6 +195,19 @@ double CMCellCycleModel::GetAverageTransitCellCycleTime()
 double CMCellCycleModel::GetAverageStemCellCycleTime()
 {
     return mAverageDivisionAge;
+}
+
+double CMCellCycleModel::GenerateDivisionAge()
+{
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    
+    double RandomDivisionAge = p_gen->NormalRandomDeviate(mAverageDivisionAge, mStdDivisionAge);
+    // If a negative number is generated, set it to the mean.
+    if (RandomDivisionAge < 0)
+    {
+        RandomDivisionAge = mAverageDivisionAge;
+        PRINT_VARIABLE(RandomDivisionAge);
+    }
 }
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

@@ -105,6 +105,7 @@ private:
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
             p_cell->GetCellData()->SetItem("AttachTime", 0);
+            p_cell->GetCellData()->SetItem("DivAge", 0);
             
             rCells.push_back(p_cell);
         }
@@ -113,18 +114,19 @@ private:
 public:
     void TestUtericBudSimulation() throw (Exception)
     {
-        /* Simulation options */
-        double initial_cm_cells = 100; 
-        double spawn_region_x = 10; // Default = 10
-        double spawn_region_y = 5; // Default = 5
-        
-        double simulation_region_x = 20;
-        double simulation_region_y = 10;
-        double permeable_barrier_x = 18;
-        
+        /* Simulation options */   
         double simulation_time = 200;
         double simulation_output_mult = 120;
-        double simulation_Dt = 1.0/200.0;
+        double simulation_dt = 1.0/200.0; // 1.0/180.0
+        
+        double simulation_region_x = 20; // 20
+        double simulation_region_y = 10; // 10
+        
+        double initial_cm_cells = 15; 
+        double permeable_barrier_x = 18; // 18
+        double spawn_region_x = 10; // 10
+        double spawn_region_y = 5; // 5
+        
         
         double gforce_strength = 1.0; 
         double dforce_strength = 0.25; 
@@ -132,6 +134,7 @@ public:
         double gforce_repulsion_distance = 2.0;
         double gforce_repulsion_multiplier = 2.0;
         double gforce_attachment_multiplier = 10.0;
+        
         
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
@@ -210,7 +213,7 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
-        simulator.SetDt(simulation_Dt);
+        simulator.SetDt(simulation_dt);
         simulator.SetEndTime(simulation_time);
         simulator.SetOutputCellVelocities(true);
         simulator.SetOutputDivisionLocations(true);
