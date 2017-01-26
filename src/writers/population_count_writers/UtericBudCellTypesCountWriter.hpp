@@ -66,6 +66,15 @@ public:
      * Default constructor.
      */
     UtericBudCellTypesCountWriter();
+    
+    /**
+     * Overridden WriteHeader() method.
+     *
+     * Write the header to file.
+     *
+     * @param pCellPopulation a pointer to the population to be written.
+     */
+    virtual void WriteHeader(AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
 
     /**
      * A general method for writing to any population.

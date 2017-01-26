@@ -41,45 +41,91 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PottsBasedCellPopulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
 
+#include "WildTypeCellMutationState.hpp"
+#include "AttachedCellMutationState.hpp"
+#include "RVCellMutationState.hpp"
+
+#include "TransitCellProliferativeType.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
+
 #include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::UtericBudCellTypesCountWriter()
-    : AbstractCellPopulationCountWriter<ELEMENT_DIM, SPACE_DIM>("celltypessmoof.dat")
+    : AbstractCellPopulationCountWriter<ELEMENT_DIM, SPACE_DIM>("celltypescount.dat")
 {
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::WriteHeader(AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
+{
+    if (PetscTools::AmMaster())
+    {
+        *this->mpOutStream << "Time\t "  << "Transit\t" << "Diff\t" << "WildType\t" << "Attached\t" << "RV\t";
+
+        this->WriteNewline();
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::VisitAnyPopulation(AbstractCellPopulation<SPACE_DIM, SPACE_DIM>* pCellPopulation)
 {
-    std::vector<unsigned> proliferative_type_count = pCellPopulation->GetCellProliferativeTypeCount();
+    unsigned transit_cell_count = 0;
+    unsigned diff_cell_count = 0;
+    
+    unsigned wildtype_cell_count = 0;
+    unsigned attached_cell_count = 0;
+    unsigned rv_cell_count = 0;
+    
+    
+    for (typename AbstractCellPopulation<SPACE_DIM, SPACE_DIM>::Iterator cell_iter = pCellPopulation->Begin();
+        cell_iter != pCellPopulation->End();
+        ++cell_iter)
+    {
+        if (cell_iter->GetCellProliferativeType()->template IsType<TransitCellProliferativeType>())
+        {
+            transit_cell_count++;
+        }
+        else if (cell_iter->GetCellProliferativeType()->template IsType<DifferentiatedCellProliferativeType>())
+        {
+            diff_cell_count++;
+        }
+        
+        if (cell_iter->GetMutationState()->template IsType<WildTypeCellMutationState>())
+        {
+            wildtype_cell_count++;
+        }
+        else if (cell_iter->GetMutationState()->template IsType<AttachedCellMutationState>())
+        {
+            attached_cell_count++;
+        }
+        else if (cell_iter->GetMutationState()->template IsType<RVCellMutationState>())
+        {
+            rv_cell_count++;
+        }
+    }
     
     if (PetscTools::AmMaster())
     {
-        for (unsigned i=0; i<proliferative_type_count.size(); i++)
-        {
-            *this->mpOutStream << proliferative_type_count[i] << "\t";
-        }
+        
+        *this->mpOutStream << transit_cell_count << "\t" << diff_cell_count << "\t" << wildtype_cell_count << "\t" << attached_cell_count << "\t" << rv_cell_count;
     }
+    
+    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::Visit(MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
-    std::vector<unsigned> proliferative_type_count = pCellPopulation->GetCellProliferativeTypeCount();
-    if (PetscTools::AmMaster())
-    {
-        for (unsigned i=0; i<proliferative_type_count.size(); i++)
-        {
-            *this->mpOutStream << proliferative_type_count[i] << "\t";
-        }
-    }
+    NEVER_REACHED;
+    //VisitAnyPopulation(pCellPopulation);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::Visit(CaBasedCellPopulation<SPACE_DIM>* pCellPopulation)
 {
-    VisitAnyPopulation(pCellPopulation);
+    NEVER_REACHED;
+    //VisitAnyPopulation(pCellPopulation);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -91,13 +137,15 @@ void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::Visit(NodeBasedCellP
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::Visit(PottsBasedCellPopulation<SPACE_DIM>* pCellPopulation)
 {
-    VisitAnyPopulation(pCellPopulation);
+    NEVER_REACHED;
+    //VisitAnyPopulation(pCellPopulation);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void UtericBudCellTypesCountWriter<ELEMENT_DIM, SPACE_DIM>::Visit(VertexBasedCellPopulation<SPACE_DIM>* pCellPopulation)
 {
-    VisitAnyPopulation(pCellPopulation);
+    NEVER_REACHED;
+    //VisitAnyPopulation(pCellPopulation);
 }
 
 // Explicit instantiation
