@@ -49,7 +49,11 @@ UtericBudMutationStateWriter<ELEMENT_DIM, SPACE_DIM>::UtericBudMutationStateWrit
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double UtericBudMutationStateWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
-    return pCell->GetMutationState()->GetColour();
+    unsigned colour = pCell->GetMutationState()->GetColour();
+    unsigned temp = pCell->GetCellProliferativeType()->GetColour();
+    
+    colour = colour + 5 * (temp*temp - 1)/3;
+    return colour;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

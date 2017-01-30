@@ -1,14 +1,10 @@
 /*
-
 Copyright (c) 2005-2016, University of Oxford.
 All rights reserved.
-
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
 Square, Oxford OX1 2JD, UK.
-
 This file is part of Chaste.
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright notice,
@@ -19,7 +15,6 @@ modification, are permitted provided that the following conditions are met:
  * Neither the name of the University of Oxford nor the names of its
    contributors may be used to endorse or promote products derived from this
    software without specific prior written permission.
-
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,7 +25,6 @@ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 */
 
 #include "CMCellCycleModel.hpp"
@@ -92,18 +86,31 @@ bool CMCellCycleModel::ReadyToDivide()
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
     
     double dt = SimulationTime::Instance()->GetTimeStep();
-    double RVProbability = mRVProbability; // \todo: delete this!!
+    double RVProbability = mRVProbability;
     double diff_threshold = mRVThreshold;
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
         double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
-          
         
-        /* Apply RV mutation state to differentiated cells with probability 
-         * equal to conc_b */
-        RVProbability = conc_b;
+        
+        
+        /* I know this segment looks dumb, but trust me on this. We had issues with
+         * Transit cells being recorded in celltypes.dat and rapid divisions, this
+         * appeared to fix the issue. 
+         * ... At least it used to. Celltypes no longer seems to be counting properly */
+        /*
+        if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+        {
+            mpCell->SetCellProliferativeType(p_transit_type);
+        }
+        */
+        
+        
+        /* If a differentiated cell has B > 0.9 then apply the RV mutation 
+         * state with random chance (first try deterministic). */
+        
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
@@ -119,14 +126,14 @@ bool CMCellCycleModel::ReadyToDivide()
         {
             mReadyToDivide = true;
             
-            /* Dividing transit cells have a chance (constant over x) to 
+            /* Dividing transit cells have a chance (proportional to conc_b) to 
              * become non-proliferative differentiated cells and produce a 
              * non-proliferative differentiated daughter cell. 
              * 
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = 0.1; // \todo: Make this a memeber variable.
+            double DiffProbability = conc_b;
             if (p_gen->ranf() < DiffProbability)
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
