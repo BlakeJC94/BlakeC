@@ -46,7 +46,7 @@ tic;
 %% Mean no. cells vs time
 % Plots time series of the population count by ProliferativeType
 
-PopulationData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/celltypes.dat');
+PopulationData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/celltypescount.dat');
 MeanPopulationData = PopulationData;
 
 if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat', 'file') ~= 0
@@ -55,7 +55,7 @@ if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstate
 end
 
 for k = 2:TotalJobs
-    PopulationData = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/celltypes.dat']);
+    PopulationData = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/celltypescount.dat']);
     MeanPopulationData = ((k-1)*MeanPopulationData + PopulationData)./k;
     
     if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
