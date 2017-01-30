@@ -57,6 +57,7 @@ private:
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         archive & mRVThreshold;
         archive & mRVProbability;
+        archive & mCritVolume;
         archive & mAverageDivisionAge;
         archive & mStdDivisionAge;
     }
@@ -66,6 +67,8 @@ protected:
     double mRVThreshold;
     
     double mRVProbability;
+    
+    double mCritVolume;
 
     /**
      * Average age of a cell at which it may divide.
@@ -129,6 +132,7 @@ public:
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
+
     /**
      * Set the value of mRVThreshold.
      *
@@ -143,8 +147,9 @@ public:
      */
     double GetRVThreshold();
     
+    
     /**
-     * Set the value of mRVThreshold.
+     * Set the value of mRVProbability.
      *
      * @param divisionThreshold the new value of mRVThreshold
      */
@@ -156,6 +161,22 @@ public:
      * @return mRVProbability
      */
     double GetRVProbability();
+    
+    
+    /**
+     * Set the value of mCritVolume, threshold for division.
+     *
+     * @param divisionThreshold the new value of mCritVolume
+     */
+    void SetCritVolume(double critVolume);
+
+    /**
+     * Get mCritVolume.
+     *
+     * @return mCritVolume
+     */
+    double GetCritVolume();
+
 
     /**
      * Set the value of mAverageDivisionAge.
@@ -186,6 +207,9 @@ public:
      */
     double GetStdDivisionAge();
 
+
+
+
     /**
      * Overridden GetAverageTransitCellCycleTime() method.
      *
@@ -199,6 +223,9 @@ public:
      * @return the average cell cycle time for cells of stem proliferative type
      */
     double GetAverageStemCellCycleTime();
+    
+    
+    
     
     /**
      * Quick function for Generating a new division age for cells. to be called 

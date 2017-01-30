@@ -32,6 +32,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FakePetscSetup.hpp"
 #include "SmartPointers.hpp"
+
 //#include "Debug.hpp"
 
 #include "NodeBasedCellPopulation.hpp"
@@ -43,7 +44,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellLabel.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
-//#include "RepulsionForce.hpp"
 
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
@@ -53,12 +53,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ChemTrackingModifier.hpp"
 #include "AttachedCellMutationState.hpp"
 #include "AttachmentModifier.hpp"
-//#include "AttachedCellMutationStatesCountWriter.hpp"
 #include "RVCellMutationState.hpp"
 #include "UtericBudMutationStateWriter.hpp"
 #include "SelectivePlaneBoundaryCondition.hpp"
 #include "BasicLinearSpringForce.hpp"
 #include "UtericBudCellTypesCountWriter.hpp"
+
+#include "VolumeTrackingModifier.hpp"
 
 
 
@@ -67,8 +68,18 @@ class UtericBudSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
-    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, double div_age_mean, double div_age_std, double critconc, double diffprob)
+    void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells)
     {
+        double div_age_mean = 10.0; 
+        double div_age_std = 2.0; 
+        double div_crit_volume = 0.58;
+        
+        double RV_diff_threshold = 0.9; 
+        double RV_diff_probability = 0.5; 
+        
+        
+        
+        
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
         MAKE_PTR(WildTypeCellMutationState, p_state);
@@ -80,14 +91,15 @@ private:
             CMCellCycleModel* p_model = new CMCellCycleModel;
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
-            p_model->SetRVThreshold(critconc);
-            p_model->SetRVProbability(diffprob);
+            p_model->SetRVThreshold(RV_diff_threshold);
+            p_model->SetRVProbability(RV_diff_probability);
+            p_model->SetCritVolume(div_crit_volume);
             
             
             CellPtr p_cell(new Cell(p_state, p_model));
             
-            p_cell->InitialiseCellCycleModel();
             
+            p_cell->InitialiseCellCycleModel();
             p_cell->SetCellProliferativeType(p_transit_type);
             /*
             if (RandomNumberGenerator::Instance()->ranf() < 0.2)
@@ -96,7 +108,6 @@ private:
                 //p_cell->AddCellProperty(p_label);
             }
             */
-            
             double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
             p_cell->SetBirthTime(birth_time);
             
@@ -104,16 +115,19 @@ private:
             p_cell->GetCellData()->SetItem("concentrationB", 1.0); 
             p_cell->GetCellData()->SetItem("AttachTime", 0);
             p_cell->GetCellData()->SetItem("DivAge", 0);
+            p_cell->GetCellData()->SetItem("volume", 0);
+            p_cell->GetCellData()->SetItem("DivisionDelay", 0);
             
             rCells.push_back(p_cell);
         }
     }
 
 public:
+
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */   
-        double simulation_time = 200;
+        double simulation_time = 400;
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         
@@ -133,12 +147,6 @@ public:
         double gforce_repulsion_multiplier = 2.0;
         double gforce_attachment_multiplier = 10.0;
         
-        
-        double div_age_mean = 10.0; 
-        double div_age_std = 2.0; 
-        
-        double RV_diff_threshold = 0.9; 
-        double RV_diff_probability = 0.5; 
         
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
@@ -188,7 +196,7 @@ public:
         
         /* Generate Cells */
         std::vector<CellPtr> cells;
-        GenerateCells(mesh.GetNumNodes(), cells, div_age_mean, div_age_std, RV_diff_threshold, RV_diff_probability);
+        GenerateCells(mesh.GetNumNodes(), cells);
         
         
         
@@ -203,10 +211,9 @@ public:
         
         
         /* Add CellWriters */
-        //cell_population.AddCellPopulationCountWriter<CellProliferativeTypesCountWriter>();
         cell_population.AddCellPopulationCountWriter<UtericBudCellTypesCountWriter>();
-        cell_population.AddCellWriter<CellAgesWriter>();
         cell_population.AddCellWriter<UtericBudMutationStateWriter>();
+        cell_population.AddCellWriter<CellAgesWriter>();
         
         
         
@@ -269,8 +276,8 @@ public:
         
         
         /* Add CellForces */ 
-        //MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
-        MAKE_PTR(BasicLinearSpringForce<2>, p_linear_force);
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        //MAKE_PTR(BasicLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
         
@@ -289,6 +296,9 @@ public:
         MAKE_PTR(ChemTrackingModifier<2>, p_chem_modifier);
         simulator.AddSimulationModifier(p_chem_modifier);
         
+        MAKE_PTR(VolumeTrackingModifier<2>, p_vol_modifier);
+        simulator.AddSimulationModifier(p_vol_modifier);
+        
         MAKE_PTR(AttachmentModifier<2>, p_attach_modifier);
         p_attach_modifier->SetAttachmentProbability(attachment_probability);
         p_attach_modifier->SetDetachmentProbability(detachment_probability);
@@ -300,6 +310,9 @@ public:
         
         /* Run Simulation and output runtime */
         simulator.Solve();
+        
+        unsigned cell_count = cell_population.GetNumNodes();
+        cout << "Final cell count : " << cell_count << endl;
         
         t2 = clock();
         float seconds = (((float)t2 - (float)t1) / CLOCKS_PER_SEC);

@@ -52,7 +52,7 @@ double UtericBudMutationStateWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOu
     unsigned colour = pCell->GetMutationState()->GetColour();
     unsigned temp = pCell->GetCellProliferativeType()->GetColour();
     
-    colour = colour + 5 * (temp*temp - 1)/3;
+    colour = colour + 4 * (temp*temp - 1)/3;
     return colour;
 }
 

@@ -43,6 +43,7 @@ CMCellCycleModel::CMCellCycleModel()
     : AbstractCellCycleModel(),
       mRVThreshold(0.9),
       mRVProbability(0.1),
+      mCritVolume(0.58),
       mAverageDivisionAge(10.0), 
       mStdDivisionAge(1.0)
 {
@@ -52,6 +53,7 @@ CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
    : AbstractCellCycleModel(rModel),
      mRVThreshold(rModel.mRVThreshold),
      mRVProbability(rModel.mRVProbability),
+     mCritVolume(rModel.mCritVolume),
      mAverageDivisionAge(rModel.mAverageDivisionAge),
      mStdDivisionAge(rModel.mStdDivisionAge)
 {
@@ -67,23 +69,27 @@ void CMCellCycleModel::Initialise()
 {
     double RandomDivisionAge = GenerateDivisionAge();
     mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
+    mpCell->GetCellData()->SetItem("DivisionDelay", 0);
 }
 
 void CMCellCycleModel::InitialiseDaughterCell()
 {
     double RandomDivisionAge = GenerateDivisionAge();
     mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
+    mpCell->GetCellData()->SetItem("DivisionDelay", 0);
 }
-
 
 bool CMCellCycleModel::ReadyToDivide()
 {
     assert(mpCell != NULL);
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    
     MAKE_PTR(RVCellMutationState, p_rv_state);
     
     MAKE_PTR(TransitCellProliferativeType, p_transit_type);
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+    
+    
     
     double dt = SimulationTime::Instance()->GetTimeStep();
     double RVProbability = mRVProbability;
@@ -96,21 +102,8 @@ bool CMCellCycleModel::ReadyToDivide()
         
         
         
-        /* I know this segment looks dumb, but trust me on this. We had issues with
-         * Transit cells being recorded in celltypes.dat and rapid divisions, this
-         * appeared to fix the issue. 
-         * ... At least it used to. Celltypes no longer seems to be counting properly */
-        /*
-        if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mpCell->SetCellProliferativeType(p_transit_type);
-        }
-        */
-        
-        
         /* If a differentiated cell has B > 0.9 then apply the RV mutation 
          * state with random chance (first try deterministic). */
-        
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
@@ -119,12 +112,31 @@ bool CMCellCycleModel::ReadyToDivide()
         }
         
         
+        
+        double cell_volume = mpCell->GetCellData()->GetItem("volume");
+        double crit_vol = mCritVolume; // \todo: set this in the test file
+        
         double RandomDivisionAge = mpCell->GetCellData()->GetItem("DivAge");
+        /* If volume of the cell is below threshold, delay division */
+        if (cell_volume < crit_vol)
+        {
+            RandomDivisionAge += dt;
+            mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
+            
+            double smoof = mpCell->GetCellData()->GetItem("DivisionDelay");
+            smoof += dt;
+            mpCell->GetCellData()->SetItem("DivisionDelay", smoof);
+            
+            mReadyToDivide = false;
+        }
+            
+        
         /* If a transit cell reaches age larger than the RandomDivisionAge, then set
          * mReadyToDivide to true */
         if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
+            mpCell->GetCellData()->SetItem("DivisionDelay", 0);
             
             /* Dividing transit cells have a chance (proportional to conc_b) to 
              * become non-proliferative differentiated cells and produce a 
@@ -149,10 +161,12 @@ bool CMCellCycleModel::ReadyToDivide()
     return mReadyToDivide;
 }
 
+
 AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 {
     return new CMCellCycleModel(*this);
 }
+
 
 void CMCellCycleModel::SetRVThreshold(double rvThreshold)
 {
@@ -164,6 +178,7 @@ double CMCellCycleModel::GetRVThreshold()
     return mRVThreshold;
 }
 
+
 void CMCellCycleModel::SetRVProbability(double rvProbability)
 {
     mRVProbability = rvProbability;
@@ -173,6 +188,18 @@ double CMCellCycleModel::GetRVProbability()
 {
     return mRVProbability;
 }
+
+
+void CMCellCycleModel::SetCritVolume(double critVolume)
+{
+    mCritVolume = critVolume;
+}
+
+double CMCellCycleModel::GetCritVolume()
+{
+    return mCritVolume;
+}
+
 
 void CMCellCycleModel::SetAverageDivisionAge(double AverageDivisionAge)
 {
@@ -184,6 +211,7 @@ double CMCellCycleModel::GetAverageDivisionAge()
     return mAverageDivisionAge;
 }
 
+
 void CMCellCycleModel::SetStdDivisionAge(double StdDivisionAge)
 {
     mStdDivisionAge = StdDivisionAge;
@@ -194,6 +222,8 @@ double CMCellCycleModel::GetStdDivisionAge()
     return mStdDivisionAge;
 }
 
+
+
 double CMCellCycleModel::GetAverageTransitCellCycleTime()
 {
     return mAverageDivisionAge;
@@ -203,6 +233,8 @@ double CMCellCycleModel::GetAverageStemCellCycleTime()
 {
     return mAverageDivisionAge;
 }
+
+
 
 double CMCellCycleModel::GenerateDivisionAge()
 {
