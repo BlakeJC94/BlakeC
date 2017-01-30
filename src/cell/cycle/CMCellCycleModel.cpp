@@ -92,31 +92,18 @@ bool CMCellCycleModel::ReadyToDivide()
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
     
     double dt = SimulationTime::Instance()->GetTimeStep();
-    double RVProbability = mRVProbability;
+    double RVProbability = mRVProbability; // \todo: delete this!!
     double diff_threshold = mRVThreshold;
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
         double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+          
         
-        
-        
-        /* I know this segment looks dumb, but trust me on this. We had issues with
-         * Transit cells being recorded in celltypes.dat and rapid divisions, this
-         * appeared to fix the issue. 
-         * ... At least it used to. Celltypes no longer seems to be counting properly */
-        /*
-        if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
-        {
-            mpCell->SetCellProliferativeType(p_transit_type);
-        }
-        */
-        
-        
-        /* If a differentiated cell has B > 0.9 then apply the RV mutation 
-         * state with random chance (first try deterministic). */
-        
+        /* Apply RV mutation state to differentiated cells with probability 
+         * equal to conc_b */
+        RVProbability = conc_b;
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
@@ -132,14 +119,14 @@ bool CMCellCycleModel::ReadyToDivide()
         {
             mReadyToDivide = true;
             
-            /* Dividing transit cells have a chance (proportional to conc_b) to 
+            /* Dividing transit cells have a chance (constant over x) to 
              * become non-proliferative differentiated cells and produce a 
              * non-proliferative differentiated daughter cell. 
              * 
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = conc_b;
+            double DiffProbability = 0.1; // \todo: Make this a memeber variable.
             if (p_gen->ranf() < DiffProbability)
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
