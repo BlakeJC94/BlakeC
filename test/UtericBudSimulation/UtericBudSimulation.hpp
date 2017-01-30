@@ -119,7 +119,7 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */   
-        double simulation_time = 50;
+        double simulation_time = 200;
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         

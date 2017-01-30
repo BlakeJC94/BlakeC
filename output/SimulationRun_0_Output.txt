@@ -7,6 +7,6 @@ CWD now: /home/blake/Workspace/Chaste
 
 
 Entering TestUtericBudSimulation
-Runtime : 21.9928 seconds
+Runtime : 1 minute and 15.5674 seconds
 Passed
 OK!
