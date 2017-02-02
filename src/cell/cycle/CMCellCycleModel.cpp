@@ -41,7 +41,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CMCellCycleModel::CMCellCycleModel()
     : AbstractCellCycleModel(),
-      mRVThreshold(0.9),
+      mTDProbability(0.55),
       mRVProbability(0.1),
       mCritVolume(0.58),
       mAverageDivisionAge(10.0), 
@@ -51,7 +51,7 @@ CMCellCycleModel::CMCellCycleModel()
 
 CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
    : AbstractCellCycleModel(rModel),
-     mRVThreshold(rModel.mRVThreshold),
+     mTDProbability(rModel.mTDProbability),
      mRVProbability(rModel.mRVProbability),
      mCritVolume(rModel.mCritVolume),
      mAverageDivisionAge(rModel.mAverageDivisionAge),
@@ -84,29 +84,24 @@ bool CMCellCycleModel::ReadyToDivide()
     assert(mpCell != NULL);
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     
-    MAKE_PTR(RVCellMutationState, p_rv_state);
-    
-    MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-    MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
-    
-    
-    
-    double dt = SimulationTime::Instance()->GetTimeStep();
-    
-    double diff_threshold = mRVThreshold;
+    MAKE_PTR(RVCellMutationState, p_rv_state);    
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
-        double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+        MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+    
+        double dt = SimulationTime::Instance()->GetTimeStep();
+        
+        //double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
         
+        
+        /* Apply the RV mutation state with random chance to 
+         * differntiated cells. */
         double RVProbability = conc_b;
         
-        
-        
-        /* If a differentiated cell has B > 0.9 then apply the RV mutation 
-         * state with random chance. */
-        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
+        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;
@@ -114,12 +109,11 @@ bool CMCellCycleModel::ReadyToDivide()
         }
         
         
-        
-        double cell_volume = mpCell->GetCellData()->GetItem("volume");
-        double crit_vol = mCritVolume; // \todo: set this in the test file
-        
-        double RandomDivisionAge = mpCell->GetCellData()->GetItem("DivAge");
         /* If volume of the cell is below threshold, delay division */
+        double cell_volume = mpCell->GetCellData()->GetItem("volume");
+        double crit_vol = mCritVolume; 
+        double RandomDivisionAge = mpCell->GetCellData()->GetItem("DivAge");
+        
         if (cell_volume < crit_vol)
         {
             RandomDivisionAge += dt;
@@ -133,21 +127,22 @@ bool CMCellCycleModel::ReadyToDivide()
         }
             
         
-        /* If a transit cell reaches age larger than the RandomDivisionAge, then set
-         * mReadyToDivide to true */
+        /* If a transit cell reaches age larger than the RandomDivisionAge, 
+         * then set mReadyToDivide to true */
         if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
         {
             mReadyToDivide = true;
             mpCell->GetCellData()->SetItem("DivisionDelay", 0);
             
-            /* Dividing transit cells have a chance (proportional to conc_b) to 
+            /* Dividing transit cells have a chance (constant) to 
              * become non-proliferative differentiated cells and produce a 
              * non-proliferative differentiated daughter cell. 
              * 
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = 0.55;
+            double DiffProbability = mTDProbability;
+            
             if (p_gen->ranf() < DiffProbability)
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
@@ -157,7 +152,9 @@ bool CMCellCycleModel::ReadyToDivide()
                 double RandomDivisionAge = GenerateDivisionAge();
                 mpCell->GetCellData()->SetItem("DivAge", RandomDivisionAge);
             }
+            
         }
+        
     }
     
     return mReadyToDivide;
@@ -170,14 +167,14 @@ AbstractCellCycleModel* CMCellCycleModel::CreateCellCycleModel()
 }
 
 
-void CMCellCycleModel::SetRVThreshold(double rvThreshold)
+void CMCellCycleModel::SetTDProbability(double tdProbability)
 {
-    mRVThreshold = rvThreshold;
+    mTDProbability = tdProbability;
 }
 
-double CMCellCycleModel::GetRVThreshold()
+double CMCellCycleModel::GetTDProbability()
 {
-    return mRVThreshold;
+    return mTDProbability;
 }
 
 
@@ -249,12 +246,14 @@ double CMCellCycleModel::GenerateDivisionAge()
         RandomDivisionAge = mAverageDivisionAge;
         PRINT_VARIABLE(RandomDivisionAge);
     }
+    
 }
+
 
 void CMCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)
 {
-    *rParamsFile << "\t\t\t<DifferentiationThreshold>" << mRVThreshold << "</DifferentiationThreshold>\n";
-    *rParamsFile << "\t\t\t<DifferentiationProbability>" << mRVProbability << "</DifferentiationProbability>\n";
+    *rParamsFile << "\t\t\t<TDProbability>" << mTDProbability << "</TDProbability>\n";
+    *rParamsFile << "\t\t\t<DRvProbability>" << mRVProbability << "</DRvProbability>\n";
     *rParamsFile << "\t\t\t<AverageDivisionAge>" << mAverageDivisionAge << "</AverageDivisionAge>\n";
     *rParamsFile << "\t\t\t<StandardDeviationDivisionAge>" << mStdDivisionAge << "</StandardDeviationDivisionAge>\n";
 

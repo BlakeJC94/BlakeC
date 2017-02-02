@@ -41,6 +41,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 GravityForce::GravityForce(double strength=1.0)
     : AbstractForce<2>(), 
       mStrength(strength),
+      mRVRightStrength(1.0),
       mRepulsionDistance(2.0),
       mRepulsionMultiplier(2.0),
       mAttachmentMultiplier(10.0)
@@ -61,8 +62,8 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         
         if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
         {
-            down_force(0) = mStrength;
-            down_force(1) = 0;
+            down_force(0) = mRVRightStrength;
+            down_force(1) = -mStrength;
         }
         
         if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
@@ -94,6 +95,7 @@ double GravityForce::GetStrength()
     return mStrength;
 }
 
+
 void GravityForce::SetRepulsionDistance(double repulsionDist)
 {
     mRepulsionDistance = repulsionDist;
@@ -103,6 +105,7 @@ double GravityForce::GetRepulsionDistance()
 {
     return mRepulsionDistance;
 }
+
 
 void GravityForce::SetRepulsionMultiplier(double repulsionMult)
 {
@@ -114,6 +117,7 @@ double GravityForce::GetRepulsionMultiplier()
     return mRepulsionMultiplier;
 }
 
+
 void GravityForce::SetAttachmentMultiplier(double attachMult)
 {
     mAttachmentMultiplier = attachMult;
@@ -123,6 +127,18 @@ double GravityForce::GetAttachmentMultiplier()
 {
     return mAttachmentMultiplier;
 }
+
+
+void GravityForce::SetRVRightStrength(double rvRightStrength)
+{
+    mRVRightStrength = rvRightStrength;
+}
+
+double GravityForce::GetRVRightStrength()
+{
+    return mRVRightStrength;
+}
+
 
 void GravityForce::OutputForceParameters(out_stream& rParamsFile)
 {

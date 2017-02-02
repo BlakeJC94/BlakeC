@@ -53,6 +53,7 @@ private :
         archive & mRepulsionDistance;
         archive & mRepulsionMultiplier;
         archive & mAttachmentMultiplier;
+        archive & mRVRightStrength;
     }
 
 protected:
@@ -62,6 +63,8 @@ protected:
     double mRepulsionMultiplier;
     
     double mAttachmentMultiplier;
+    
+    double mRVRightStrength;
 
 public : 
     GravityForce(double);
@@ -70,17 +73,26 @@ public :
     
     double GetStrength();
     
+    
     void SetRepulsionDistance(double repulsionDist);
     
     double GetRepulsionDistance();
+    
     
     void SetRepulsionMultiplier(double repulsionMult);
     
     double GetRepulsionMultiplier();
     
+    
     void SetAttachmentMultiplier(double attachMult);
     
     double GetAttachmentMultiplier();
+    
+    
+    void SetRVRightStrength(double rvRightStrength);
+    
+    double GetRVRightStrength();
+    
     
     virtual void OutputForceParameters(out_stream& rParamsFile);
     

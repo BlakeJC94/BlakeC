@@ -67,12 +67,12 @@ private:
 
     void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells)
     {
+        /* Cell cycle options */
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_crit_volume = 0.58;
-        
-        double RV_diff_threshold = 0.9; 
-        double RV_diff_probability = 0.5; 
+        double div_td_probability = 0.45;
+        //double RV_diff_probability = 0.5; // equal to conc_b.
         
         
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
@@ -86,8 +86,10 @@ private:
             CMCellCycleModel* p_model = new CMCellCycleModel;
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
-            p_model->SetRVThreshold(RV_diff_threshold);
-            p_model->SetRVProbability(RV_diff_probability);
+            
+            p_model->SetTDProbability(div_td_probability);
+            
+            //p_model->SetRVProbability(RV_diff_probability);
             p_model->SetCritVolume(div_crit_volume);
             
             
@@ -121,6 +123,7 @@ public:
 
     void TestUtericBudSimulation() throw (Exception)
     {
+    
         /* Simulation options */   
         double simulation_time = 100;
         double simulation_output_mult = 120;
@@ -134,15 +137,16 @@ public:
         double spawn_region_x = 10; // 10
         double spawn_region_y = 5; // 5
         
-        
+        /* Force options */
         double gforce_strength = 1.0; 
         double dforce_strength = 0.25; 
+        double rv_rforce_strength = 0.0;
         
         double gforce_repulsion_distance = 2.0;
         double gforce_repulsion_multiplier = 2.0;
         double gforce_attachment_multiplier = 10.0;
         
-        
+        /* Attachment options */
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
         double attachment_height = 0.75;
@@ -280,6 +284,7 @@ public:
         p_gforce->SetRepulsionDistance(gforce_repulsion_distance);
         p_gforce->SetRepulsionMultiplier(gforce_repulsion_multiplier);
         p_gforce->SetAttachmentMultiplier(gforce_attachment_multiplier);
+        p_gforce->SetRVRightStrength(rv_rforce_strength);
         simulator.AddForce(p_gforce);
         
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));

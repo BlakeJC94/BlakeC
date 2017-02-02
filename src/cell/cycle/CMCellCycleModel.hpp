@@ -55,7 +55,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mRVThreshold;
+        archive & mTDProbability;
         archive & mRVProbability;
         archive & mCritVolume;
         archive & mAverageDivisionAge;
@@ -64,7 +64,7 @@ private:
 
 protected:
     
-    double mRVThreshold;
+    double mTDProbability;
     
     double mRVProbability;
     
@@ -116,7 +116,7 @@ public:
      * Overridden ReadyToDivide() method.
      *
      * If the cell's age is greater than mAverageDivisionAge, then we draw a uniform
-     * random number r ~ U[0,1]. If r < mRVThreshold*dt, where dt is the
+     * random number r ~ U[0,1]. If r < mTDProbability*dt, where dt is the
      * simulation time step, then the cell is ready to divide and we return true.
      * Otherwise, the cell is not yet ready to divide and we return false.
      *
@@ -134,24 +134,24 @@ public:
 
 
     /**
-     * Set the value of mRVThreshold.
+     * Set the value of mTDProbability.
      *
-     * @param divisionThreshold the new value of mRVThreshold
+     * @param divisionThreshold the new value of mTDProbability
      */
-    void SetRVThreshold(double rvThreshold);
+    void SetTDProbability(double tdProbability);
 
     /**
-     * Get mRVThreshold.
+     * Get mTDProbability.
      *
-     * @return mRVThreshold
+     * @return mTDProbability
      */
-    double GetRVThreshold();
+    double GetTDProbability();
     
     
     /**
      * Set the value of mRVProbability.
      *
-     * @param divisionThreshold the new value of mRVThreshold
+     * @param divisionThreshold the new value of mTDProbability
      */
     void SetRVProbability(double rvProbability);
 
