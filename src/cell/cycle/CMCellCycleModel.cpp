@@ -92,7 +92,7 @@ bool CMCellCycleModel::ReadyToDivide()
     
     
     double dt = SimulationTime::Instance()->GetTimeStep();
-    double RVProbability = mRVProbability;
+    
     double diff_threshold = mRVThreshold;
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
@@ -100,10 +100,12 @@ bool CMCellCycleModel::ReadyToDivide()
         double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
         
+        double RVProbability = conc_b;
+        
         
         
         /* If a differentiated cell has B > 0.9 then apply the RV mutation 
-         * state with random chance (first try deterministic). */
+         * state with random chance. */
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (conc_b > diff_threshold) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
@@ -145,7 +147,7 @@ bool CMCellCycleModel::ReadyToDivide()
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = conc_b;
+            double DiffProbability = 0.55;
             if (p_gen->ranf() < DiffProbability)
             {
                 mpCell->SetCellProliferativeType(p_diff_type);

@@ -44,9 +44,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CellLabel.hpp"
 #include "CellProliferativeTypesCountWriter.hpp"
 #include "CellAgesWriter.hpp"
-
 #include "PlaneBoundaryCondition.hpp"
 #include "PlaneBasedCellKiller.hpp"
+#include "VolumeTrackingModifier.hpp"
+
 #include "GravityForce.hpp"
 #include "BasicDiffusionForce.hpp"
 #include "CMCellCycleModel.hpp"
@@ -58,10 +59,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SelectivePlaneBoundaryCondition.hpp"
 #include "BasicLinearSpringForce.hpp"
 #include "UtericBudCellTypesCountWriter.hpp"
-
-#include "VolumeTrackingModifier.hpp"
-
-
 
 
 class UtericBudSimulation : public AbstractCellBasedTestSuite
@@ -76,8 +73,6 @@ private:
         
         double RV_diff_threshold = 0.9; 
         double RV_diff_probability = 0.5; 
-        
-        
         
         
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
@@ -127,7 +122,7 @@ public:
     void TestUtericBudSimulation() throw (Exception)
     {
         /* Simulation options */   
-        double simulation_time = 400;
+        double simulation_time = 100;
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         
