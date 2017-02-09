@@ -125,12 +125,12 @@ public:
     {
     
         /* Simulation options */   
-        double simulation_time = 300;
+        double simulation_time = 400;
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         
         double simulation_region_x = 20; // 20
-        double simulation_region_y = 10; // 10
+        double simulation_region_y = 20; // 10
         
         double initial_cm_cells = 15; 
         double permeable_barrier_x = 18; // 18
@@ -142,14 +142,14 @@ public:
         double dforce_strength = 0.25; 
         double rv_rforce_strength = 0.0;
         
-        double gforce_repulsion_distance = 2.0;
-        double gforce_repulsion_multiplier = 2.0;
-        double gforce_attachment_multiplier = 10.0;
+        double gforce_repulsion_distance = 1.0;
+        double gforce_repulsion_multiplier = 2.5;
+        double gforce_attachment_multiplier = 3.0;
         
         /* Attachment options */
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
-        double attachment_height = 0.75;
+        double attachment_height = 2.0;
         double attached_damping_constant = 100.0;
         
         
@@ -284,6 +284,7 @@ public:
         p_gforce->SetRepulsionMultiplier(gforce_repulsion_multiplier);
         p_gforce->SetAttachmentMultiplier(gforce_attachment_multiplier);
         p_gforce->SetRVRightStrength(rv_rforce_strength);
+        p_gforce->SetDampingConst(attached_damping_constant);
         simulator.AddForce(p_gforce);
         
         MAKE_PTR_ARGS(BasicDiffusionForce, p_dforce, (dforce_strength));

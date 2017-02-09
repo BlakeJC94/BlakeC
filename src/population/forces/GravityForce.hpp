@@ -54,6 +54,7 @@ private :
         archive & mRepulsionMultiplier;
         archive & mAttachmentMultiplier;
         archive & mRVRightStrength;
+        archive & mDampingConst;
     }
 
 protected:
@@ -65,8 +66,11 @@ protected:
     double mAttachmentMultiplier;
     
     double mRVRightStrength;
+    
+    double mDampingConst;
 
 public : 
+
     GravityForce(double);
     
     void AddForceContribution(AbstractCellPopulation<2>& rCellPopulation);
@@ -92,6 +96,11 @@ public :
     void SetRVRightStrength(double rvRightStrength);
     
     double GetRVRightStrength();
+    
+    
+    void SetDampingConst(double dampingConst);
+    
+    double GetDampingConst();
     
     
     virtual void OutputForceParameters(out_stream& rParamsFile);

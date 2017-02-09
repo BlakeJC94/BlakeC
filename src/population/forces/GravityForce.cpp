@@ -42,6 +42,7 @@ GravityForce::GravityForce(double strength=1.0)
     : AbstractForce<2>(), 
       mStrength(strength),
       mRVRightStrength(1.0),
+      mDampingConst(100.0),
       mRepulsionDistance(2.0),
       mRepulsionMultiplier(2.0),
       mAttachmentMultiplier(10.0)
@@ -60,21 +61,22 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         unsigned node_index = node_iter->GetIndex();
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
         
-        if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
-        {
-            down_force(0) = mRVRightStrength;
-            down_force(1) = -mStrength;
-        }
         
-        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
+        if (!p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
         {
             down_force(0) = 0;
             down_force(1) = -mStrength;
             
+            if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
+            {
+                down_force(0) = mRVRightStrength;
+            }
+            
             double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
             if (cell_location_y < mRepulsionDistance)
             {
-                down_force(1) = mRepulsionMultiplier * mStrength * (mRepulsionDistance - cell_location_y)/mRepulsionDistance;
+                //down_force(1) = mRepulsionMultiplier * mStrength * (mRepulsionDistance - cell_location_y)/mRepulsionDistance;
+                down_force(1) = mRepulsionMultiplier * mStrength;
             }
             
         }
@@ -82,7 +84,7 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         if (p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
         {
             down_force(0) = 0;
-            down_force(1) = -mAttachmentMultiplier * mStrength;
+            down_force(1) = -mAttachmentMultiplier * mStrength * mDampingConst;
         }
         
         rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
@@ -139,6 +141,17 @@ double GravityForce::GetRVRightStrength()
     return mRVRightStrength;
 }
 
+
+void GravityForce::SetDampingConst(double dampingConst)
+{
+    mDampingConst = dampingConst;
+}
+    
+double GravityForce::GetDampingConst()
+{
+    return mDampingConst;
+}
+    
 
 void GravityForce::OutputForceParameters(out_stream& rParamsFile)
 {
