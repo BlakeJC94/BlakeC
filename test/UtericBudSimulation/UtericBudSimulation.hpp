@@ -125,7 +125,7 @@ public:
     {
     
         /* Simulation options */   
-        double simulation_time = 100;
+        double simulation_time = 300;
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         
@@ -151,7 +151,6 @@ public:
         double detachment_probability = 0.5;
         double attachment_height = 0.75;
         double attached_damping_constant = 100.0;
-        
         
         
         
