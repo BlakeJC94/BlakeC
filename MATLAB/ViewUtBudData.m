@@ -4,7 +4,7 @@ function [AvPopulationDataOut, AvVelocityDataOut,...
 % ViewUtBudData: Produces data plots for batch data from UtericBudSimulation
 %
 %   Inputs: 
-%       TotalJobs = total number of sims, match 'num_sums' in .sh file.
+%       TotalJobs = total number of sims, match 'num_sims' in .sh file.
 %       BinSize_ux = size of partition elements of x in 'Mean u vs x'
 %       BinSize_vx = size of partition elements of x in 'Mean v vs x'
 %       BinSize_agex = size of partition elements of x in 'Mean age vs x'
@@ -47,21 +47,21 @@ tic;
 % Plots time series of the population count by ProliferativeType
 
 PopulationData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/celltypescount.dat');
-MeanPopulationData = PopulationData;
+MeanPopulationData = PopulationData.data;
 
-if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat', 'file') ~= 0
-    AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
-    MeanAttachmentData = AttachmentData.data;
-end
+% if exist('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat', 'file') ~= 0
+%     AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
+%     MeanAttachmentData = AttachmentData.data;
+% end
 
 for k = 2:TotalJobs
     PopulationData = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/celltypescount.dat']);
-    MeanPopulationData = ((k-1)*MeanPopulationData + PopulationData)./k;
+    MeanPopulationData = ((k-1)*MeanPopulationData + PopulationData.data)./k;
     
-    if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
-        AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
-        MeanAttachmentData = ((k-1)*MeanAttachmentData + AttachmentData.data)./k;
-    end
+%     if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+%         AttachmentData = importdata('testoutput/UtericBudSimulation_0/results_from_time_0/cellmutationstates.dat');
+%         MeanAttachmentData = ((k-1)*MeanAttachmentData + AttachmentData.data)./k;
+%     end
 end
 
 AvPopulationDataOut{1} = MeanPopulationData(:,1);
@@ -75,15 +75,19 @@ TransitCells = AvPopulationDataOut{3};
 TotalCells = AvPopulationDataOut{4};
 
 figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
-if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
-    plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
-    SimTime, TransitCells, 'b', SimTime, MeanAttachmentData(:,3),'m');
-legend('Total', 'Differentiated', 'Transit', 'Attached', 'Location', 'Best');
-else
-    plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
+% if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
+%     plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
+%     SimTime, TransitCells, 'b', SimTime, MeanAttachmentData(:,3),'m');
+% legend('Total', 'Differentiated', 'Transit', 'Attached', 'Location', 'Best');
+% else
+%     plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
+%     SimTime, TransitCells, 'b');
+% legend('Total', 'Differentiated', 'Transit', 'Location', 'Best');
+% end
+
+plot(SimTime, TotalCells, 'k', SimTime, DiffCells, 'r',...
     SimTime, TransitCells, 'b');
 legend('Total', 'Differentiated', 'Transit', 'Location', 'Best');
-end
 
 title(['Average number of cells over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('simulation time'); ylabel('no. of cells');

@@ -48,28 +48,15 @@ BasicDiffusionForce::BasicDiffusionForce(double strength=1.0)
 void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulation)
 {
     double dt = SimulationTime::Instance()->GetTimeStep();
-    double mAbsoluteTemperature = 296.0;
-    double mViscosity = 3.204e-6;
-    double msBoltzmannConstant = 4.97033568e-7;
     
-    //for (unsigned node_index = 0; node_index < rCellPopulation.GetNumNodes(); node_index++)
     for (typename AbstractMesh<2, 2>::NodeIterator node_iter = rCellPopulation.rGetMesh().GetNodeIteratorBegin(); 
         node_iter != rCellPopulation.rGetMesh().GetNodeIteratorEnd();
         ++node_iter)
     {
         unsigned node_index = node_iter->GetIndex();
         CellPtr p_cell = rCellPopulation.GetCellUsingLocationIndex(node_index);
-        double node_radius = node_iter->GetRadius();
-        
-        if (node_radius == 0)
-        {
-            EXCEPTION("SetRadius() must be called on each Node before calling DiffusionForce::AddForceContribution() to avoid a division by zero error");
-        }
         
         double nu = dynamic_cast<AbstractOffLatticeCellPopulation<2>*>(&rCellPopulation)->GetDampingConstant(node_index);
-        double diffusion_const_scaling = msBoltzmannConstant*mAbsoluteTemperature/(6.0*mViscosity*M_PI);
-        double diffusion_constant = diffusion_const_scaling/node_radius;
-        
         
         c_vector<double, 2> force = zero_vector<double>(2);
         
@@ -78,7 +65,7 @@ void BasicDiffusionForce::AddForceContribution(AbstractCellPopulation<2>& rCellP
             for (unsigned i=0; i<2; i++)
             {
                 double xi = RandomNumberGenerator::Instance()->StandardNormalRandomDeviate();
-                force[i] = mStrength*(nu*sqrt(2.0*diffusion_constant*dt)/dt)*xi;
+                force[i] = (nu*sqrt(2.0*mStrength*dt)/dt)*xi;
             }
         }
         

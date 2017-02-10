@@ -71,7 +71,7 @@ private:
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_crit_volume = 0.58;
-        double div_td_probability = 0.45;
+        double div_td_probability = 0.55;
         //double RV_diff_probability = 0.5; // equal to conc_b.
         
         
@@ -125,7 +125,12 @@ public:
     {
     
         /* Simulation options */   
-        double simulation_time = 400;
+        double simulation_time = 100;
+        if (CommandLineArguments::Instance()->OptionExists("-sim_time"))
+	    {
+	        simulation_time = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_time").c_str());
+        }
+        
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
         
@@ -139,17 +144,17 @@ public:
         
         /* Force options */
         double gforce_strength = 1.0; 
-        double dforce_strength = 0.25; 
+        double dforce_strength = 0.305; 
         double rv_rforce_strength = 0.0;
         
-        double gforce_repulsion_distance = 1.0;
-        double gforce_repulsion_multiplier = 2.5;
-        double gforce_attachment_multiplier = 3.0;
+        double gforce_repulsion_distance = 1.5;
+        double gforce_repulsion_strength = 2.5;
+        double gforce_attachment_strength = 1.5;
         
         /* Attachment options */
         double attachment_probability = 0.5;
         double detachment_probability = 0.5;
-        double attachment_height = 2.0;
+        double attachment_height = 1.5;
         double attached_damping_constant = 100.0;
         
         
@@ -163,6 +168,8 @@ public:
 	    {
 	        sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str());
         }
+        
+        
 	    
 	    std::stringstream out;
 	    out << sim_index;
@@ -281,8 +288,8 @@ public:
         
         MAKE_PTR_ARGS(GravityForce, p_gforce, (gforce_strength));
         p_gforce->SetRepulsionDistance(gforce_repulsion_distance);
-        p_gforce->SetRepulsionMultiplier(gforce_repulsion_multiplier);
-        p_gforce->SetAttachmentMultiplier(gforce_attachment_multiplier);
+        p_gforce->SetRepulsionStrength(gforce_repulsion_strength);
+        p_gforce->SetAttachmentStrength(gforce_attachment_strength);
         p_gforce->SetRVRightStrength(rv_rforce_strength);
         p_gforce->SetDampingConst(attached_damping_constant);
         simulator.AddForce(p_gforce);
@@ -310,6 +317,9 @@ public:
         
         /* Run Simulation and output runtime */
         simulator.Solve();
+        
+        
+        cout << "Simulation time : " << simulation_time << " hours "<< endl;
         
         unsigned cell_count = cell_population.GetNumNodes();
         cout << "Final cell count : " << cell_count << endl;

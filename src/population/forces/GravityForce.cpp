@@ -44,8 +44,8 @@ GravityForce::GravityForce(double strength=1.0)
       mRVRightStrength(1.0),
       mDampingConst(100.0),
       mRepulsionDistance(2.0),
-      mRepulsionMultiplier(2.0),
-      mAttachmentMultiplier(10.0)
+      mRepulsionStrength(2.0),
+      mAttachmentStrength(10.0)
 {
 }
 
@@ -75,8 +75,8 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
             double cell_location_y = rCellPopulation.GetLocationOfCellCentre(p_cell)[1];
             if (cell_location_y < mRepulsionDistance)
             {
-                //down_force(1) = mRepulsionMultiplier * mStrength * (mRepulsionDistance - cell_location_y)/mRepulsionDistance;
-                down_force(1) = mRepulsionMultiplier * mStrength;
+                //down_force(1) = mRepulsionStrength * mStrength * (mRepulsionDistance - cell_location_y)/mRepulsionDistance;
+                down_force(1) = mRepulsionStrength;
             }
             
         }
@@ -84,7 +84,7 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         if (p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
         {
             down_force(0) = 0;
-            down_force(1) = -mAttachmentMultiplier * mStrength * mDampingConst;
+            down_force(1) = -mAttachmentStrength * mDampingConst;
         }
         
         rCellPopulation.GetNode(node_index)->AddAppliedForceContribution(down_force);
@@ -109,25 +109,25 @@ double GravityForce::GetRepulsionDistance()
 }
 
 
-void GravityForce::SetRepulsionMultiplier(double repulsionMult)
+void GravityForce::SetRepulsionStrength(double repulsionStrength)
 {
-    mRepulsionMultiplier = repulsionMult;
+    mRepulsionStrength = repulsionStrength;
 }
 
-double GravityForce::GetRepulsionMultiplier()
+double GravityForce::GetRepulsionStrength()
 {
-    return mRepulsionMultiplier;
+    return mRepulsionStrength;
 }
 
 
-void GravityForce::SetAttachmentMultiplier(double attachMult)
+void GravityForce::SetAttachmentStrength(double attachStrength)
 {
-    mAttachmentMultiplier = attachMult;
+    mAttachmentStrength = attachStrength;
 }
 
-double GravityForce::GetAttachmentMultiplier()
+double GravityForce::GetAttachmentStrength()
 {
-    return mAttachmentMultiplier;
+    return mAttachmentStrength;
 }
 
 

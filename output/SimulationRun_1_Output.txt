@@ -7,10 +7,8 @@ CWD now: /home/blake/Workspace/Chaste
 
 
 Entering TestUtericBudSimulation
-
-projects/BlakeC/test/UtericBudSimulation/UtericBudSimulation.hpp:124: Error: Test failed: 
-Chaste error: cell_based/src/simulation/OffLatticeSimulation.cpp:148: Cells are moving by 2.04121, which is more than the AbsoluteMovementThreshold: use a smaller timestep to avoid this exception.
-Failed
-
-Failed 1 of 1 test
-Success rate: 0%
+Simulation time : 1000 hours 
+Final cell count : 525
+Runtime : 37 minutes and 14.1533 seconds
+Passed
+OK!

@@ -51,8 +51,8 @@ private :
         archive & boost::serialization::base_object<AbstractForce<2> >(*this);
         archive & mStrength;
         archive & mRepulsionDistance;
-        archive & mRepulsionMultiplier;
-        archive & mAttachmentMultiplier;
+        archive & mRepulsionStrength;
+        archive & mAttachmentStrength;
         archive & mRVRightStrength;
         archive & mDampingConst;
     }
@@ -61,9 +61,9 @@ protected:
 
     double mRepulsionDistance;
     
-    double mRepulsionMultiplier;
+    double mRepulsionStrength;
     
-    double mAttachmentMultiplier;
+    double mAttachmentStrength;
     
     double mRVRightStrength;
     
@@ -83,14 +83,14 @@ public :
     double GetRepulsionDistance();
     
     
-    void SetRepulsionMultiplier(double repulsionMult);
+    void SetRepulsionStrength(double repulsionStrength);
     
-    double GetRepulsionMultiplier();
+    double GetRepulsionStrength();
     
     
-    void SetAttachmentMultiplier(double attachMult);
+    void SetAttachmentStrength(double attachStrength);
     
-    double GetAttachmentMultiplier();
+    double GetAttachmentStrength();
     
     
     void SetRVRightStrength(double rvRightStrength);
