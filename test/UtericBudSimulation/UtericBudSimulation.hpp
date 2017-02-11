@@ -71,7 +71,7 @@ private:
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_crit_volume = 0.58;
-        double div_td_probability = 0.55;
+        double div_td_probability = 0.5;
         //double RV_diff_probability = 0.5; // equal to conc_b.
         
         
