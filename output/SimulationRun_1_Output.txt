@@ -8,7 +8,7 @@ CWD now: /home/blake/Workspace/Chaste
 
 Entering TestUtericBudSimulation
 Simulation time : 500 hours 
-Final cell count : 35
-Runtime : 1 minute and 41.042 seconds
+Final cell count : 21
+Runtime : 1 minute and 30.8204 seconds
 Passed
 OK!

@@ -27,7 +27,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CMCellCycleModel.hpp"
+#include "CMCellCycleModel_test.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
@@ -84,7 +84,7 @@ bool CMCellCycleModel::ReadyToDivide()
     assert(mpCell != NULL);
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
     
-    MAKE_PTR(RVCellMutationState, p_rv_state);    
+    MAKE_PTR(RVCellMutationState, p_rv_state);   
     
     if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
     {
@@ -141,7 +141,7 @@ bool CMCellCycleModel::ReadyToDivide()
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = mTDProbability;
+            double DiffProbability = conc_b;
             
             if (p_gen->ranf() < DiffProbability)
             {

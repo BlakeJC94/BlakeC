@@ -71,7 +71,7 @@ private:
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_crit_volume = 0.58;
-        double div_td_probability = 0.5;
+        //double div_td_probability = 0.5;
         //double RV_diff_probability = 0.5; // equal to conc_b.
         
         
@@ -87,7 +87,7 @@ private:
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
             
-            p_model->SetTDProbability(div_td_probability);
+            //p_model->SetTDProbability(div_td_probability);
             
             //p_model->SetRVProbability(RV_diff_probability);
             p_model->SetCritVolume(div_crit_volume);
@@ -144,7 +144,7 @@ public:
         
         /* Force options */
         double gforce_strength = 1.0; 
-        double dforce_strength = 0.305; 
+        double dforce_strength = 0.3; 
         double rv_rforce_strength = 0.0;
         
         double gforce_repulsion_distance = 1.5;
@@ -152,8 +152,8 @@ public:
         double gforce_attachment_strength = 1.5;
         
         /* Attachment options */
-        double attachment_probability = 0.5;
-        double detachment_probability = 0.5;
+        double attachment_probability = 0; //0.5
+        double detachment_probability = 0; //0.5
         double attachment_height = 1.5;
         double attached_damping_constant = 100.0;
         
