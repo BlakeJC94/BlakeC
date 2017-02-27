@@ -71,8 +71,9 @@ private:
         double div_age_mean = 10.0; 
         double div_age_std = 2.0; 
         double div_crit_volume = 0.58;
-        //double div_td_probability = 0.5;
+        //double div_td_probability = 0.5; // equal to conc_b.
         //double RV_diff_probability = 0.5; // equal to conc_b.
+        double div_td_y_threshold = 0.0; 
         
         
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
@@ -86,11 +87,11 @@ private:
             CMCellCycleModel* p_model = new CMCellCycleModel;
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
+            p_model->SetCritVolume(div_crit_volume);
             
             //p_model->SetTDProbability(div_td_probability);
-            
             //p_model->SetRVProbability(RV_diff_probability);
-            p_model->SetCritVolume(div_crit_volume);
+            p_model->SetTDYThreshold(div_td_y_threshold);
             
             
             CellPtr p_cell(new Cell(p_state, p_model));
@@ -105,7 +106,7 @@ private:
                 //p_cell->AddCellProperty(p_label);
             }
             */
-            double birth_time = - RandomNumberGenerator::Instance()->ranf() * 10.0;
+            double birth_time = - RandomNumberGenerator::Instance()->ranf() * div_age_mean;
             p_cell->SetBirthTime(birth_time);
             
             p_cell->GetCellData()->SetItem("concentrationA", 1.0); 

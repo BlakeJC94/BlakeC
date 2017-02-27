@@ -27,7 +27,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CMCellCycleModel_test.hpp"
+#include "CMCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "StemCellProliferativeType.hpp"
 #include "TransitCellProliferativeType.hpp"
@@ -44,6 +44,7 @@ CMCellCycleModel::CMCellCycleModel()
       mTDProbability(0.55),
       mRVProbability(0.1),
       mCritVolume(0.58),
+      mTDYThreshold(0.0),
       mAverageDivisionAge(10.0), 
       mStdDivisionAge(1.0)
 {
@@ -54,6 +55,7 @@ CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
      mTDProbability(rModel.mTDProbability),
      mRVProbability(rModel.mRVProbability),
      mCritVolume(rModel.mCritVolume),
+     mTDYThreshold(rModel.mTDYThreshold),
      mAverageDivisionAge(rModel.mAverageDivisionAge),
      mStdDivisionAge(rModel.mStdDivisionAge)
 {
@@ -93,7 +95,7 @@ bool CMCellCycleModel::ReadyToDivide()
     
         double dt = SimulationTime::Instance()->GetTimeStep();
         
-        //double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+        double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
         double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
         
         
@@ -142,8 +144,9 @@ bool CMCellCycleModel::ReadyToDivide()
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
             double DiffProbability = conc_b;
+            double DiffYThreshold = mTDYThreshold;
             
-            if (p_gen->ranf() < DiffProbability)
+            if ( (p_gen->ranf() < DiffProbability) && (conc_a > DiffYThreshold) )
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
             }
@@ -197,6 +200,17 @@ void CMCellCycleModel::SetCritVolume(double critVolume)
 double CMCellCycleModel::GetCritVolume()
 {
     return mCritVolume;
+}
+
+
+void CMCellCycleModel::SetTDYThreshold(double tdYThreshold)
+{
+    mTDYThreshold = tdYThreshold;
+}
+
+double CMCellCycleModel::GetTDYThreshold()
+{
+    return mTDYThreshold;
 }
 
 

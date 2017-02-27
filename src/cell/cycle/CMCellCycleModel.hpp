@@ -58,6 +58,7 @@ private:
         archive & mTDProbability;
         archive & mRVProbability;
         archive & mCritVolume;
+        archive & mTDYThreshold;
         archive & mAverageDivisionAge;
         archive & mStdDivisionAge;
     }
@@ -69,6 +70,8 @@ protected:
     double mRVProbability;
     
     double mCritVolume;
+    
+    double mTDYThreshold;
 
     /**
      * Average age of a cell at which it may divide.
@@ -176,6 +179,21 @@ public:
      * @return mCritVolume
      */
     double GetCritVolume();
+    
+    
+    /**
+     * Set the value of mTDYThreshold, threshold for differentiation.
+     *
+     * @param divisionThreshold the new value of mTDYThreshold
+     */
+    void SetTDYThreshold(double tdYThreshold);
+
+    /**
+     * Get mTDYThreshold.
+     *
+     * @return mTDYThreshold
+     */
+    double GetTDYThreshold();
 
 
     /**

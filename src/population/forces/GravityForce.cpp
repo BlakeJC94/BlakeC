@@ -64,8 +64,10 @@ void GravityForce::AddForceContribution(AbstractCellPopulation<2>& rCellPopulati
         
         if (!p_cell->GetMutationState()->IsType<AttachedCellMutationState>())
         {
+            double conc_a = p_cell->GetCellData()->GetItem("concentrationA");
+            
             down_force(0) = 0;
-            down_force(1) = -mStrength;
+            down_force(1) = -mStrength * (1.0 - conc_a); //down_force(1) = -mStrength;
             
             if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
             {
