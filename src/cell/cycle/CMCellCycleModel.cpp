@@ -146,7 +146,7 @@ bool CMCellCycleModel::ReadyToDivide()
             double DiffProbability = conc_b;
             double DiffYThreshold = mTDYThreshold;
             
-            if ( (p_gen->ranf() < DiffProbability) && (conc_a > DiffYThreshold) )
+            if ( (p_gen->ranf() < DiffProbability) && (conc_a < DiffYThreshold) ) // conc_a < or >?
             {
                 mpCell->SetCellProliferativeType(p_diff_type);
             }

@@ -73,7 +73,7 @@ private:
         double div_crit_volume = 0.58;
         //double div_td_probability = 0.5; // equal to conc_b.
         //double RV_diff_probability = 0.5; // equal to conc_b.
-        double div_td_y_threshold = 0.0; 
+        double div_td_y_threshold = 1.0; 
         
         
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
