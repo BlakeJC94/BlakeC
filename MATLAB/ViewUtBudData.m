@@ -1,7 +1,7 @@
 function ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_agey)
 % ViewUtBudData: Produces data plots for batch data from UtericBudSimulation
 %
-%   Inputs: 
+%   Inputs:
 %       TotalJobs = total number of sims, match 'num_sims' in .sh file.
 %       BinSize_ux = size of partition elements of x in 'Mean u vs x'
 %       BinSize_vx = size of partition elements of x in 'Mean v vs x'
@@ -11,9 +11,9 @@ function ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_
 %           first integer multiple after this
 %       max_y = Right endpoint of largest partition element will be the
 %           first integer multiple after this
-% 
+%
 %   Outputs:
-%       AvPopulationDataOut = cell containing plot data for 'Mean no. 
+%       AvPopulationDataOut = cell containing plot data for 'Mean no.
 %           cells vs time', values as specified in plot code.
 %       AvHVelocityDataOut = cell containing plot data for 'Mean u vs x'.
 %       AvVVelocityDataOut = cell containing plot data for 'Mean v vs x'.
@@ -21,7 +21,7 @@ function ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_
 %       AvVAgeDataOut = cell containing plot data for 'Mean age vs y'.
 %
 % Default Args : ViewUtBudData(5, 2, 2, 1, 1, 40, 10)
-% 
+%
 %% Add paths and set up
 
 close all;
@@ -76,10 +76,8 @@ AttachedCells = MeanPopulationData(:,5);
 RVCells = MeanPopulationData(:,6);
 
 
-
-
-
-figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+% figure('units', 'normalized', 'position', [.3 .3 0.12 0.24]);
+figure;
 
 plot(SimTime, TotalCells, 'k', SimTime, TransitCells, 'b',...
     SimTime, DiffCells, 'r', SimTime, RVCells, 'm', SimTime,  AttachedCells, 'g');
@@ -87,7 +85,7 @@ plot(SimTime, TotalCells, 'k', SimTime, TransitCells, 'b',...
 hold on;
 
 TotalCellsStd = sqrt((TotalJobs*TotalCells_Sum2 - TotalCells_Sum1.^2)/(TotalJobs*(TotalJobs-1)));
-% TotalCellsStd = sqrt(VarPopulationData();
+% TotalCellsStd = sqrt(VarPopulationData());
 
 plot(SimTime, TotalCells + TotalCellsStd, 'k:', ...
     SimTime, TotalCells - TotalCellsStd, 'k:');
@@ -97,7 +95,114 @@ hold off;
 legend('Total', 'Proliferative', 'Non-Proliferative', 'RV Cells', 'Attached Cells', 'Location', 'Best');
 title(['Average number of cells over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('Simulation time'); ylabel('No. of cells');
-set(gcf,'PaperPositionMode','auto'); print('Fig01 Mean no. cells vs time', '-dpng', '-r0');
+set(gcf,'PaperPositionMode','auto'); print('Fig01', '-dpng', '-r0');
+
+
+
+%% Mean cap height vs t
+% Plots line graph of the average cap height in the simulation.
+% avg cap height calculated by partitioning x and averaging the max heing
+% in each partition element.
+
+VelocityData = LoadNonConstantLengthData('testoutput/UtericBudSimulation_0/results_from_time_0/cellvelocities.dat');
+cap_height_data = zeros(TotalJobs, length(VelocityData));
+
+x = VelocityData{1}(3:5:end-3);
+y = VelocityData{1}(4:5:end-2);
+cap_height_tmp = zeros(1,20);
+for j = 1:20
+    x_tmp = x .* (x >=  j-1) .* (x < j);
+    y_tmp = y .* (x_tmp > 0);
+    if sum(y_tmp) == 0
+        y_tmp = 0;
+    else
+        y_tmp = y_tmp(y_tmp~=0);
+    end
+    cap_height_tmp(j) = max(y_tmp);
+end
+cap_height_data(1,1) = mean(cap_height_tmp);
+
+for k = 1:length(VelocityData)
+    x = VelocityData{k}(3:5:end-3);
+    y = VelocityData{k}(4:5:end-2);
+    cap_height_tmp = zeros(1,20);
+    for j = 1:20
+        x_tmp = x .* (x >=  j-1) .* (x < j);
+        y_tmp = y .* (x_tmp > 0);
+        if sum(y_tmp) == 0
+            y_tmp = 0;
+        else
+            y_tmp = y_tmp(y_tmp~=0);
+        end
+        cap_height_tmp(j) = max(y_tmp);
+    end
+    cap_height_data(1,k) = mean(cap_height_tmp);
+end
+
+cap_height_Sum1 = cap_height_data(1,:);
+cap_height_Sum2 = (cap_height_data(1,:)).^2;
+
+
+for kk = 2:TotalJobs
+    VelocityData = LoadNonConstantLengthData(['testoutput/UtericBudSimulation_', num2str(kk-1) '/results_from_time_0/cellvelocities.dat']);
+    
+    x = VelocityData{1}(3:5:end-3);
+    y = VelocityData{1}(4:5:end-2);
+    cap_height_tmp = zeros(1,20);
+    for j = 1:20
+        x_tmp = x .* (x >=  j-1) .* (x < j);
+        y_tmp = y .* (x_tmp > 0);
+        if sum(y_tmp) == 0
+            y_tmp = 0;
+        else
+            y_tmp = y_tmp(y_tmp~=0);
+        end
+        cap_height_tmp(j) = max(y_tmp);
+    end
+    cap_height_data(kk,1) = mean(cap_height_tmp);
+    
+    
+    for k = 1:length(VelocityData)
+        x = VelocityData{k}(3:5:end-3);
+        y = VelocityData{k}(4:5:end-2);
+        cap_height_tmp = zeros(1,20);
+        for j = 1:20
+            x_tmp = x .* (x >=  j-1) .* (x < j);
+            y_tmp = y .* (x_tmp > 0);
+            if sum(y_tmp) == 0
+                y_tmp = 0;
+            else
+                y_tmp = y_tmp(y_tmp~=0);
+            end
+            cap_height_tmp(j) = max(y_tmp);
+        end
+        cap_height_data(kk,k) = mean(cap_height_tmp);
+        
+    end
+    
+    cap_height_Sum1 = cap_height_Sum1 + cap_height_data(kk,:);
+    cap_height_Sum2 = cap_height_Sum2 + (cap_height_data(kk,:)).^2;
+    
+end
+
+av_cap_height = sum(cap_height_data)/TotalJobs;
+
+cap_height_Std = sqrt((TotalJobs*cap_height_Sum2 - cap_height_Sum1.^2)/(TotalJobs*(TotalJobs-1)));
+
+figure;
+plot(SimTime, av_cap_height, 'k');
+
+hold on;
+
+plot(SimTime, av_cap_height + cap_height_Std, 'k:', ...
+    SimTime, av_cap_height - cap_height_Std, 'k:');
+
+hold off;
+
+title(['Average cap height over ', num2str(TotalJobs), ' simulations'], fontopt{:});
+xlabel('t'); ylabel('y');
+
+set(gcf,'PaperPositionMode','auto'); print('Fig02', '-dpng', '-r0');
 
 
 
@@ -151,17 +256,19 @@ AvVelocityDataOut{2} = MeanHVelocityData;
 AvVelocityDataOut{3} = BinSize_vx*(0:numel(MeanVVelocityData));
 AvVelocityDataOut{4} = MeanVVelocityData;
 
-figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+% figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+figure;
 bar(BinSize_ux*(1:numel(MeanHVelocityData)) - (BinSize_ux/2), MeanHVelocityData);
 title(['Average horizontal velocity vs. horizontal position over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('x'); ylabel('u');
-set(gcf,'PaperPositionMode','auto'); print('Fig02 Mean u vs x', '-dpng', '-r0');
+set(gcf,'PaperPositionMode','auto'); print('Fig03', '-dpng', '-r0');
 
-figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+% figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+figure;
 bar(BinSize_vx*(1:numel(MeanVVelocityData)) - (BinSize_vx/2), MeanVVelocityData);
 title(['Average vertical velocity vs. horizontal position over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('x'); ylabel('v');
-set(gcf,'PaperPositionMode','auto'); print('Fig03 Mean v vs x', '-dpng', '-r0');
+set(gcf,'PaperPositionMode','auto'); print('Fig04', '-dpng', '-r0');
 
 
 %% Mean age vs x and y
@@ -201,17 +308,19 @@ AvAgeDataOut{2} = MeanAgeXData;
 AvAgeDataOut{3} = BinSize_agey*(0:numel(MeanAgeYData));
 AvAgeDataOut{4} = MeanAgeYData;
 
-figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+% figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+figure;
 bar(BinSize_agex*(1:numel(MeanAgeXData)) - (BinSize_agex/2), MeanAgeXData);
 title(['Cell age vs. horzontal position at end of ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('x'); ylabel('age');
-set(gcf,'PaperPositionMode','auto'); print('Fig04 Mean age vs x end', '-dpng', '-r0');
+set(gcf,'PaperPositionMode','auto'); print('Fig05', '-dpng', '-r0');
 
-figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+% figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
+figure;
 bar(BinSize_agey*(1:numel(MeanAgeYData)) - (BinSize_agey/2), MeanAgeYData);
 title(['Cell age vs. vertical position at end of ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('y'); ylabel('age');
-set(gcf,'PaperPositionMode','auto'); print('Fig05 Mean age vs y end', '-dpng', '-r0');
+set(gcf,'PaperPositionMode','auto'); print('Fig06', '-dpng', '-r0');
 
 
 %% Finish
@@ -235,8 +344,8 @@ for k=1:partitions_total
     tmpdata = u .* indicies;
     av_data(k) = sum(tmpdata)/sum(indicies);
     
-%     Removing this check makes the data inflated, since this stops the
-%     addition of NaNs?
+    %     Removing this check makes the data inflated, since this stops the
+    %     addition of NaNs?
     if sum(indicies) == 0
         av_data(k) = 0;
     end
@@ -251,13 +360,13 @@ end
 % Plots histogram of the attachment times
 
 % if exist('testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat', 'file') ~= 0
-% 
+%
 %     AttachmentData = cell(1,TotalJobs);
 %     AttachmentData{1} = importdata(['testoutput/UtericBudSimulation_0/results_from_time_0/attachmentdurations.dat']);
 %     MaxValue = ceil(max(AttachmentData{1}));
 %     binranges = 0:MaxValue;
 %     bincounts = histc(AttachmentData{1}, binranges);
-% 
+%
 %     for k = 2:TotalJobs
 %         AttachmentData{k} = importdata(['testoutput/UtericBudSimulation_' num2str(k-1) '/results_from_time_0/attachmentdurations.dat']);
 %         temp = ceil(max(AttachmentData{k}));
@@ -267,18 +376,18 @@ end
 %         end
 %         b = histc(AttachmentData{k}, binranges);
 %         spacefill = zeros(1, abs(length(b) - length(bincounts)));
-%         
+%
 %         bincounts = [bincounts, spacefill] + b;
-%         
+%
 %     end
-%     
+%
 %     figure('units', 'normalized', 'position', [.3 .3 0.12 0.4]);
 %     bar(binranges, bincounts, 'histc');
 %     title(['Histogram of attachment times over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 %     xlabel('time'); ylabel('counts');
 %     set(gcf,'PaperPositionMode','auto'); print('Fig06 Attachment time histogram', '-dpng', '-r0');
-% 
+%
 %     AttachDataOut{1} = binranges;
 %     AttachDataOut{2} = bincounts;
-% 
+%
 % end
