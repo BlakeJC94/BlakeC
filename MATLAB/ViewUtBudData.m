@@ -65,7 +65,7 @@ for k = 2:TotalJobs
 end
 
 MeanPopulationData = Sum1/TotalJobs;
-VarPopulationData = (TotalJobs*Sum2 - Sum1.^2)/(TotalJobs*(TotalJobs-1));
+%VarPopulationData = (TotalJobs*Sum2 - Sum1.^2)/(TotalJobs*(TotalJobs-1));
 
 SimTime = MeanPopulationData(:,1);
 DiffCells = MeanPopulationData(:,3);

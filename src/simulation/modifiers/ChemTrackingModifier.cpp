@@ -72,15 +72,15 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
         
         double conc_a = 0.0;
-        if (cell_y < 5.0)
+        if (cell_y < 10.0)
         {
-            conc_a = 1.0 - cell_y/5.0;
+            conc_a = 1 - cell_y/10.0;
         }
         
-        double conc_b = 1.0;
+        double conc_b = 0.0;
         if (cell_x < 10.0)
         {
-            conc_b = cell_x/10.0;
+            conc_b = 1 - cell_x/10.0;
         }
         
         cell_iter->GetCellData()->SetItem("concentrationA", conc_a);

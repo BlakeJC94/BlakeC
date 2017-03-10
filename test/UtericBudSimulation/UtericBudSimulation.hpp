@@ -138,7 +138,7 @@ public:
         double simulation_region_x = 20; // 20
         double simulation_region_y = 20; // 10
         
-        double initial_cm_cells = 15; 
+        double initial_cm_cells = 30; 
         double permeable_barrier_x = 18; // 18
         double spawn_region_x = 10; // 10
         double spawn_region_y = 5; // 5
