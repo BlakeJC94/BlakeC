@@ -1,4 +1,4 @@
-function ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_agey)
+function outvect = ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_agey)
 % ViewUtBudData: Produces data plots for batch data from UtericBudSimulation
 %
 %   Inputs:
@@ -26,6 +26,8 @@ function ViewUtBudData(TotalJobs, BinSize_ux, BinSize_vx, BinSize_agex, BinSize_
 
 close all;
 fontopt = {'FontSize',50,'FontWeight','bold'};
+outvect = zeros(1,6); % SimTime(end), p, mean total(end), std total(end), mean prolif(end), mean level(end), std level (end),
+outvect(1,2) = 0.65;
 
 max_x = 20;
 max_y = 5;
@@ -97,6 +99,10 @@ title(['Average number of cells over ', num2str(TotalJobs), ' simulations'], fon
 xlabel('Simulation time'); ylabel('No. of cells');
 set(gcf,'PaperPositionMode','auto'); print('Fig01', '-dpng', '-r0');
 
+outvect(1,1) = SimTime(end);
+outvect(1,3) = TotalCells(end);
+outvect(1,4) = TotalCellsStd(end);
+outvect(1,5) = TransitCells(end);
 
 
 %% Mean cap height vs t
@@ -203,6 +209,9 @@ title(['Average cap height over ', num2str(TotalJobs), ' simulations'], fontopt{
 xlabel('t'); ylabel('y');
 
 set(gcf,'PaperPositionMode','auto'); print('Fig02', '-dpng', '-r0');
+
+outvect(1,6) = av_cap_height(end);
+outvect(1,7) = cap_height_Std(end);
 
 
 
