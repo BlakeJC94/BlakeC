@@ -6,14 +6,11 @@ function ViewScaledLinearConcBData2
 close all;
 fontopt = {'FontSize',50,'FontWeight','bold'};
 outvect = zeros(1,6); % SimTime(end), p, mean total(end), std total(end), mean prolif(end), mean level(end), std level (end),
-outvect(1,2) = 0.65;
-
 
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
 
-
-p = [1, 0.9:-0.05:0.6, 0.5, 0.4];
+p = [1, 0.9:-0.05:0.6, 0.5, 0.4]; 
 
 data = zeros(10, 10, 5); % col = p value, row = run, depth = time
 avdata = zeros(1,10); % col = p value
@@ -51,12 +48,13 @@ end
 
 for i = 1:5 % over each sample step
     
-    % make a new figure
+    % make a new figure and plot results
     figure;
+    plot(p,avdata(1,:,i), 'b', p, data(:,:,i), 'o');
     title(['Total cell count for different parameter vals at t = ' num2str(100*i)]);
     xlabel('p'); ylabel('total cell counts');
-    plot(p,avdata(1,:,i), 'b', p, data(:,:,i), 'o')
     axis([0.4, 1.0, 0, 800]);
+    
 end
 
 end
