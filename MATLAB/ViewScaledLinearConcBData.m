@@ -34,8 +34,8 @@ for k = 1:10 % over each value of p
     
 end
 
-
-plot(p,avdata);
+figure;
+plot(p, avdata, 'b', p, data, 'o');
 
 
 end
