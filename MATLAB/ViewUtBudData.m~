@@ -97,7 +97,7 @@ for k = 1:TotalJobs
         '/results_from_time_0/cellages.dat']);
 end
 
-meanagevsxy(AgesDataSet, BinSize_agex, BinSize_agey, max_x, max_y);
+meanagevsxy(AgesDataSet, BinSize_agex, BinSize_agex, max_x, max_y);
 
 
 %% Finish
