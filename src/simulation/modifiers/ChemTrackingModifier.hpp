@@ -47,7 +47,16 @@ class ChemTrackingModifier : public AbstractCellBasedSimulationModifier<DIM,DIM>
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellBasedSimulationModifier<DIM,DIM> >(*this);
+        archive & mConcBModel;
+        archive & mConcBParameter;
     }
+
+protected:
+
+    double mConcBModel;
+    
+    double mConcBParameter;
+    
 
 public:
 
@@ -60,6 +69,14 @@ public:
     virtual void SetupSolve(AbstractCellPopulation<DIM,DIM>& rCellPopulation, std::string outputDirectory);
 
     void UpdateCellData(AbstractCellPopulation<DIM,DIM>& rCellPopulation);
+    
+    void SetConcBModel(double concBModel);
+
+    double GetConcBModel();
+    
+    void SetConcBParameter(double concBParameter);
+
+    double GetConcBParameter();
 
     void OutputSimulationModifierParameters(out_stream& rParamsFile);
 };

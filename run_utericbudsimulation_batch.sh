@@ -7,26 +7,24 @@
 # scons co=1 b=GccOpt ts=projects/Ozzy/test/CellBasedComparison/TestCylindricalCrypt.hpp
 #
 
-num_sims=10;
+num_sims=3;
+sim_time=50;
 
-#CI_LEVEL[0]="1.0"
-CI_LEVEL[0]="0.9"
-CI_LEVEL[1]="0.8"
-CI_LEVEL[2]="0.7"
-#CI_LEVEL[4]="0.6"
-#CI_LEVEL[5]="0.5"
+CONC_B_PARAMETER[0]="0.9"
+CONC_B_PARAMETER[1]="0.8"
+CONC_B_PARAMETER[2]="0.7"
 
 for (( i=0 ; i<${num_sims} ; i++))
 do
     echo "Run " $i;
-    for (( j=0 ; j<${#CI_LEVEL[*]} ; j++))
+    for (( j=0 ; j<${#CONC_B_PARAMETER[*]} ; j++))
     do
-    	echo "  CI level " ${CI_LEVEL[$j]};
+    	echo "  Conc B Parameter " ${CONC_B_PARAMETER[$j]};
     	# NB "nice -20" gives the jobs low priority (good if they are going to dominate the server and no slower if nothing else is going on)
     	# ">" directs std::cout to the file.
     	# "2>&1" directs std::cerr to the same place.
     	# "&" on the end lets the script carry on and not wait until this has finished.
-    	nice -20 ../../build/optimised/Sweeps/TestCylindricalCryptSweepsRunner -sim_index $i -CI ${CI_LEVEL[$j]} > output/CryptRun_${i}_${CI_LEVEL[$j]}_Output.txt 2>&1 &
+    	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_ConcBSweeperRunner -sim_index $i -sim_time $sim_time -conc_b_parameter ${CONC_B_PARAMETER[$j]} > output/SimulationRun_${CONC_B_PARAMETER[$j]}_${i}_Output.txt 2>&1 &
     done
 done
 

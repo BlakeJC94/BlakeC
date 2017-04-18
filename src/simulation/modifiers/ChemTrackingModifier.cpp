@@ -35,10 +35,13 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ChemTrackingModifier.hpp"
 #include "MeshBasedCellPopulation.hpp"
+#include "Debug.hpp"
 
 template<unsigned DIM>
 ChemTrackingModifier<DIM>::ChemTrackingModifier()
-    : AbstractCellBasedSimulationModifier<DIM>()
+    : AbstractCellBasedSimulationModifier<DIM>(),
+    mConcBModel(2),
+    mConcBParameter(0.7)
 {
 }
 
@@ -71,34 +74,69 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         double cell_x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
         double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
         
-        double conc_a = 1.0;
-        if (cell_y < 10.0)
-        {
-            conc_a = cell_y/10.0;
-        }
-        /*
-        double conc_b = 1.0;
-        if (cell_x < 10.0)
-        {
-            conc_b = cell_x/10.0;
-        }
-        */
-        double conc_b = 0.65 * (1 - cell_x/20);
-        //double conc_b = exp(-pow(cell_x,2)/(2*pow(5.5,2)));
-        
-        /*
         double conc_a = 0.0;
         if (cell_y < 10.0)
         {
-            conc_a = 1.0 - cell_y/10.0;
+            conc_a = 1 - cell_y/10.0;
         }
         
-        double conc_b = cell_x/20.0;
-        */
         
+        double conc_b;
+        
+        if (mConcBModel == 1) // Constant
+        {
+            conc_b = mConcBParameter;
+        }        
+        else if (mConcBModel == 2) // Ramp
+        {
+            conc_b = 0.0;
+            if (cell_x < 10.0)
+            {
+                conc_b = 1 - cell_x/10.0;
+            }
+        }
+        else if (mConcBModel == 3) // Linear
+        {
+            conc_b = mConcBParameter * (1 - cell_x/20);
+        }
+        else if (mConcBModel == 4) // Smooth curve
+        {
+            conc_b = exp(-pow(cell_x,2)/(2*pow(5.5,2)));
+        }
+        else 
+        {
+            NEVER_REACHED;
+        }
+
+
+
         cell_iter->GetCellData()->SetItem("concentrationA", conc_a);
         cell_iter->GetCellData()->SetItem("concentrationB", conc_b);
     }
+}
+
+template<unsigned DIM>
+void ChemTrackingModifier<DIM>::SetConcBModel(double concBModel)
+{
+    mConcBModel = concBModel;
+}
+
+template<unsigned DIM>
+double ChemTrackingModifier<DIM>::GetConcBModel()
+{
+    return mConcBModel;
+}
+
+template<unsigned DIM>
+void ChemTrackingModifier<DIM>::SetConcBParameter(double concBParamter)
+{
+    mConcBParameter = concBParamter;
+}
+
+template<unsigned DIM>
+double ChemTrackingModifier<DIM>::GetConcBParameter()
+{
+    return mConcBParameter;
 }
 
 template<unsigned DIM>
