@@ -8,25 +8,23 @@ close all;
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
 
-p = [0.8:-0.01:0.7]; 
+p = [1, 0.9:-0.05:0.6, 0.5, 0.4]; 
 
-data = zeros(length(p), 20, 5); % col = p value, row = run, depth = time
-avgdata = zeros(length(p), 5); % row = p value, col = time
-sdvdata = zeros(length(p), 5); % row = p value, col = time
+data = zeros(10, 10, 5); % col = p value, row = run, depth = time
+avgdata = zeros(10,5); % row = p value, col = time
+sdvdata = zeros(10,5); % row = p value, col = time
 
-for k = 1:length(p) % over each value of p
+for k = 1:10 % over each value of p
     
-    for j = 1:20 % over each job
+    for j = 1:10 % over each job
         
         % Load data from run j-1 in folder '0k'
 %         PopulationData = importdata(['ScaledLinearConcBData/0' num2str(k-1) '/testoutput/UtericBudSimulation_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
 
-%         PopulationData = importdata(['DataLinks/Linux-BlakesPC/' ...
-%             'ScaledLinearConcBData/0' num2str(k-1) ....
-%             '/testoutput/UtericBudSimulation_' num2str(j-1) ...
-%             '/results_from_time_0/celltypescount.dat']);
-        
-        PopulationData = importdata(['testoutput/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
+        PopulationData = importdata(['DataLinks/Linux-BlakesPC/' ...
+            'ScaledLinearConcBData/0' num2str(k-1) ....
+            '/testoutput/UtericBudSimulation_' num2str(j-1) ...
+            '/results_from_time_0/celltypescount.dat']);
         
         for i = 1:5 % over each sample step
             
@@ -65,7 +63,7 @@ for i = 1:5 % over each sample step
         p, data(:,:,i), 'o');
     title(['Total cell count for different parameter vals at t = ' num2str(100*i)]);
     xlabel('p'); ylabel('total cell counts');
-    axis([0.7, 0.8, 0, 300]);
+    axis([0.4, 1.0, 0, 800]);
     
 end
 

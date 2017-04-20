@@ -126,7 +126,7 @@ public:
     {
     
         /* Simulation options */   
-        double simulation_time = 100;
+        double simulation_time = 200;
         if (CommandLineArguments::Instance()->OptionExists("-sim_time"))
 	    {
 	        simulation_time = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_time").c_str());
