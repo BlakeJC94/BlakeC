@@ -10,9 +10,9 @@
 num_sims=20;
 sim_time=500;
 
-CONC_B_PARAMETER[0]="0.9"
-CONC_B_PARAMETER[1]="0.85"
-CONC_B_PARAMETER[2]="0.65"
+CONC_B_PARAMETER[0]="0.6"
+CONC_B_PARAMETER[1]="0.5"
+CONC_B_PARAMETER[2]="0.4"
 
 for (( i=0 ; i<${num_sims} ; i++))
 do

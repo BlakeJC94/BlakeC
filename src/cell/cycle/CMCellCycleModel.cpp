@@ -103,8 +103,7 @@ bool CMCellCycleModel::ReadyToDivide()
          * differntiated cells. */
         double RVProbability = 1-conc_b;
         
-        //if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_gen->ranf() < RVProbability * dt)  )
-        if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
+        if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_gen->ranf() < RVProbability * dt)  )
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;

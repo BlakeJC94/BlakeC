@@ -8,7 +8,7 @@ close all;
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
 
-p = [0.8:-0.01:0.7]; 
+p = [0.4 0.5 0.6:0.05:0.9 1]; 
 
 data = zeros(length(p), 20, 5); % col = p value, row = run, depth = time
 avgdata = zeros(length(p), 5); % row = p value, col = time
@@ -64,8 +64,8 @@ for i = 1:5 % over each sample step
         p, avgdata(:,i) - sdvdata(:,i), 'b--', ...
         p, data(:,:,i), 'o');
     title(['Total cell count for different parameter vals at t = ' num2str(100*i)]);
-    xlabel('p'); ylabel('total cell counts');
-    axis([0.7, 0.8, 0, 300]);
+    xlabel('\alpha'); ylabel('total cell counts');
+    axis([0.4, 1, 0, 800]);
     
 end
 
