@@ -165,7 +165,7 @@ public:
         
         
         /* Sweep over parameter values */
-        if (CommandLineArguments::Instance()->OptionExists("-conc_b_parameter"))
+        if (CommandLineArguments::Instance()->OptionExists("-parameter"))
 	    {
 	        conc_b_parameter = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-parameter").c_str());
         }

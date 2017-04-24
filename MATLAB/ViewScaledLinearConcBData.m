@@ -8,7 +8,7 @@ close all;
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
 
-p = [0.4 0.5 0.6:0.05:0.9 1]; 
+p = [0.4:0.1:0.8]; 
 
 data = zeros(length(p), 20, 5); % col = p value, row = run, depth = time
 avgdata = zeros(length(p), 5); % row = p value, col = time
@@ -26,7 +26,7 @@ for k = 1:length(p) % over each value of p
 %             '/testoutput/UtericBudSimulation_' num2str(j-1) ...
 %             '/results_from_time_0/celltypescount.dat']);
         
-        PopulationData = importdata(['testoutput/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
+        PopulationData = importdata(['testoutput_CHASTE/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
         
         for i = 1:5 % over each sample step
             
