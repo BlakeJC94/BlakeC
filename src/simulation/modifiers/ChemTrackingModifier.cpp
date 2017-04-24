@@ -90,9 +90,9 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         else if (mConcBModel == 2) // Ramp
         {
             conc_b = 0.0;
-            if (cell_x < 10.0)
+            if (cell_x < 20.0*mConcBParameter)
             {
-                conc_b = 1 - cell_x/10.0;
+                conc_b = 1 - cell_x/(20.0*mConcBParameter);
             }
         }
         else if (mConcBModel == 3) // Linear
