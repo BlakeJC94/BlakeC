@@ -99,7 +99,15 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         {
             conc_b = mConcBParameter * (1 - cell_x/20);
         }
-        else if (mConcBModel == 4) // Smooth curve
+        else if (mConcBModel == 4) // Step
+        {
+            conc_b = 0.0;
+            if (cell_x < 20.0*mConcBParameter)
+            {
+                conc_b = 1.0;
+            }
+        }
+        else if (mConcBModel == 5) // Smooth curve
         {
             conc_b = exp(-pow(cell_x,2)/(2*pow(5.5,2)));
         }

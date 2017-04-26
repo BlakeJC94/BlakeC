@@ -10,9 +10,9 @@
 num_sims=20;
 sim_time=500;
 
-PARAMETER[0]="0.6"
-PARAMETER[1]="0.7"
-PARAMETER[2]="0.8"
+PARAMETER[0]="0.2"
+PARAMETER[1]="0.25"
+PARAMETER[2]="0.3"
 
 for (( i=0 ; i<${num_sims} ; i++))
 do
@@ -24,7 +24,7 @@ do
     	# ">" directs std::cout to the file.
     	# "2>&1" directs std::cerr to the same place.
     	# "&" on the end lets the script carry on and not wait until this has finished.
-    	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_SweeperRunner -sim_index $i -sim_time $sim_time -parameter ${PARAMETER[$j]} > output/SimulationRun_${PARAMETER[$j]}_${i}_Output.txt 2>&1 &
+    	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_SweeperRunner2 -sim_index $i -sim_time $sim_time -parameter ${PARAMETER[$j]} > output/SimulationRun_${PARAMETER[$j]}_${i}_Output.txt 2>&1 &
     done
 done
 
