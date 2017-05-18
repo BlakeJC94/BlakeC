@@ -1,0 +1,55 @@
+function out = totalcellsteadystate2(TotalCells, TotalCellsStd)
+
+t = 10; % number of data points in each window
+eps_av = 0.025; % confidence interval
+
+Sample1av = TotalCells(end-t+1:end, :);
+Sample2av = TotalCells(end-2*t+1:end-t, :);
+
+Sample1sd = TotalCellsStd(end-t+1:end, :);
+Sample2sd = TotalCellsStd(end-2*t+1:end-t, :);
+
+
+Stats1av = samplestats(Sample1av)
+Stats2av = samplestats(Sample2av)
+
+flag = 0;
+if sum(abs(Stats1av - Stats2av) < eps_av*(Stats2av + Stats1av)/2) == 3
+    flag = 1;
+end
+
+j = 2;
+while flag == 1
+    flag = 0;
+    
+%     Sample1 = Sample2;
+%     Stats1 = Stats2;
+    
+%     Sample1 = PopulationData(end-j*t+1:end, :);
+    Sample1av = [Sample1av; Sample2av];
+    Stats1av = samplestats(Sample1av);
+    
+    Sample2av = TotalCells(end-(j+1)*t+1:end-j*t, :);
+    Stats2av = samplestats(Sample2av)
+    
+    if sum(abs(Stats1av - Stats2av) < eps_av*Stats1av) == 3
+        flag = 1;
+        j = j+1;
+    end
+    disp(j);
+    
+end
+
+
+out = 500 - j*0.6*t;
+disp(['(QD) Total cells in Equilibrium from approx t = '...
+    num2str(out)]);
+
+end
+
+
+
+function out = samplestats(A)
+out = [mean(A), min(A), max(A)];
+
+end

@@ -46,12 +46,17 @@ tic;
 
 PopulationDataSet = cell(1,TotalJobs);
 for k = 1:TotalJobs
-    temp = importdata(['testoutput_s/UtericBudSimulation_' num2str(k-1) ...
+%     temp = importdata(['testoutput_s/UtericBudSimulation_' num2str(k-1) ...
+%         '/results_from_time_0/celltypescount.dat']);
+    temp = importdata(['testoutput_HD3/UtericBudSimulation_ParameterSweep_step_0.05_' num2str(k-1) ...
         '/results_from_time_0/celltypescount.dat']);
+
     PopulationDataSet{k} = temp.data;
 end
 
 meanscellsvstime_s(PopulationDataSet);
+
+totalcellsteadystate2(PopulationDataSet);
 
 
 % % Mean cap height vs t
