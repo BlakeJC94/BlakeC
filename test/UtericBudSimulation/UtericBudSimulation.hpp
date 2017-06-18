@@ -37,6 +37,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "NodeBasedCellPopulation.hpp"
 #include "OffLatticeSimulation.hpp"
+#include "OffLatticeSimulationWithStopUT.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "TransitCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
@@ -224,7 +225,7 @@ public:
         
         
         /* Begin OffLatticeSimulation */ 
-        OffLatticeSimulation<2> simulator(cell_population);
+        OffLatticeSimulationWithStopUT simulator(cell_population);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetSamplingTimestepMultiple(simulation_output_mult);
         simulator.SetDt(simulation_dt);

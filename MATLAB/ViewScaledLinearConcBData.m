@@ -8,8 +8,8 @@ close all;
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
 
-%p = [0.4 0.5 0.6:0.05:0.9 1]; %1
-p = [0.3:0.1:1]; %2
+p = [0.4 0.5 0.6:0.05:0.9 1]; %1
+%p = [0.3:0.1:1]; %2
 %p = [0.05:0.1:0.5]; %3
 
 data = zeros(length(p), 20, 5); % col = p value, row = run, depth = time
@@ -34,8 +34,8 @@ for k = 1:length(p) % over each value of p
         
 %         PopulationData = importdata(['testoutput_CHASTE/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
 
-%        PopulationData = importdata(['testoutput_HD1/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
-          PopulationData = importdata(['testoutput_HD2/UtericBudSimulation_ParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
+        PopulationData = importdata(['testoutput_HD1/UtericBudSimulation_ConBParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
+%          PopulationData = importdata(['testoutput_HD2/UtericBudSimulation_ParameterSweep_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
 %         PopulationData = importdata(['testoutput_HD3/UtericBudSimulation_ParameterSweep_step_' num2str(p(k)) '_' num2str(j-1) '/results_from_time_0/celltypescount.dat']);
 
         
