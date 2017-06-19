@@ -39,8 +39,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool OffLatticeSimulationWithStopUT::StoppingEventHasOccurred()
 {
 	double CellCount = mrCellPopulation.rGetMesh().GetNumNodes();
-    
-    return  (CellCount > 50);
+
+    return  (CellCount > 1000);
+    //return  (SimulationTime::Instance()->GetTime() > 2);
 }
 
 OffLatticeSimulationWithStopUT::OffLatticeSimulationWithStopUT(

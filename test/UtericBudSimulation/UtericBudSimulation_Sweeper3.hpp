@@ -148,7 +148,11 @@ public:
     {
     
         /* Simulation options */   
-        double simulation_time = 1000;
+        double simulation_time = 100;
+        if (CommandLineArguments::Instance()->OptionExists("-sim_time"))
+        {
+            simulation_time = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_time").c_str());
+        }
         
         double simulation_output_mult = 120;
         double simulation_dt = 1.0/200.0; // 1.0/180.0
@@ -189,35 +193,20 @@ public:
         }
         
         
-        /* %%%%% */
-        double runs_max = 5;
-        for (unsigned runs_index = 0; runs_index < runs_max; runs_index++)
+        double sim_max = 20;
+        for (unsigned sim_index = 0; sim_index < sim_max; sim_index++)
         {
-        
         
             /* Setup timer, output directory and RNG seed */
             clock_t t1, t2;
             t1 = clock();
-        
-	        double sim_index = 0;
-	        if (CommandLineArguments::Instance()->OptionExists("-sim_index"))
-	        {
-	            sim_index = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-sim_index").c_str());
-            }
-        
-            
-            /*
-	        std::stringstream out;
-	        out << conc_b_parameter << "_" << sim_index;
-	        std::string output_directory = "UtericBudSimulation_ParameterSweep_step_" + out.str();
-	        */
 	        
 	        std::stringstream out;
-	        out << "sim_" << sim_index << "_run_" << runs_index;
+	        out << conc_b_parameter << "_sim_" << sim_index;
 	        std::string output_directory = "UtericBudSimulation_Sweep_" + out.str();
 	        
 	        
-	        RandomNumberGenerator::Instance()->Reseed(100.0 * runs_index);
+	        RandomNumberGenerator::Instance()->Reseed(100.0 * sim_index);
         
         
         
@@ -363,7 +352,7 @@ public:
             simulator.Solve();
             
             cout << "// ------------------------- " << endl;
-            cout << "// ----- Simulation run : " << runs_index << endl;
+            cout << "// ----- Simulation run : " << sim_index << endl;
             
             cout << "Simulation time : " << SimulationTime::Instance()->GetTime() << "/" << simulation_time << " hours "<< endl;
         
