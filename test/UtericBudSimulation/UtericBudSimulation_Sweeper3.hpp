@@ -181,12 +181,16 @@ public:
         double attached_damping_constant = 100.0;
         
         /* Concentration B options */
-        double conc_b_model = 3;
+        double conc_b_model = 3; // 1 = const, 2 = ramp, 3 = linear, 4 = step
         double conc_b_parameter = 0.5;
         
         
         
         /* Sweep over parameter values */
+        if (CommandLineArguments::Instance()->OptionExists("-model"))
+	    {
+	        conc_b_model = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-model").c_str());
+        }
         if (CommandLineArguments::Instance()->OptionExists("-parameter"))
 	    {
 	        conc_b_parameter = (double) atof(CommandLineArguments::Instance()->GetStringCorrespondingToOption("-parameter").c_str());
