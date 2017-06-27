@@ -206,7 +206,7 @@ public:
             t1 = clock();
 	        
 	        std::stringstream out;
-	        out << conc_b_parameter << "_sim_" << sim_index;
+	        out << conc_b_parameter << "model" << conc_b_model << "_sim_" << sim_index;
 	        std::string output_directory = "UtericBudSimulation_Sweep_" + out.str();
 	        
 	        
