@@ -26,6 +26,7 @@ data = zeros(length(p), 20, 5); % col = p value, row = run, depth = time
 avgdata = zeros(length(p), 5); % row = p value, col = time
 sdvdata = zeros(length(p), 5); % row = p value, col = time
 steadystateav = zeros(length(p),1);
+proportions = zeros(length(p),1);
 
 for k = 1:length(p) % over each value of p
     disp(['Paramter = ' num2str(p(k))])
@@ -34,7 +35,7 @@ for k = 1:length(p) % over each value of p
     PopulationDataSet = cell(1,TotalJobs);
     
     for j = 1:TotalJobs % over each job
-        disp(['    sim = ' num2str(j-1)]) %%%%
+        disp(['    sim = ' num2str(j-1)]) %%D%%
         run = j-1;
         
         % Load data from run j-1 in folder '0k'
@@ -57,7 +58,9 @@ for k = 1:length(p) % over each value of p
         
     end
     
-    steadystateav(k) = totalcellsteadystate(PopulationDataSet);
+    steadystateav(k) = totalcellsteadystate(PopulationDataSet); 
+    MeanPopulationData = meanscellsvstime(PopulationDataSet);
+    proportions(k) = MeanPopulationData(end,2)/(MeanPopulationData(end,3) + MeanPopulationData(end,2)); %prolif/total
    
     for i = 1:10 % over each sample step
         
@@ -94,5 +97,11 @@ plot(p, steadystateav, 'ko--')
 title(['Total cell count steady state onset time']);
 xlabel('\alpha'); ylabel('Steady State');
 axis([min(p), max(p), 0, 1000]);
+
+figure;
+plot(p, proportions, 'bo--')
+title(['Prolif cells : Total Cells']);
+xlabel('\alpha'); ylabel('ratio');
+axis([min(p), max(p), 0, 1]);
 
 end

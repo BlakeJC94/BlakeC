@@ -7,8 +7,6 @@ function UT_PopulationVsTime(model, parameter)
 close all;
 fontopt = {'FontSize',20,'FontWeight','bold'};
 
-TotalJobs = 20;
-
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('functions/'));
 
@@ -59,8 +57,6 @@ legend('Total', 'Proliferative', 'Non-Proliferative',...
 title(['Average number of cells over ', num2str(TotalJobs), ' simulations'], fontopt{:});
 xlabel('Simulation time'); ylabel('No. of cells');
 set(gcf,'PaperPositionMode','auto'); print('Fig01', '-dpng', '-r0');
-
-
 
 totalcellsteadystate(PopulationDataSet);
 

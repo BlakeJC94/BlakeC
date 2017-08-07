@@ -1,10 +1,22 @@
 function out = totalcellsteadystate(PopulationDataSet)
 
+
+% out = QD1(PopulationDataSet);
+out = QD2(PopulationDataSet);
+
+
+disp(['(QD) Total cells in Equilibrium from approx t = '...
+    num2str(out)]);
+
+end
+
+function out = QD1(PopulationDataSet)
+
 [MeanPopulationData, TotalCellsStd] = meanscellsvstime(PopulationDataSet);
 TotalCells = MeanPopulationData(:,3) + MeanPopulationData(:,2);
 End_Time = MeanPopulationData(end,1);
 
-t = 75; % number of data points in each window
+t = 50; % number of data points in each window
 eps_av = 0.025; % confidence interval
 eps_sd = 0.25;
 
@@ -63,9 +75,95 @@ else
     out = 0;
 end
 
+end
 
-disp(['(QD) Total cells in Equilibrium from approx t = '...
-    num2str(out)]);
+function out = QD2(PopulationDataSet)
+
+[MeanPopulationData, TotalCellsStd] = meanscellsvstime(PopulationDataSet);
+TotalCells = MeanPopulationData(:,3) + MeanPopulationData(:,2);
+End_Time = MeanPopulationData(end,1);
+
+eps = 0.10;
+
+FinalCellCount = TotalCells(end);
+
+EndOfSS = find(abs(TotalCells - FinalCellCount) > eps*FinalCellCount, 1, 'last');
+out = EndOfSS*0.6;
+
+
+end
+
+
+function out = QD3(PopulationDataSet)
+
+[MeanPopulationData, TotalCellsStd] = meanscellsvstime(PopulationDataSet);
+TotalCells = MeanPopulationData(:,3) + MeanPopulationData(:,2);
+End_Time = MeanPopulationData(end,1);
+
+t = 30; % number of data points in each window
+eps_av = 0.025; % confidence interval
+eps_sd = 0.25;
+
+Sample1av = TotalCells(end-t+1:end, :);
+%Sample2av = TotalCells(end-2*t+1:end-t, :);
+
+% Stats1av = samplestats(Sample1av);
+% Stats2av = samplestats(Sample2av);
+
+y = (Sample1av - mean(Sample1av))/std(Sample1av);
+scatter(1:length(y), y)
+
+X = [ones(length(y),1), (1:length(y))'];
+b = X\y;
+disp(b(2))
+ycalc = X * b;
+hold on;
+plot(ycalc);
+hold off;
+
+pause
+
+flag = 0;
+if abs(b(2)) < 0.05
+    flag = 1;
+    disp('accept')
+end
+
+j = 1;
+while flag == 1
+    disp(j)
+    flag = 0;
+
+    Sample1av = TotalCells(end-(j+1)*t+1:end, :);
+
+    y = (Sample1av - mean(Sample1av))/std(Sample1av);
+    scatter(1:length(y),y)
+    X = [ones(length(y),1), (1:length(y))'];
+    b = X\y;
+    disp(b(2))
+    ycalc = X * b;
+    hold on;
+    plot(ycalc);
+    hold off;
+
+    pause
+    
+    if abs(b(2)) < 0.05
+        flag = 1;
+        j = j+1;
+        disp('accept')
+    end
+
+end
+
+disp('rejected')
+
+if j*0.6*t >= 50
+    out = End_Time - j*0.6*t;
+else
+    disp('Not steady!');
+    out = 0;
+end
 
 end
 
