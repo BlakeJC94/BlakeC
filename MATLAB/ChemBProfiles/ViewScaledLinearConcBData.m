@@ -7,6 +7,7 @@ close all;
 
 addpath(genpath('/home/blake/Workspace/Chaste/anim/'));
 addpath(genpath('testoutput/'));
+addpath(genpath('functions/'));
 
 testoutput_path = ['/home/blake/Documents/Saved Simulation Data' ...
     '/20170801/0' num2str(model) '_testoutput_dats'];
@@ -16,7 +17,7 @@ if model == 2 % model 2: ramp
 elseif model == 3 % model 3: linear
     p = [0.4 0.5 0.6 0.65 0.7 0.75 0.8 0.85 0.9 1];
 elseif model == 4 % model 4: step
-    p = [0.05 0.1 0.2 0.3 0.35 0.4 0.45 0.5];
+    p = [0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5];
 end
 
 D = dir([testoutput_path '/UtericBudSimulation_Sweep_' num2str(p(1)) 'model' num2str(model) '*']);
