@@ -100,10 +100,17 @@ bool CMCellCycleModel::ReadyToDivide()
         
         
         /* Apply the RV mutation state with random chance to 
-         * differntiated cells. */
+         * differntiated cells. 
         double RVProbability = 1-conc_b;
         
         if (  (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) && (p_gen->ranf() < RVProbability * dt)  )
+        {
+            mpCell->SetMutationState(p_rv_state);
+            mReadyToDivide = false;
+            mpCell->GetCellData()->SetItem("DivAge", 0);
+        }
+        */ // SIMPLIFY MODEL: Remove intermediate DiffCMcells.
+        if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) 
         {
             mpCell->SetMutationState(p_rv_state);
             mReadyToDivide = false;

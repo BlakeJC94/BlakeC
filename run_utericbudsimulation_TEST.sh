@@ -7,9 +7,13 @@
 # scons co=1 b=GccOpt ts=projects/Ozzy/test/CellBasedComparison/TestMorphogenMonolayer.hpp
 #
 
-#num_sims=1;
 
-PARAMETER[0]="1.0"
+num_sims=1;
+sim_time=40;
+attachment_probability=0;
+detachment_probability=0;
+
+PARAMETER[0]="0"
 #PARAMETER[1]="0.5"
 #PARAMETER[2]="0.6"
 
@@ -23,7 +27,14 @@ do
 	#nice -20 /home/blake/Chaste/projects/BlakeC/build/optimised/Week4Tasks/TCellSimulationTask4Runner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	#nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulationRunner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	
-	nice -20 /data/blakec/workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper3Runner -sim_time 1000 -parameter ${PARAMETER[$i]} > output/SimulationRun_${PARAMETER[$i]}_Output.txt 2>&1 &
+	attachment_probability=PARAMETER[i];
+	
+	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper4Runner \
+	-sim_time $sim_time \
+	-num_sims $num_sims \
+	-attachment_probability $attachment_probability \
+	-detachment_probability $detachment_probability \
+	> output/SimulationRun_AP_0_DP_0_Output.txt 2>&1 &
 	
 done
 
