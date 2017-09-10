@@ -38,7 +38,7 @@ do
 	
 	attachment_height=${PARAMETER[$i]};
 	
-	echo " attachment_height " ${attachment_probability};
+	echo " attachment_height " ${attachment_height};
 	
 	nice -20 /data/blakec/workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper5Runner \
 	-sim_time $sim_time \
