@@ -12,7 +12,6 @@ num_sims=20;
 sim_time=500;
 attachment_probability=0;
 detachment_probability=0;
-model=1;
 
 PARAMETER[0]="0.5"
 #PARAMETER[1]="0.5"
@@ -28,15 +27,11 @@ do
 	#nice -20 /home/blake/Chaste/projects/BlakeC/build/optimised/Week4Tasks/TCellSimulationTask4Runner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	#nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulationRunner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	
-	parameter=${PARAMETER[$i]}
 	
-	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper4Runner \
+	
+	nice -20 /data/blakec/workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper_constRunner \
 	-sim_time $sim_time \
 	-num_sims $num_sims \
-	-model $model \
-	-parameter $parameter \
-	-attachment_probability $attachment_probability \
-	-detachment_probability $detachment_probability \
 	> output/SimulationRun_const_0dot5_Output.txt 2>&1 &
 	
 done
