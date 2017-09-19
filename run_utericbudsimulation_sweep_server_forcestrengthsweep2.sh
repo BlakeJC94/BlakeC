@@ -10,21 +10,21 @@
 
 num_sims=20;
 sim_time=800;
-gforce_strength=1; # 0.5 0.67 0.83 %1% 1.17 1.33 1.5 1.67 1.83 2
-#gforce_repulsion_strength=0.1; # 1.25 1.67 2.08 %2.5% 2.92 3.33 3.75 4.17 4.58 5
+#gforce_strength=1; # 0.5 0.67 0.83 %1% 1.17 1.33 1.5 1.67 1.83 2
+gforce_repulsion_strength=2.5; # 1.25 1.67 2.08 %2.5% 2.92 3.33 3.75 4.17 4.58 5
 gforce_repulsion_distance=1.5;
 
-PARAMETER[0]="1.25"
-PARAMETER[1]="1.67"
-PARAMETER[2]="2.08"
-PARAMETER[3]="2.92"
-PARAMETER[4]="3.33"
-PARAMETER[5]="3.75"
-PARAMETER[6]="4.17"
-PARAMETER[7]="4.58"
-PARAMETER[8]="5"
+PARAMETER[0]="1"
+#PARAMETER[1]="0.67"
+#PARAMETER[2]="0.83"
+#PARAMETER[3]="1.17"
+#PARAMETER[4]="1.33"
+#PARAMETER[5]="1.5"
+#PARAMETER[6]="1.67"
+#PARAMETER[7]="1.83"
+#PARAMETER[8]="2"
 
-echo "gforce_strength " ${gforce_strength};
+echo "gforce_repulsion_strength " ${gforce_repulsion_strength};
 
 for (( i=0 ; i<${#PARAMETER[*]} ; i++))
 do
@@ -36,9 +36,9 @@ do
 	#nice -20 /home/blake/Chaste/projects/BlakeC/build/optimised/Week4Tasks/TCellSimulationTask4Runner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	#nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulationRunner -sim_index $i > output/SimulationRun_${i}_Output.txt 2>&1 &
 	
-	gforce_repulsion_strength=${PARAMETER[$i]};
+	gforce_strength=${PARAMETER[$i]};
 	
-	echo " gforce_repulsion_strength " ${gforce_repulsion_strength};
+	echo " gforce_strength " ${gforce_strength};
 	
 	nice -20 /data/blakec/workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper6Runner \
 	-sim_time $sim_time \
