@@ -28,8 +28,7 @@ nice -20 /data/blakec/workspace/Chaste/projects/BlakeC/build/optimised/UtericBud
 -gforce_repulsion_strength $gforce_repulsion_strength \
 -gforce_repulsion_distance $gforce_repulsion_distance \
 > output/SimulationRun_RadForce1_Output.txt 2>&1 &
-	
-done
+
 
 echo "Jobs submitted"
 
