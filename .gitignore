@@ -1,3 +1,4 @@
 build/*
 output/*
-MATLAB/data/*
+MATLAB/PlotData/data/*
+MATLAB/Figures/*
