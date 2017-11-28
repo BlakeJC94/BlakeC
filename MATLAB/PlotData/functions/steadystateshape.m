@@ -58,11 +58,11 @@ if plot_flag == 1
     hold on;
     plot(m', ncalc, 'k--');
     hold off;
-    title(['Avg x position of cells']);
+    title(['Horizontal position of cells']);
     if prolif == 1
-        title(['Avg x position of proliferative cells']);
+        title(['Horizontal position of proliferative cells']);
     end
-    xlabel('x');
+    xlabel('$$x$$', 'Interpreter', 'latex');
     ylabel('Probability');
 end
 

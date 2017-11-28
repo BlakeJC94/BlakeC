@@ -1,6 +1,7 @@
 function Affinity_Plots
 
 close all;
+addpath(genpath('PlotData/functions'));
 load(['PlotData/MAT/Affinity.mat']);
 
 for model = 2:4
@@ -27,7 +28,7 @@ for model = 2:4
     b = bar(p,proportions);
     b.FaceColor = (1/255)*[0 191 255];
     axis([min(p)-0.1, max(p)+0.1, 0, 1]);
-    ylabel('Proliferative cells / Total cells','FontSize',15);
+    ylabel('Proliferative cells / Total cells');
     
     hold on;
     for k = 1:length(steadystateval)
@@ -46,16 +47,16 @@ for model = 2:4
     if model == 2
         axis([min(p)-0.1, max(p)+0.1, 0, 1000]);
     end
-    ylabel('Average time of steady state onset (h)','FontSize',15);
+    ylabel('Time of steady state onset (h)');
     hold on;
     scatter(p(steadystate_flag==1), steadystateonset(steadystate_flag==1), 'r*');
     scatter(p(steadystate_flag==0), steadystateonset(steadystate_flag==0), 'ro');
     hold off;
     
-    title(['Steady state onset data for B_' num2str(5 - model) '(x)' ], 'FontSize',15,'FontWeight','bold');
-    xlabel('\alpha','FontSize',15);
+    title(['Steady state data for $$B_' num2str(5 - model) '(x)$$' ], 'Interpreter', 'latex');
+    xlabel('\alpha');
     
-    SaveAsPngEpsAndFig(-1,['Figures/steadystates' num2str(5 - model)], 14, 7/5, 10);
+    SaveAsPngEpsAndFig(-1,['Figures/Affinity_Plots/steadystates' num2str(5 - model)], 14, 7/5, 13);
 end
 
 %% New
@@ -86,7 +87,7 @@ for model = 2:4
     b(1).FaceColor = (1/255)*[0 204 0];%green 
     b(2).FaceColor = (1/255)*[0 191 255];%blue
     axis([min(p)-0.1, max(p)+0.1, 0, 1000]);
-    ylabel('Total cells','FontSize',15);
+    ylabel('Total cells');
     
     hold on;
     for k = 1:length(steadystateval)
@@ -111,16 +112,16 @@ for model = 2:4
     if model == 2
         axis([min(p)-0.1, max(p)+0.1, 0, 1000]);
     end
-    ylabel('Average time of steady state onset (h)','FontSize',15);
+    ylabel('Time of steady state onset (h)');
     hold on;
     scatter(p(steadystate_flag==1), steadystateonset(steadystate_flag==1), 'r*');
     scatter(p(steadystate_flag==0), steadystateonset(steadystate_flag==0), 'ro');
     hold off;
     
-    title(['Steady state onset data for B_' num2str(5 - model) '(x)' ], 'FontSize',15,'FontWeight','bold');
-    xlabel('\alpha','FontSize',15);
+    title(['Steady state data for $$B_' num2str(5 - model) '(x)$$' ], 'Interpreter', 'latex');
+    xlabel('\alpha');
     
-    SaveAsPngEpsAndFig(-1,['Figures/steadystates' num2str(5 - model) '_new'], 14, 7/5, 10);
+    SaveAsPngEpsAndFig(-1,['Figures/Affinity_Plots/steadystates' num2str(5 - model) '_new'], 14, 7/5, 13);
 end
 
 %% 
@@ -131,7 +132,7 @@ plot(20*p_cell{4-1}(steadystate_flag_cell{4-1} == 1), proportions_cell{4-1}(stea
     10*p_cell{2-1}(steadystate_flag_cell{2-1} == 1), proportions_cell{2-1}(steadystate_flag_cell{2-1} == 1),'m*--');
 
 axis([1 10 0 0.8]);
-ylabel('Ratio of proliferative cells to total cells','FontSize',15);
+ylabel('Proliferative cells / Total cells');
 
 hold on;
 for model = 2:4
@@ -155,10 +156,10 @@ end
 hold off;
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northwest');
-title('Steady state cell composition vs. area', 'FontSize',15,'FontWeight','bold');
-xlabel('Area under B','FontSize',15);
+title('Steady state cell composition vs. area');
+xlabel('Area under $$B(x)$$','Interpreter','latex');
 
-SaveAsPngEpsAndFig(-1,'Figures/areaplot1', 14, 7/5, 10);
+SaveAsPngEpsAndFig(-1,'Figures/Affinity_Plots/areaplot1', 14, 7/5, 13);
 
 %%
 
@@ -171,11 +172,11 @@ plot(20*p_cell{4-1}(steadystate_flag_cell{4-1}==1), shapeslope_total_cell{4-1}(s
     10*p_cell{2-1}(steadystate_flag_cell{2-1}==1), shapeslope_total_cell{2-1}(steadystate_flag_cell{2-1}==1),'m*--');
 legend('1: Step', '2: Linear', '3: Ramp','Location','northwest');
 %axis([1 10 -0.05 -0.01]);
-title('Shape vs. area (Total cells)', 'FontSize',15,'FontWeight','bold');
-xlabel('Area under B','FontSize',15);
-ylabel('Histogram slope','FontSize',15);
+title('Shape vs. area (Total)');
+xlabel('Area under $$B(x)$$','Interpreter','latex');
+ylabel('Histogram slope');
 
-SaveAsPngEpsAndFig(-1,'Figures/areaplot2', 11, 7/5, 10);
+SaveAsPngEpsAndFig(-1,'Figures/Affinity_Plots/areaplot2', 11, 7/5, 15);
 
 
 %%
@@ -189,11 +190,11 @@ plot(20*p_cell{4-1}(steadystate_flag_cell{4-1}==1), shapeslope_prolif_cell{4-1}(
     10*p_cell{2-1}(steadystate_flag_cell{2-1}==1), shapeslope_prolif_cell{2-1}(steadystate_flag_cell{2-1}==1),'m*--');
 %legend('1: Step', '2: Linear', '3: Ramp','Location','northwest');
 %axis([1 10 -0.05 -0.01]);
-title('Shape vs. area (CM cells)', 'FontSize',15,'FontWeight','bold');
-xlabel('Area under B','FontSize',15);
-ylabel('Histogram slope','FontSize',15);
+title('Shape vs. area (CM)');
+xlabel('Area under $$B(x)$$','Interpreter','latex');
+ylabel('Histogram slope');
 
-SaveAsPngEpsAndFig(-1,'Figures/areaplot3', 11, 7/5, 10);
+SaveAsPngEpsAndFig(-1,'Figures/Affinity_Plots/areaplot3', 11, 7/5, 15);
 
 
 %%
@@ -205,13 +206,13 @@ fig.Position = [10 10 20 15];
 plot(20*p_cell{4-1}(steadystate_flag_cell{4-1}==1), cap_height_cell{4-1}(steadystate_flag_cell{4-1}==1),'r*--',...
     10*p_cell{3-1}(steadystate_flag_cell{3-1}==1), cap_height_cell{3-1}(steadystate_flag_cell{3-1}==1),'b*--',...
     10*p_cell{2-1}(steadystate_flag_cell{2-1}==1), cap_height_cell{2-1}(steadystate_flag_cell{2-1}==1),'m*--');
-%legend('1: Step', '2: Linear', '3: Ramp','Location','northwest');
+legend('1: Step', '2: Linear', '3: Ramp','Location','northwest');
 %axis([1 10 -0.05 -0.01]);
-title('Cap height vs. area', 'FontSize',15,'FontWeight','bold');
-xlabel('Area under B','FontSize',15);
-ylabel('Cap height','FontSize',15);
+title('Cap height vs. area');
+xlabel('Area under $$B(x)$$','Interpreter','latex');
+ylabel('Cap height');
 
-SaveAsPngEpsAndFig(-1,'Figures/areaplot4', 14, 7/5, 10);
+SaveAsPngEpsAndFig(-1,'Figures/Affinity_Plots/areaplot4', 14, 7/5, 13);
 
 disp('Done!');
 

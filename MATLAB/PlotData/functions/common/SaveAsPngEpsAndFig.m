@@ -42,6 +42,7 @@ axeslabelsize =floor(labeloveraxislabelratio*labelsize);    % Work out axis labe
 hold on;
 axis manual                                  % to prevent scale change when resizing
 
+set(gca,'FontName','Latin Modern Math');  
 set(gca,'fontsize',axeslabelsize);           % set font size of the axes tick labels
 set(gca,'linewidth',gridwidth);              % set line width of axis and grid (not plots)
 set(gcf,'position', [0,0, dimensions]);      % set display size

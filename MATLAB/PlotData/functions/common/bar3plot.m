@@ -35,6 +35,7 @@ end
 colormap(jet)
 cb = colorbar;
 set(cb,'TickLabels',cb.Ticks + h);
+%set(cb, 'YTickLabel', cellstr(num2str(reshape(get(cb, 'YTick'),[],1),'%1.1e')) )
 view(-90,90);
 axis tight;
 
