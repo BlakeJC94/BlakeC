@@ -72,6 +72,9 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
          ++cell_iter)
     {
         double cell_x = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[0];
+        cell_iter->GetCellData()->SetItem("cellHorizPosition", cell_x);
+        
+        /*
         double cell_y = rCellPopulation.GetLocationOfCellCentre(*cell_iter)[1];
         
         double conc_a = 0.0;
@@ -81,8 +84,7 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         }
         
         
-        double conc_b;
-        
+        double conc_b = cell_x;
         if (mConcBModel == 1) // Constant
         {
             conc_b = mConcBParameter;
@@ -115,11 +117,12 @@ void ChemTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,DIM>& 
         {
             NEVER_REACHED;
         }
-
+        
 
 
         cell_iter->GetCellData()->SetItem("concentrationA", conc_a);
         cell_iter->GetCellData()->SetItem("concentrationB", conc_b);
+        */
     }
 }
 

@@ -44,6 +44,8 @@ CMCellCycleModel::CMCellCycleModel()
       mTDProbability(0.55),
       mRVProbability(0.1),
       mCritVolume(0.58),
+      mDiffModel(4),
+      mDiffModelParam(0.6),
       mTDYThreshold(0.0),
       mAverageDivisionAge(10.0), 
       mStdDivisionAge(1.0)
@@ -55,6 +57,8 @@ CMCellCycleModel::CMCellCycleModel(const CMCellCycleModel& rModel)
      mTDProbability(rModel.mTDProbability),
      mRVProbability(rModel.mRVProbability),
      mCritVolume(rModel.mCritVolume),
+     mDiffModel(rModel.mDiffModel),
+     mDiffModelParam(rModel.mDiffModelParam),
      mTDYThreshold(rModel.mTDYThreshold),
      mAverageDivisionAge(rModel.mAverageDivisionAge),
      mStdDivisionAge(rModel.mStdDivisionAge)
@@ -95,8 +99,8 @@ bool CMCellCycleModel::ReadyToDivide()
     
         double dt = SimulationTime::Instance()->GetTimeStep();
         
-        double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
-        double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
+        //double conc_a = mpCell->GetCellData()->GetItem("concentrationA");
+        //double conc_b = mpCell->GetCellData()->GetItem("concentrationB");
         
         
         /* Apply the RV mutation state with random chance to 
@@ -150,7 +154,49 @@ bool CMCellCycleModel::ReadyToDivide()
              * If it doesnt differentiate and divide, then remain as transit and divide.
              * Draw a new division age as well (Daughter will get new div age in
              * InitialiseDaughterCell(). */
-            double DiffProbability = 1-conc_b;
+            //double DiffProbability = 1-conc_b;
+            double DiffProbability = 0;
+            int DiffModel = mDiffModel;
+            double DiffModelParam = mDiffModelParam;
+            
+            double cell_x = mpCell->GetCellData()->GetItem("cellHorizPosition");
+            
+            if (DiffModel == 0) // Constant
+            {
+                DiffProbability = DiffModelParam;
+            }
+            else if (DiffModel == 1) // Step
+            {
+                DiffProbability = 1.0;
+                if (cell_x < 20.0*mDiffModelParam)
+                {
+                    DiffProbability = 0.0;
+                }
+            }
+            else if (DiffModel == 2) // Linear
+            {
+                DiffProbability = 1 - mDiffModelParam * (1 - cell_x/20);
+            }        
+            else if (DiffModel == 3) // Ramp
+            {
+                DiffProbability = 1.0;
+                if (cell_x < 20.0*DiffModelParam)
+                {
+                    DiffProbability = cell_x/(20.0*DiffModelParam);
+                }
+            }
+            else if (DiffModel == 4) // Smooth curve
+            {
+                DiffProbability = 1 - exp(-pow(cell_x,2)/(2*pow(5.5,2)));
+            }
+            else 
+            {
+                NEVER_REACHED;
+            }
+            
+            
+            
+            
             double DiffYThreshold = mTDYThreshold;
             
             //if ( (p_gen->ranf() < DiffProbability) && (conc_a < DiffYThreshold) ) // conc_a < or >?
@@ -208,6 +254,28 @@ void CMCellCycleModel::SetCritVolume(double critVolume)
 double CMCellCycleModel::GetCritVolume()
 {
     return mCritVolume;
+}
+
+
+void CMCellCycleModel::SetDiffModel(int diffModel)
+{
+    mDiffModel = diffModel;
+}
+
+int CMCellCycleModel::GetDiffModel()
+{
+    return mDiffModel;
+}
+
+
+void CMCellCycleModel::SetDiffModelParam(double diffModelParam)
+{
+    mDiffModelParam = diffModelParam;
+}
+
+double CMCellCycleModel::GetDiffModelParam()
+{
+    return mDiffModelParam;
 }
 
 

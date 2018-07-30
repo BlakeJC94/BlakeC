@@ -58,6 +58,8 @@ private:
         archive & mTDProbability;
         archive & mRVProbability;
         archive & mCritVolume;
+        archive & mDiffModel;
+        archive & mDiffModelParam;
         archive & mTDYThreshold;
         archive & mAverageDivisionAge;
         archive & mStdDivisionAge;
@@ -70,6 +72,10 @@ protected:
     double mRVProbability;
     
     double mCritVolume;
+    
+    int mDiffModel;
+    
+    double mDiffModelParam;
     
     double mTDYThreshold;
 
@@ -179,6 +185,36 @@ public:
      * @return mCritVolume
      */
     double GetCritVolume();
+    
+    
+    /**
+     * Set the value of mDiffModel, threshold for division.
+     *
+     * @param divisionThreshold the new value of mDiffModel
+     */
+    void SetDiffModel(int mDiffModel);
+
+    /**
+     * Get mDiffModel.
+     *
+     * @return mDiffModel
+     */
+    int GetDiffModel();
+    
+    
+    /**
+     * Set the value of GetDiffModelParam, threshold for division.
+     *
+     * @param divisionThreshold the new value of GetDiffModelParam
+     */
+    void SetDiffModelParam(double mDiffModelParam);
+
+    /**
+     * Get GetDiffModelParam.
+     *
+     * @return GetDiffModelParam
+     */
+    double GetDiffModelParam();
     
     
     /**
