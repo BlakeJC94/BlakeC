@@ -233,10 +233,15 @@ public:
             /* Setup timer, output directory and RNG seed */
             clock_t t1, t2;
             t1 = clock();
-	        
+	         
 	        std::stringstream out;
-	        out << "RadForce2_sim_" << sim_index;
-	        std::string output_directory = "UtericBudSimulation_" + out.str();
+	        out << "_model_" << diff_model;
+	        out << "_param_" << diff_model_param;
+	        out << "_pa_" << attachment_probability;
+	        out << "_pd_" << detachment_probability;
+	        out << "_simtime_" << simulation_time;
+	        out << "_sim_" << sim_index;
+	        std::string output_directory = "UtericBud" + out.str();
 	        
 	        
 	        RandomNumberGenerator::Instance()->Reseed(100.0 * sim_index);
