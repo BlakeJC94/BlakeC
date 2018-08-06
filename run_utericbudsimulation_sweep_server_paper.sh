@@ -62,7 +62,7 @@ if [ $batch -eq 0 ]
 # Batch 0 (9 threads): 
 #   - Adhesion off
 #   - Constant diff parameter (0.5) (1*20 runs, expect divergent and extinction, 600h)
-#   - Step diff parameter (0.5) (1*20 runs, 600h)
+#   - Step diff parameter (0.25) (1*20 runs, 600h)
 #   - Step diff parameter 
 #     - (0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35) (7*20=140 runs, 1000h)
 then 
@@ -81,10 +81,10 @@ then
     echo "      Submitted!";
     
     
-    echo "  Step diff parameter (0.5) (1*20 runs, 600h)";
+    echo "  Step diff parameter (0.25) (1*20 runs, 600h)";
     
     model=1;
-    parameter=0.5;
+    parameter=0.25;
     
     print_inputs;
     submit_job ${debug_deploy};
@@ -125,7 +125,7 @@ then
     
     echo "  Linear diff parameter (0.70, 0.75, 0.80, 0.85, 0.9, 0.95) (6*20=120 runs, 1000h)";
     
-    sim_time=10;
+    sim_time=1000;
     model=2;
     
     for (( i=0 ; i<${#linear_param_vec[*]} ; i++))
@@ -162,7 +162,7 @@ then
 
 
 elif [ $batch -gt 1 ] && [ $batch -lt 12 ]
-# Batch x, 2<=x<=10 (10 threads): 
+# Batch x, 2<=x<=11 (10 threads): 
 #   - Ramp diff with par = 0.6
 #   - Adhesion
 #     - pa = 0.1*(x-1) and p_d in (0.1, …, 1) (10*20=200 runs, 600h)
@@ -186,10 +186,46 @@ then
         echo "      Submitted!";
         
     done
+
+
+elif [ $batch -eq 12 ] 
+# Batch 12 (7 threads): 
+#   - Adhesion off
+#   - Step diff parameter (0.25) (1*20 runs, 600h)
+#   - Linear diff parameter 
+#     - (0.70, 0.75, 0.80, 0.85, 0.9, 0.95) (6*20=120 runs, 1000h)
+    echo "  Step diff parameter (0.25) (1*20 runs, 600h)";
+    
+    model=1;
+    parameter=0.25;
+    
+    print_inputs;
+    submit_job ${debug_deploy};
+    
+    echo "      Submitted!";
+    
+    
+    echo "  Linear diff parameter (0.70, 0.75, 0.80, 0.85, 0.9, 0.95) (6*20=120 runs, 1000h)";
+    
+    sim_time=1000;
+    model=2;
+    
+    for (( i=0 ; i<${#linear_param_vec[*]} ; i++))
+    do 
+    
+        parameter=${linear_param_vec[$i]};
+    
+        print_inputs;
+        submit_job ${debug_deploy};
+    
+        
+        echo "      Submitted!";
+        
+    done 
     
     
 else
-    echo "Incorrect batch number, use int between 0 and 11.";
+    echo "Incorrect batch number, use int between 0 and 12.";
 fi
 
 
