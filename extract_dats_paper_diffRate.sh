@@ -53,25 +53,28 @@ do
             # change dir to copied results in dir testoutput_dats/
             cd testoutput_dats/UtericBud_model_${model}_param_${param}_pa_0_pd_0_simtime_1000_sim_${sim}/results_from_time_0
         
-            # remove all vtu files
+            # remove all vtu files and unsued dat files
             rm result*
+            rm attachmentsduration.dat
+            rm cellages.dat
+            rm divisions.dat
         
             # reduce cellages.dat # 1666 - t=999
-            sed -i.bak -e '1,1666d' cellages.dat
-            rm cellages.dat.bak
-            awk '!(NR % 20)' cellages.dat > n_cellages.dat
-            rm cellages.dat
-            mv n_cellages.dat cellages.dat
+            #sed -i.bak -e '1,1267d' cellages.dat
+            #rm cellages.dat.bak
+            #awk '!(NR % 20)' cellages.dat > n_cellages.dat
+            #rm cellages.dat
+            #mv n_cellages.dat cellages.dat
         
-            # reduce cellvelocities.dat
-            sed -i.bak -e '1,1666d' cellvelocities.dat
+            # reduce cellvelocities.dat to last 20 sample points spaced 12 hrs apart
+            sed -i.bak -e '1,1267d' cellvelocities.dat
             rm cellvelocities.dat.bak
             awk '!(NR % 20)' cellvelocities.dat > n_cellvelocities.dat
             rm cellvelocities.dat
             mv n_cellvelocities.dat cellvelocities.dat
         
-            # reduce cellstate.dat
-            sed -i.bak -e '1,1666d' cellstate.dat
+            # reduce cellstate.dat to last 20 sample points spaced 12 hrs apart
+            sed -i.bak -e '1,1267d' cellstate.dat
             rm cellstate.dat.bak
             awk '!(NR % 20)' cellstate.dat > n_cellstate.dat
             rm cellstate.dat
