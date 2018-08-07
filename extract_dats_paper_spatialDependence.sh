@@ -12,12 +12,14 @@ rm spatialDependence.tar
 
 ## Extract spatialDependence dats
 
+param_vec=(0.5 0.25);
+
 # loop over models (0 - const, 1 - step)
 for (( model=0 ; model<2 ; model++ ))
 do 
 
     # select param (0.5 for const, 0.25 for step)
-    param=0.25*(2-${model})
+    param=${param_vec[model]};
     
     echo "model : " ${model};
     echo "param : " ${param};
