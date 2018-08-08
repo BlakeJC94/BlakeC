@@ -40,7 +40,7 @@ fi
 }
 
 
-debug_deploy=1;
+debug_deploy=0;
 
 
 num_sims=20;

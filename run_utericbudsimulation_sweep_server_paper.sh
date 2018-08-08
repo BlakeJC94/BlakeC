@@ -186,43 +186,6 @@ then
         echo "      Submitted!";
         
     done
-
-
-elif [ $batch -eq 12 ] 
-# Batch 12 (7 threads): 
-#   - Adhesion off
-#   - Step diff parameter (0.25) (1*20 runs, 600h)
-#   - Linear diff parameter 
-#     - (0.70, 0.75, 0.80, 0.85, 0.9, 0.95) (6*20=120 runs, 1000h)
-then
-    echo "  Step diff parameter (0.25) (1*20 runs, 600h)";
-    
-    model=1;
-    parameter=0.25;
-    
-    print_inputs;
-    submit_job ${debug_deploy};
-    
-    echo "      Submitted!";
-    
-    
-    echo "  Linear diff parameter (0.70, 0.75, 0.80, 0.85, 0.9, 0.95) (6*20=120 runs, 1000h)";
-    
-    sim_time=1000;
-    model=2;
-    
-    for (( i=0 ; i<${#linear_param_vec[*]} ; i++))
-    do 
-    
-        parameter=${linear_param_vec[$i]};
-    
-        print_inputs;
-        submit_job ${debug_deploy};
-    
-        
-        echo "      Submitted!";
-        
-    done 
     
     
 else

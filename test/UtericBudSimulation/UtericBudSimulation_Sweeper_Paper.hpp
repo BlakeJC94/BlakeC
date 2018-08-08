@@ -86,6 +86,10 @@ private:
         for (unsigned i = 0; i < num_cells; i++)
         {
             CMCellCycleModel* p_model = new CMCellCycleModel;
+            
+            p_model->SetDiffModel(diff_model);
+            p_model->SetDiffModelParam(diff_model_param);
+            
             p_model->SetAverageDivisionAge(div_age_mean);
             p_model->SetStdDivisionAge(div_age_std);
             p_model->SetCritVolume(div_crit_volume);

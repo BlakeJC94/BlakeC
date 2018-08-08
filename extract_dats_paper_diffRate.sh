@@ -21,18 +21,45 @@ for (( model=1 ; model<4 ; model++))
 do
     echo "model : " ${model};
     
+    unset param_vec;
     # load param vec for specific model
     if [ $model -eq 1 ]
     then
-        param_vec=${step_param_vec};
+        #param_vec=${step_param_vec[*]};
+        param_vec[0]="0.05";
+        param_vec[1]="0.1";
+        param_vec[2]="0.15";
+        param_vec[3]="0.2";
+        param_vec[4]="0.25";
+        param_vec[5]="0.3";
+        param_vec[6]="0.35";
+        #param_vec[7]="";
     elif [ $model -eq 2 ]
     then
-        param_vec=${linear_param_vec};
+        #param_vec=${linear_param_vec[*]};
+        param_vec[0]="0.7";
+        param_vec[1]="0.75";
+        param_vec[2]="0.8";
+        param_vec[3]="0.85.";
+        param_vec[4]="0.9";
+        param_vec[5]="0.95";
+        #param_vec[6]="";
+        #param_vec[7]="";
     elif [ $model -eq 3 ]
-        param_vec=${ramp_param_vec};
-    else 
+    then
+        #param_vec=${ramp_param_vec[*]};
+        param_vec[0]="0.2";
+        param_vec[1]="0.3";
+        param_vec[2]="0.4";
+        param_vec[3]="0.5";
+        param_vec[4]="0.6";
+        param_vec[5]="0.7";
+        param_vec[6]="0.8";
+        param_vec[7]="0.9";
+    else
         echo "Invalid model number"
-    fi 
+    fi
+
     
     # make dir testoutput_dats/
     mkdir testoutput_dats
@@ -40,7 +67,8 @@ do
     # loop over parameter values 
     for (( index=0 ; index<${#param_vec[*]} ; index++ ))
     do
-        echo "  parameter" ${param_vec[index]};
+        param=${param_vec[$index]};
+        echo "  parameter" ${param};
         
         # loop over simulations
         for (( sim=0 ; sim<20 ; sim++ ))
@@ -55,7 +83,7 @@ do
         
             # remove all vtu files and unsued dat files
             rm result*
-            rm attachmentsduration.dat
+            rm attachmentdurations.dat
             rm cellages.dat
             rm divisions.dat
         

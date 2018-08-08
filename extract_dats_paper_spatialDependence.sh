@@ -41,7 +41,7 @@ do
         
         # remove all vtu files and unused dat files
         rm result*
-        rm attachmentsduration.dat
+        rm attachmentdurations.dat
         rm cellages.dat
         rm divisions.dat
         
