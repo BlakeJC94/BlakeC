@@ -57,6 +57,8 @@ ramp_param_vec=($(seq 0.20 0.10 0.90))
 pa_vec=($(seq 0.10 0.10 1.00))
 pd_vec=($(seq 0.10 0.10 1.00))
 
+extra_param_vec=(0.4 0.45 0.5 0.6 0.65 1 0.1 1)
+
 
 if [ $batch -eq 0 ]
 # Batch 0 (9 threads): 
@@ -188,8 +190,79 @@ then
     done
     
     
+elif [ $batch -eq 12 ]
+# Batch 12 (8 threads): 
+#   - Adhesion off
+#   - Step diff parameter 
+#     - (0.40, 0.45, 0.5) (3*20=140 runs, 1000h)
+#   - Linear diff parameter 
+#     - (0.6, 0.65, 1) (3*20=120 runs, 1000h)
+#   - Ramp diff parameter 
+#     - (0.1, 1) (2*20=160 runs, 1000h)
+then
+    
+    echo "Batch : " ${batch};
+    
+    
+    echo "  Step diff parameter (0.40, 0.45, 0.5) (3*20=140 runs, 1000h)";
+    
+    sim_time=1000;
+    model=1;
+    
+    for (( i=0 ; i<3 ; i++))
+    do 
+    
+        parameter=${extra_param_vec[$i]};
+    
+        print_inputs;
+        submit_job ${debug_deploy};
+    
+        
+        echo "      Submitted!";
+        
+    done 
+    
+    
+    echo "  Linear diff parameter (0.6, 0.65, 1) (3*20=160 runs, 1000h)";
+    
+    sim_time=1000;
+    model=2;
+    
+    for (( i=3 ; i<6 ; i++))
+    do 
+    
+        parameter=${extra_param_vec[$i]};
+    
+        print_inputs;
+        submit_job ${debug_deploy};
+    
+        
+        echo "      Submitted!";
+        
+    done 
+    
+    
+    echo "  Ramp diff parameter (0.1, 1) (2*20=160 runs, 1000h)";
+    
+    sim_time=1000;
+    model=3;
+    
+    for (( i=6 ; i<8 ; i++))
+    do 
+    
+        parameter=${extra_param_vec[$i]};
+    
+        print_inputs;
+        submit_job ${debug_deploy};
+    
+        
+        echo "      Submitted!";
+        
+    done 
+    
+    
 else
-    echo "Incorrect batch number, use int between 0 and 12.";
+    echo "Incorrect batch number, use int between 0 and 13.";
 fi
 
 
