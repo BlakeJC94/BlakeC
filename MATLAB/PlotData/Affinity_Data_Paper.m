@@ -4,9 +4,9 @@ close all;
 addpath(genpath('functions/'));
 
 p_cell = cell(1,3);
-p_cell{1} = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35]; % model 1: step
-p_cell{2} = [0.70, 0.75, 0.80, 0.85, 0.9, 0.95]; % model 2: linear
-p_cell{3} = [0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90]; % model 3: ramp
+p_cell{1} = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]; % model 1: step
+p_cell{2} = [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]; % model 2: linear
+p_cell{3} = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]; % model 3: ramp
 
 steadystateonset_cell = cell(1,3);
 proportions_cell = cell(1,3);

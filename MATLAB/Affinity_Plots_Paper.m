@@ -132,12 +132,13 @@ for model = 1:3
     title(['Steady state data for $$p_' num2str(model) '(x)$$' ], 'Interpreter', 'latex');
     xlabel('\alpha');
     
-    %%SaveAsPngEpsAndFig(-1,['Figures/Affinity_Plots/steadystates' num2str(5 - model) '_new'], 14, 7/5, 13);
+    SaveAsPngEpsAndFig(-1,['Figures/Paper/Affinity_Plots/steadystates' num2str(model)], 14, 7/5, 13);
+    close;
 end
 
 %% STEADY STATE COMPOSITON VS AREA
 % 
-figure;
+fig = figure;
 fig.Units = 'centimeters';
 fig.Position = [10 10 20 15];
 
@@ -149,19 +150,21 @@ plot(20*(1 - p_cell{1}(steadystate_flag_cell{1} == 1)), proportions_cell{1}(stea
     10*(2 - p_cell{2}(steadystate_flag_cell{2} == 1)), proportions_cell{2}(steadystate_flag_cell{2} == 1),'ks--',...
     10*(2 - p_cell{3}(steadystate_flag_cell{3} == 1)), proportions_cell{3}(steadystate_flag_cell{3} == 1),'k^-.');
 
-axis([10 20 0 0.8]);
+axis([8 20 0 1]);
 ylabel('Proliferative cells / Total cells','Interpreter','latex');
 
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
 title('Steady state cell composition vs. area','Interpreter','latex');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
+
+
 SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot1', 11, 7/5, 15);
 close
 
 %% Average total population vs. area
 
-figure;
+fig = figure;
 fig.Units = 'centimeters';
 fig.Position = [10 10 20 15];
 
@@ -169,7 +172,7 @@ plot(20*(1 - p_cell{1}(steadystate_flag_cell{1} == 1)), steadystateval_cell{1}(s
     10*(2 - p_cell{2}(steadystate_flag_cell{2} == 1)), steadystateval_cell{2}(steadystate_flag_cell{2} == 1),'ks--',...
     10*(2 - p_cell{3}(steadystate_flag_cell{3} == 1)), steadystateval_cell{3}(steadystate_flag_cell{3} == 1),'k^-.');
 
-axis([10 20 100 400]);
+axis([8 20 100 600]);
 ylabel('Total cells','Interpreter','latex');
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
@@ -190,7 +193,7 @@ plot(20*(1 - p_cell{1}(steadystate_flag_cell{1} == 1)), shapeslope_total_cell{1}
     10*(2 - p_cell{3}(steadystate_flag_cell{3} == 1)), shapeslope_total_cell{3}(steadystate_flag_cell{3}==1),'k^-.');
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
-axis([10 20 -3.3e-3 -1.3e-3]);
+axis([8 20 -3.5e-3 -1e-3]);
 
 title('Shape vs. area (Total)');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
@@ -210,7 +213,7 @@ plot(20*(1 - p_cell{1}(steadystate_flag_cell{1} == 1)), shapeslope_prolif_cell{1
     10*(2 - p_cell{3}(steadystate_flag_cell{3} == 1)), shapeslope_prolif_cell{3}(steadystate_flag_cell{3}==1),'k^-.');
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
-axis([10 20 -2.4e-3 5.0e-3]);
+axis([8 20 -3e-3 5.5e-3]);
 
 title('Shape vs. area (CM)');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
@@ -230,7 +233,7 @@ plot(20*(1 - p_cell{1}(steadystate_flag_cell{1} == 1)), cap_height_cell{1}(stead
     10*(2 - p_cell{3}(steadystate_flag_cell{3} == 1)), cap_height_cell{3}(steadystate_flag_cell{3}==1),'k^-.');
 
 legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
-axis([10 20 4 9]);
+axis([8 20 4 10]);
 
 title('Cap height vs. area');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
