@@ -1,4 +1,4 @@
-function Affinity_Plots_Paper
+function paper_diffRate_Plots
 
 close all;
 addpath(genpath('PlotData/functions'));
@@ -132,7 +132,7 @@ for model = 1:3
     title(['Steady state data for $$p_' num2str(model) '(x)$$' ], 'Interpreter', 'latex');
     xlabel('\alpha');
     
-    SaveAsPngEpsAndFig(-1,['Figures/Paper/Affinity_Plots/steadystates' num2str(model)], 14, 7/5, 13);
+    SaveAsPngEpsAndFig(-1,['Figures/Paper/diffRate/steadystates' num2str(model)], 14, 7/5, 13);
     close;
 end
 
@@ -159,7 +159,7 @@ title('Steady state cell composition vs. area','Interpreter','latex');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
 
 
-SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot1', 11, 7/5, 15);
+SaveAsPngEpsAndFig(-1,'Figures/Paper/diffRate/areaplot1', 11, 7/5, 15);
 close
 
 %% Average total population vs. area
@@ -179,7 +179,7 @@ legend('1: Step', '2: Linear', '3: Ramp','Location','northeast');
 title('Average total population vs. area','Interpreter','latex');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
 
-SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot2', 11, 7/5, 15);
+SaveAsPngEpsAndFig(-1,'Figures/Paper/diffRate/areaplot2', 11, 7/5, 15);
 close
 
 %% Shape vs. area (Total)
@@ -199,7 +199,7 @@ title('Shape vs. area (Total)');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
 ylabel('Histogram slope');
 
-SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot3', 11, 7/5, 15);
+SaveAsPngEpsAndFig(-1,'Figures/Paper/diffRate/areaplot3', 11, 7/5, 15);
 close
 
 %% Shape vs. area (CM)
@@ -219,7 +219,7 @@ title('Shape vs. area (CM)');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
 ylabel('Histogram slope');
 
-SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot4', 11, 7/5, 15);
+SaveAsPngEpsAndFig(-1,'Figures/Paper/diffRate/areaplot4', 11, 7/5, 15);
 close
 
 %% Cap height vs. area
@@ -239,7 +239,7 @@ title('Cap height vs. area');
 xlabel('Area under $$p(x)$$','Interpreter','latex');
 ylabel('Cap height');
 
-SaveAsPngEpsAndFig(-1,'Figures/Paper/Affinity_Plots/areaplot5', 11, 7/5, 15);
+SaveAsPngEpsAndFig(-1,'Figures/Paper/diffRate/areaplot5', 11, 7/5, 15);
 close 
 
 disp('Done!');

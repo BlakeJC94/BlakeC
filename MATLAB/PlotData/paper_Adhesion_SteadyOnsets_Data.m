@@ -1,4 +1,4 @@
-function paper_Adhesion_Data
+function paper_Adhesion_SteadyOnsets_Data
 
 close all;
 addpath(genpath('functions/'));
@@ -25,7 +25,7 @@ for ap_index = 1:length(ap_vec)
     ap = ap_vec(ap_index);
     disp(['ap = ' num2str(ap)])
     
-    testoutput_path = ['data/adhesion/adhesion_pa_' num2str(ap) '_testoutput_dats'];
+    testoutput_path = ['data/paper/adhesion/adhesion_pa_' num2str(ap) '_testoutput_dats'];
     
     for dp_index = 1:length(dp_vec)
         
@@ -42,7 +42,7 @@ for ap_index = 1:length(ap_vec)
             
             disp(['    dp = ' num2str(dp)])
             
-            data_path = [testoutput_path '/UtericBud_model_3_param_0.6_pa_' num2str(ap) '_dp_' num2str(dp) '_simtime_600_'];
+            data_path = [testoutput_path '/UtericBud_model_3_param_0.6_pa_' num2str(ap) '_pd_' num2str(dp) '_simtime_600_'];
             
             ssonsets(ap_index, dp_index) = totalcellsteadystate(data_path);
             [sscounts(ap_index, dp_index), proportions(ap_index, dp_index)] = totalcellsteadystatecount(data_path,1);
