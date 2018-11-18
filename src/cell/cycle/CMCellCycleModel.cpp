@@ -92,7 +92,9 @@ bool CMCellCycleModel::ReadyToDivide()
     
     MAKE_PTR(RVCellMutationState, p_rv_state);   
     
-    if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
+    //if (  (!mReadyToDivide) && (!mpCell->GetMutationState()->IsType<RVCellMutationState>())  )
+    // Changed to allow RV cells to divide (same rate)
+    if (!mReadyToDivide)
     {
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
         MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
@@ -117,8 +119,9 @@ bool CMCellCycleModel::ReadyToDivide()
         if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()) 
         {
             mpCell->SetMutationState(p_rv_state);
-            mReadyToDivide = false;
-            mpCell->GetCellData()->SetItem("DivAge", 0);
+            // Changed to allow RV cells to divide (same rate)
+            //mReadyToDivide = false;
+            //mpCell->GetCellData()->SetItem("DivAge", 0);
         }
         
         
