@@ -69,9 +69,9 @@ private:
     void GenerateCells(unsigned num_cells, std::vector<CellPtr>& rCells, int diff_model, double diff_model_param)
     {
         /* Cell cycle options */
-        double div_age_mean = 10.0; 
+        double div_age_mean = 20.0; // 10.0
         double div_age_std = 2.0; 
-        double div_crit_volume = 0.58;
+        double div_crit_volume = 0; // 0.58
         //double div_td_probability = 0.5; // equal to conc_b.
         //double RV_diff_probability = 0.5; // equal to conc_b.
         double div_td_y_threshold = 1.0; 
@@ -165,7 +165,7 @@ public:
         }
         
         double simulation_output_mult = 120;
-        double simulation_dt = 1.0/200.0; // 1.0/180.0
+        double simulation_dt = 1.0/200.0; // 1.0/180.0  1.0/200.0
         
         double simulation_region_x = 20; // 20
         double simulation_region_y = 20; // 10
@@ -285,7 +285,7 @@ public:
         
             /* Adjust damping constant for attached cells */
             cell_population.SetDampingConstantMutant(attached_damping_constant);
-        
+            cell_population.SetDampingConstantNormal(0.33); // TEST DECREASNG DAMP from 1.0
         
         
             /* Add CellWriters */

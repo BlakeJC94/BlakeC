@@ -5,6 +5,9 @@ addpath(genpath('PlotData/functions/'));
 
 figure_dir = 'Figures/Paper/spatialDependence/';
 
+color_CM = [53 39 204] ./ 255;
+color_P = [150 102 114] ./ 255;
+
 %% Get data path for constant model 
 model = 0;
 parameter = 0.5;
@@ -55,7 +58,8 @@ figure;
 plot(SimTime, TotalCells);
 
 title(['Total cells ($$p$$ = 0.5)'], 'Interpreter', 'latex');
-xlabel('Simulation time (h)'); ylabel('No. of cells');
+xlabel('Simulation time (h)', 'Interpreter', 'latex'); 
+ylabel('No. of cells', 'Interpreter', 'latex');
 
 axis([0 500 0 350]);
 
@@ -70,7 +74,8 @@ figure;
 plot(SimTime, ProlifCells);
 
 title(['Proliferative cells ($$p$$ = 0.5)'], 'Interpreter', 'latex');
-xlabel('Simulation time (h)'); ylabel('No. of cells');
+xlabel('Simulation time (h)', 'Interpreter', 'latex'); 
+ylabel('No. of cells','Interpreter', 'latex');
 
 axis([0 500 0 200]);
 
@@ -90,17 +95,26 @@ RVCells = MeanPopulationData(:,6);
 
 figure;
 
-plot(SimTime, TotalCells, 'k',...
-    SimTime, TransitCells, 'b',...
-    SimTime, RVCells, 'r',...
-    SimTime, TotalCells + TotalCellsStd, 'k--', ...
+hold on;
+
+plot(SimTime, TotalCells, 'k');
+
+plot(SimTime, TransitCells, 'Color', color_CM);
+
+plot(SimTime, RVCells, 'Color', color_P);
+
+plot(SimTime, TotalCells + TotalCellsStd, 'k--', ...
     SimTime, TotalCells - TotalCellsStd, 'k--');
 
-legend('Total', 'CM cells', 'RV Cells','Location', 'Best');
+hold off;
+
+
+legend('Total', 'CM cells', 'P Cells','Location', 'Best');
 
 % title(['Average number of cells over ', num2str(TotalJobs), ' simulations']);
 title(['Average number of cells ($$p$$ = 0.5)'], 'Interpreter', 'latex');
-xlabel('Simulation time'); ylabel('No. of cells');
+xlabel('Simulation time', 'Interpreter', 'latex');
+ylabel('No. of cells', 'Interpreter', 'latex');
 
 SaveAsPngEpsAndFig(-1,[figure_dir 'ConstParTimeSeries_Avg'], ...
     11, 7/5, 15);
@@ -156,7 +170,8 @@ figure;
 plot(SimTime, TotalCells);
 
 title(['Total cells ($$p$$ = 0.5)'], 'Interpreter', 'latex');
-xlabel('Simulation time (h)'); ylabel('No. of cells');
+xlabel('Simulation time (h)', 'Interpreter', 'latex'); 
+ylabel('No. of cells', 'Interpreter', 'latex');
 
 axis([0 500 0 350]);
 
@@ -191,13 +206,21 @@ RVCells = MeanPopulationData(:,6);
 
 figure;
 
-plot(SimTime, TotalCells, 'k',...
-    SimTime, TransitCells, 'b',...
-    SimTime, RVCells, 'r',...
-    SimTime, TotalCells + TotalCellsStd, 'k--', ...
+hold on;
+
+plot(SimTime, TotalCells, 'k');
+
+plot(SimTime, TransitCells, 'Color', color_CM);
+
+plot(SimTime, RVCells, 'Color', color_P);
+
+plot(SimTime, TotalCells + TotalCellsStd, 'k--', ...
     SimTime, TotalCells - TotalCellsStd, 'k--');
 
-legend('Total', 'CM cells', 'RV Cells','Location', 'Best');
+hold off;
+
+
+legend('Total', 'CM cells', 'P Cells','Location', 'Best');
 
 % title(['Average number of cells over ', num2str(TotalJobs), ' simulations']);
 title(['Average number of cells ($$p$$ = 0.5)'], 'Interpreter', 'latex');

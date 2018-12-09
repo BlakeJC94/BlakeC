@@ -12,7 +12,8 @@ stop_time = 600;
 
 stop_index = round(1666*stop_time/1000)+1;
 
-
+color_CM = [53 39 204] ./ 255;
+color_P = [150 102 114] ./ 255;
 
 
 %% Plot individual trajectories
@@ -88,13 +89,22 @@ fig = figure;
 fig.Units = 'centimeters';
 fig.Position = [10 10 20 15];
 
-plot(SimTime, TotalCells, 'k',...
-    SimTime, TransitCells, 'b',...
-    SimTime, RVCells, 'r',...
-    SimTime, TotalCells + TotalCellsStd, 'k--', ...
+
+hold on;
+
+plot(SimTime, TotalCells, 'k');
+
+plot(SimTime, TransitCells, 'Color', color_CM);
+
+plot(SimTime, RVCells, 'Color', color_P);
+
+plot(SimTime, TotalCells + TotalCellsStd, 'k--', ...
     SimTime, TotalCells - TotalCellsStd, 'k--');
 
-legend('Total', 'CM cells', 'RV Cells','Location', 'Best');
+hold off;
+
+
+legend('Total', 'CM cells', 'P Cells','Location', 'Best');
 
 % title(['Average number of cells over ', num2str(TotalJobs), ' simulations']);
 title('Average number of cells', 'Interpreter', 'latex');

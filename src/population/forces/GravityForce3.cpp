@@ -79,11 +79,12 @@ void GravityForce3::AddForceContribution(AbstractCellPopulation<2>& rCellPopulat
                  down_force(1) = -2*mStrength/(cell_location_y + 1 - mRepulsionDistance) + 4/(cell_location_y - StromaHeight) - 4/(mRepulsionDistance- StromaHeight);
             }
             
-            
-            if (p_cell->GetMutationState()->IsType<RVCellMutationState>())
+            /* DISABLE HORIZONTAL FORCE
+            if ( p_cell->GetMutationState()->IsType<RVCellMutationState>() )
             {
-                down_force(0) = mRVRightStrength;
+                down_force(0) = mRepulsionStrength/10;
             }
+            */
             
             
         }

@@ -8,13 +8,15 @@
 #
 
 
-num_sims=20;
+num_sims=2;
 sim_time=500;
+model=1;
+#parameter=0.6;
 attachment_probability=0;
 detachment_probability=0;
-model=1;
 
-PARAMETER[0]="0.5"
+
+PARAMETER[0]="0.25"
 #PARAMETER[1]="0.5"
 #PARAMETER[2]="0.6"
 
@@ -30,14 +32,14 @@ do
 	
 	parameter=${PARAMETER[$i]}
 	
-	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper4Runner \
-	-sim_time $sim_time \
-	-num_sims $num_sims \
-	-model $model \
-	-parameter $parameter \
-	-attachment_probability $attachment_probability \
-	-detachment_probability $detachment_probability \
-	> output/SimulationRun_const_0dot5_Output.txt 2>&1 &
+	nice -20 /home/blake/Workspace/Chaste/projects/BlakeC/build/optimised/UtericBudSimulation/UtericBudSimulation_Sweeper_PaperRunner \
+    -sim_time $sim_time \
+    -num_sims $num_sims \
+    -model $model \
+    -parameter $parameter \
+    -attachment_probability $attachment_probability \
+    -detachment_probability $detachment_probability\
+    > output/UtericBud_model_${model}_param_${parameter}_pa_${attachment_probability}_pd_${detachment_probability}_simtime_${sim_time}.txt 2>&1 &
 	
 done
 

@@ -145,7 +145,9 @@ bool CMCellCycleModel::ReadyToDivide()
         
         /* If a transit cell reaches age larger than the RandomDivisionAge, 
          * then set mReadyToDivide to true */
-        if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
+        //if (  (GetAge() > RandomDivisionAge) && (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())  )
+        // Changed to allow RV cells to divide (same rate)
+        if (GetAge() > RandomDivisionAge)
         {
             mReadyToDivide = true;
             mpCell->GetCellData()->SetItem("DivisionDelay", 0);

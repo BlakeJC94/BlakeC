@@ -45,8 +45,8 @@ debug_deploy=0;
 
 num_sims=20;
 sim_time=600;
-model=3;
-parameter=0.6;
+model=1;
+parameter=0.25;
 attachment_probability=0;
 detachment_probability=0;
 
