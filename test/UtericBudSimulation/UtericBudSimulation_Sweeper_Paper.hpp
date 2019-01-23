@@ -165,7 +165,7 @@ public:
         }
         
         double simulation_output_mult = 120;
-        double simulation_dt = 1.0/200.0; // 1.0/180.0  1.0/200.0
+        double simulation_dt = 1.0/240.0; // 1.0/180.0  1.0/200.0
         
         double simulation_region_x = 20; // 20
         double simulation_region_y = 20; // 10
