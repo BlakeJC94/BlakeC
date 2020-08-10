@@ -2,3 +2,4 @@ build/*
 output/*
 MATLAB/PlotData/data/*
 MATLAB/Figures/*
+.DS_Store
