@@ -1,0 +1,141 @@
+Process 0 of 1.
+uname sysname  = Linux
+uname nodename = osborne-server
+uname release  = 4.4.0-83-generic
+uname version  = #106-Ubuntu SMP Mon Jun 26 17:54:43 UTC 2017
+uname machine  = x86_64
+
+Information on number and type of processors:
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+model name	: Intel(R) Xeon(R) CPU E5-2683 v4 @ 2.10GHz
+
+Information on processor caches, in the same order as above:
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+cache size	: 40960 KB
+
+Information on system memory:
+MemTotal:       264017424 kB
