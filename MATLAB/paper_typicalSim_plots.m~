@@ -88,8 +88,8 @@ hold off;
 legend('Proliferative cells', 'Primed Cells', 'Location', 'Best');
 
 title('Average number of cells', 'Interpreter', 'latex');
-xlabel('Simulation time (hours)', 'Interpreter', 'latex'); 
-ylabel('CM population size', 'Interpreter', 'latex');
+xlabel('Simulation time (h)', 'Interpreter', 'latex'); 
+ylabel('No. of cells', 'Interpreter', 'latex');
 
 SaveAsPngEpsAndFig(-1, [figureDir, 'typicalSim_avg_pop'], ...
     11, 7/5, 15);
@@ -104,11 +104,17 @@ sampleindexmax = length(SimTime);
 height_data = zeros(sampleindexmax, TotalJobs); 
 
 for i = 1:TotalJobs
-    disp(i)
     loaddata =  LoadNonConstantLengthData([data_path 'sim_' num2str(i-1) '/results_from_time_0/cellstate.dat']);
+
     
     for j = 1:sampleindexmax
         y = loaddata{j}(4:4:end-1);
+
+        if i == 1
+            plot_height_time = zeros(1,sampleindexmax);
+            plot_height_time(j) = loaddata{j}(1);
+        end
+
         y = sort(y,'descend');
         height_data(j, i) = y(1 + 9*(length(y)>=10));
         
@@ -121,18 +127,27 @@ for i = 1:sampleindexmax
     plot_height(i) = mean(height_data(i,:));
 end
 
+
+
+% 
+% fig = figure;
+% fig.Units = 'centimeters';
+% fig.Position = [10 10 20 15];
+% 
+% plot(plot_height_time, plot_height, 'k');
+% title('Average cap height', 'Interpreter', 'latex');
+% xlabel('Simulation time (h)','Interpreter', 'latex');
+% ylabel('Cap height (cd)','Interpreter', 'latex');
+% 
+% SaveAsPngEpsAndFig(-1, [figure_dir, 'typicalSim_cap_height'], ...
+%     11, 7/5, 15);
+
+
+
+
+
+
 % plot cap height
-fig = figure(2); clf;
-fig.Units = 'centimeters';
-fig.Position = [10 10 20 15];
-
-plot(SimTime, plot_height, 'k');
-xlabel('Simulation time (hours)','Interpreter', 'latex');
-ylabel('Cap height (cd)','Interpreter', 'latex');
-
-SaveAsPngEpsAndFig(-1, [figureDir, 'typicalSim_cap_height'], ...
-    11, 7/5, 15);
-
 
 disp('pass!')
 end

@@ -18,7 +18,7 @@ if ~exist(figureDir, 'dir')
 end
 
 
-
+% process and plot data for each model
 for model = [0, 1]
     
     % load data
