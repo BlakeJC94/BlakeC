@@ -1,6 +1,7 @@
-MATLAB/data/*
 build/*
 output/*
-MATLAB/PlotData/data/*
-MATLAB/Figures/*
+MATLAB/data/*
+MATLAB/old/PlotData/data/*
+MATLAB/old/Figures/*
 .DS_Store
+*.m~

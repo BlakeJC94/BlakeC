@@ -87,7 +87,6 @@ hold off;
 
 legend('Proliferative cells', 'Primed Cells', 'Location', 'Best');
 
-title('Average number of cells', 'Interpreter', 'latex');
 xlabel('Simulation time (hours)', 'Interpreter', 'latex'); 
 ylabel('CM population size', 'Interpreter', 'latex');
 
@@ -104,16 +103,13 @@ sampleindexmax = length(SimTime);
 height_data = zeros(sampleindexmax, TotalJobs); 
 
 for i = 1:TotalJobs
-    disp(i)
     loaddata =  LoadNonConstantLengthData([data_path 'sim_' num2str(i-1) '/results_from_time_0/cellstate.dat']);
     
     for j = 1:sampleindexmax
         y = loaddata{j}(4:4:end-1);
         y = sort(y,'descend');
         height_data(j, i) = y(1 + 9*(length(y)>=10));
-        
     end
-    
 end
 
 plot_height = zeros(1,sampleindexmax);
