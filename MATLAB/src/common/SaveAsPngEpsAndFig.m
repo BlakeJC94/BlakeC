@@ -24,7 +24,7 @@
 %
 % Edited by Ozzy on 11/08/2011
 
-function SaveAsPngEpsandFig(h,filename, pdfwidth, widthheightratio,pdflabelsize)
+function SaveAsPngEpsAndFig(h, filename, pdfwidth, widthheightratio, pdflabelsize)
 
 
 linewidth = 0.8;                              % line width in ? (between 1 and 3)

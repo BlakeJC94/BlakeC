@@ -85,7 +85,7 @@ plot(SimTime, TotalCells + TotalCellsStd, 'k--', ...
     SimTime, TotalCells - TotalCellsStd, 'k--');
 hold off;
 
-legend('Proliferative cells', 'Primed Cells', 'Location', 'Best');
+legend('Proliferative cells', 'Primed cells', 'Location', 'Best');
 
 xlabel('Simulation time (hours)', 'Interpreter', 'latex'); 
 ylabel('CM population size', 'Interpreter', 'latex');
